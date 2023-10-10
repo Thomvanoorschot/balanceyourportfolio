@@ -1,0 +1,3 @@
+Generate the tables by using this command:
+
+jet -source=postgres -dsn="user=thomvanoorschot94 password=RlIm14XopxWK host=ep-rough-rice-74457114.eu-central-1.aws.neon.tech dbname=neondb" -schema=public -path=./generated/jet_gen

@@ -1,0 +1,15 @@
+<div id="sectorWeightings" class="flex flex-col gap-2">
+    {{#each sectorWeightings}}
+    <div class="flex flex-1 justify-start items-center cursor-pointer transition duration-100 ease-in-out transform hover:-translate-y-1"
+         hx-trigger="click"
+         hx-target="#holdingList"
+         hx-post="/filter-holdings"
+    >
+        <div class="w-1/4 text-xs">{{SectorName}}</div>
+        <div class="text-xs pr-1">{{formatFloat Percentage}}</div>
+        <div class="flex w-full items-center">
+            <div class="h-4 bg-blue-300 w-[{{formatRelativePercentage Percentage sectorWeightings}}]"></div>
+        </div>
+    </div>
+    {{/each}}
+</div>

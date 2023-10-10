@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description"
+          content=" Historical End of Day, Intraday, and Live prices API,
+          with Fundamental Financial data API for more than 120,000 stocks, ETFs and funds all over the world.">
+
+    <meta name="author" content="EOD Historical Prices and Fundamental Data API">
+
+    <meta name="msvalidate.01" content="F40F799DD24D33E815D013791D546E2A"/>
+    <meta name="yandex-verification" content="fa0c11654b84744e"/>
+    <meta name="yandex-verification" content="aeaba44e762c6100"/>
+    <meta name="trustpilot-one-time-domain-verification-id" content="ae391fb6-1bb5-44d1-a112-130f87b7dd63"/>
+
+    <meta property='og:title' content='Fundamental, EOD Historical prices and Financial Data API'/>
+    <meta property='og:image'
+          content='https://eodhd.com/img/main.png'/>
+    <meta property='og:description'
+          content='Financial Data API including EOD historical data API and Fundamental Data API. More than 60+ stock exchanges all around the world and 120.000 securities in total.'/>
+    <meta property='og:url' content='https://eodhd.com'/>
+
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="Fundamental, EOD Historical prices and Financial Data API"/>
+    <meta name="twitter:description"
+          content="Financial Data API including EOD historical data API and Fundamental Data API. More than 60+ stock exchanges all around the world and 120.000 securities in total."/>
+    <meta name="twitter:image"
+          content="https://eodhd.com/img/main.png"/>
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+    <title>Historical Prices and Fundamental Financial Data API</title>
+
+    <link rel="preload" href="/fonts/Poppins-Regular.ttf" as="font" crossorigin="anonymous"/>
+    <link rel="preload" href="/fonts/Poppins-Medium.ttf" as="font" crossorigin="anonymous"/>
+    <link rel="preload" href="/fonts/Poppins-SemiBold.ttf" as="font" crossorigin="anonymous"/>
+    <link rel="preload" href="/fonts/Poppins-Bold.ttf" as="font" crossorigin="anonymous"/>
+
+    <link href="/css/eod.min.css?id=1dd15984134c9eac0066244189de2787" rel="stylesheet">
+    <link rel="stylesheet" href="/vendor/jquery-confirm.min.css">
+
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-KPFLNB9');
+    </script>
+
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        //back compatibility
+        function ga() {
+            if (arguments[0] === 'send' && arguments[1] === 'event') {
+                gtag('event', arguments[2], {'event_label': arguments[4], 'value': arguments[3]});
+            }
+        }
+    </script>
+
+    
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <script src="/vendor/jquery/jquery.min.js"></script>
+
+    
+    
+    
+    
+    </head>
+<body id="page-top">
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KPFLNB9"
+                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+
+<header id="master_head" class="unmin">
+    <div class="wrapper">
+        <div class="top_panel">
+            <div class="container">
+                <ul id="quotations">
+                                            <li>
+                    <span class="eod_ticker" role="eod_ticker">
+                        <span role="name">AAPL</span>
+                        <span class="eod_t eod_t_aapl_us eod_realtime"
+                              data-target="AAPL.US" role="close">
+                            176.08
+                        </span>
+                    </span>
+                        </li>
+                                            <li>
+                    <span class="eod_ticker" role="eod_ticker">
+                        <span role="name">TSLA</span>
+                        <span class="eod_t eod_t_tsla_us eod_realtime"
+                              data-target="TSLA.US" role="close">
+                            246.99
+                        </span>
+                    </span>
+                        </li>
+                                            <li>
+                    <span class="eod_ticker" role="eod_ticker">
+                        <span role="name">AMZN</span>
+                        <span class="eod_t eod_t_amzn_us eod_realtime"
+                              data-target="AMZN.US" role="close">
+                            131.27
+                        </span>
+                    </span>
+                        </li>
+                                            <li>
+                    <span class="eod_ticker" role="eod_ticker">
+                        <span role="name">BTC-USD</span>
+                        <span class="eod_t eod_t_btc-usd_cc eod_realtime"
+                              data-target="BTC-USD.CC" role="close">
+                            26347.4004
+                        </span>
+                    </span>
+                        </li>
+                                            <li>
+                    <span class="eod_ticker" role="eod_ticker">
+                        <span role="name">ETH-USD</span>
+                        <span class="eod_t eod_t_eth-usd_cc eod_realtime"
+                              data-target="ETH-USD.CC" role="close">
+                            1590.1107
+                        </span>
+                    </span>
+                        </li>
+                                            <li>
+                    <span class="eod_ticker" role="eod_ticker">
+                        <span role="name">EURUSD</span>
+                        <span class="eod_t eod_t_eurusd_forex eod_realtime"
+                              data-target="EURUSD.FOREX" role="close">
+                            1.0593
+                        </span>
+                    </span>
+                        </li>
+                                    </ul>
+            </div>
+        </div>
+        <div class="mobile">
+            <div class="container">
+                <div class="burger"></div>
+                <a class="logo" href="/">
+                    <img src="/img/EOD_logo_w.svg"/>
+                </a>
+                <div></div>
+            </div>
+        </div>
+        <div class="desktop">
+            <div class="main">
+                <div class="container">
+                    <a class="logo" href="/">
+                        <img src="/img/EOD_logo_w.svg"/>
+                    </a>
+                    <nav>
+                        <ul id="main_menu">
+                            <li class="home_link"><a href="/">Home</a></li>
+                            <li>
+                                <a href="/#pricing_plans">Data Bundles</a>
+                            </li>
+                            <li class="has_children">
+                                <a href="https://eodhd.com/financial-apis/">
+                                    Documentation
+                                </a>
+                                <ul>
+                                    <li>
+                                        <a href="https://eodhd.com/financial-apis/stock-etfs-fundamental-data-feeds/">
+                                            Fundamental API
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="https://eodhd.com/financial-apis/live-realtime-stocks-api/">
+                                            Live/Delayed API
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="https://eodhd.com/financial-apis/api-for-historical-data-and-volumes/">
+                                            End Of Day API
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="https://eodhd.com/financial-apis/intraday-historical-data-api/">
+                                            Intraday API
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="https://eodhd.com/financial-apis/new-real-time-data-api-websockets/">
+                                            Real-time via WebSockets
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="https://eodhd.com/financial-apis/google-sheets-financial-add-in-for-eod-fundamentals-data/">
+                                            Google Sheets
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="https://eodhd.com/financial-apis/excel-financial-add-in-fundamentals-end-of-day-charts/">
+                                            Excel Add-In
+                                        </a>
+                                    </li>
+                                    <li class="blue">
+                                        <a href="https://eodhd.com/financial-apis/">
+                                            Full Documentation
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="/financial-academy/">Academy</a>
+                            </li>
+                            <li>
+                                <a href="/financial-apis-blog/">Blog</a>
+                            </li>
+                            <li>
+                                <a href="/pricing"
+                                   class="">
+                                    Pricing
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <div class="account on">
+                                                    <a class="btn light" href="/login">
+                                Login
+                            </a>
+                            <a class="btn light" href="/register">
+                                Registration
+                            </a>
+                                            </div>
+                </div>
+            </div>
+        </div>
+        <div class="carriage"></div>
+    </div>
+    <div class="bg"></div>
+</header>
+<div id="ajax_result">
+</div>
+
+
+    
+    <div class="facade orange_bg section_pd">
+        <div class="container">
+            <div class="block">
+                <div class="period">30+ years of data</div>
+                <h1>Financial Data APIs</h1>
+                <p class="context">1,016,302,560 data points and counting <span>as of Sep 25, 2023</span></p>
+                <div class="stats">
+                    <strong>70+ stock exchanges all over the world</strong>
+                    <div>
+                        <span>30+ years of data</span>
+                        <span>|</span>
+                        <span>150,000+ tickers</span>
+                        <span>|</span>
+                        <span>20000+ ETFs</span>
+                        <span>|</span>
+                        <span>600+ indices</span>
+                        <span>|</span>
+                        <span>1100+ forex pairs</span>
+                    </div>
+                </div>
+            </div>
+            <ul style="font-size: 20px">
+                <li>
+                    <a href="https://eodhd.com/financial-apis/stock-etfs-fundamental-data-feeds/"
+                       class="datatypes_anchor">
+                        fundamentals
+                    </a>
+                </li>
+                <li><a href="https://eodhd.com/financial-apis/api-for-historical-data-and-volumes/"
+                       class="datatypes_anchor">
+                        end of day
+                    </a>
+                </li>
+                <li><a href="https://eodhd.com/financial-apis/new-real-time-data-api-websockets/"
+                       class="datatypes_anchor">
+                        real-time
+                    </a>
+                </li>
+                <li><a href="https://eodhd.com/financial-apis/live-realtime-stocks-api/"
+                       class="datatypes_anchor">
+                        delayed
+                    </a>
+                </li>
+                <li><a href="https://eodhd.com/financial-apis/technical-indicators-api/"
+                       class="datatypes_anchor">
+                        technical
+                    </a>
+                </li>
+                <li><a href="https://eodhd.com/financial-apis/intraday-historical-data-api/"
+                       class="datatypes_anchor">
+                        intraday
+                    </a>
+                </li>
+                <li><a href="https://eodhd.com/financial-apis/stock-market-screener-api/"
+                       class="datatypes_anchor">
+                        screener
+                    </a>
+                </li>
+                <li><a href="https://eodhd.com/financial-apis/category/alternative-data-financial-api/"
+                       class="datatypes_anchor">
+                        alternative
+                    </a>
+                </li>
+                <li><a href="https://eodhd.com/financial-apis/economic-data-api/"
+                       class="datatypes_anchor">
+                        economic
+                    </a>
+                </li>
+                <li><a href="https://eodhd.com/financial-apis/landing-delisted/"
+                       class="datatypes_anchor">
+                        delisted
+                    </a>
+                </li>
+                <li><a href="https://eodhd.com/financial-apis/list-supported-forex-currencies/"
+                       class="datatypes_anchor">
+                        forex pairs
+                    </a>
+                </li>
+                <li>
+                    <a href="https://eodhd.com/financial-apis/google-sheets-financial-add-in-for-eod-fundamentals-data//"
+                       class="datatypes_anchor">
+                        spreadsheets
+                    </a>
+                </li>
+            </ul>
+            <div class="search_box">
+                <input id="search_input" type="text" autocomplete="off" placeholder="Type AAPL or Apple as an example"/>
+                <div class="result">
+                    <table class="data_table">
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="count_line">
+            </div>
+
+            <div class="top_items">
+                <div class="buttons">
+                                            <a class="btn_arrow" href="/register" onclick="">
+                            Free trial version
+                        </a>
+                                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function debounce(fn, delay) {
+            let timer = null;
+            return function () {
+                let context = this, args = arguments;
+                clearTimeout(timer);
+                timer = setTimeout(function () {
+                    fn.apply(context, args);
+                }, delay);
+            };
+        }
+
+        $('#search_input').keyup(debounce(function (e) {
+            if (!e.target.value) return;
+            $.getJSON("/api/query-search-extended/?q=" + e.target.value, function (data) {
+                let table = '';
+                $.each(data, function (i, item) {
+                    let icon = item['image'] ? ' style="background-image: url(' + item['image'] + ')" ' : '';
+                    table += '<tr>\
+                        <td class="icon"><div ' + icon + ' ></div></td>\
+                        <td>\
+                            <a href="' + item['link'] + '">\
+                            ' + item['code'] + '.' + item['exchange'] + '\
+                            </a>\
+                        </td>\
+                        <td>\
+                            <a href="' + item['link'] + '">\
+                            ' + item['name'] + '\
+                            </a>\
+                        </td>\
+                        <td class="val">' + item['open'] + '</td>\
+                        <td class="val">' + item['high'] + '</td>\
+                        <td class="val">' + item['low'] + '</td>\
+                        <td class="val">' + item['close'] + '</td>\
+                        <td class="val">&nbsp;</td>\
+                        <td class="links">\
+                            <a class="download" href="/api/sample/' + item['code'] + '.' + item['exchange'] + '" download></a>\
+                            <a class="arrow" href="' + item['link'] + '"></a>\
+                        </td>\
+                    </tr>';
+                    if (i > 6) return false;
+                });
+                $('.search_box .data_table tbody').html(table);
+            });
+        }, 400));
+    </script>
+
+    <div class="section_mg" style="margin-top: 20px; margin-bottom: 20px;">
+        <div class="container">
+            <div class="h3 center" style="font-weight: normal;">Feel free to compare our data sources with any other
+                data provider
+            </div>
+            <a href="/financial-apis/our-data-sources-and-data-partners/" class="partners_box">
+                <img src="/img/partners/partner_1.png" alt="Nasdaq">
+                <img src="/img/partners/partner_2.png" alt="Cboe">
+                <img src="/img/partners/partner_3.png" alt="Benzinga">
+                <img src="/img/partners/partner_4.png" alt="Altova">
+                <img src="/img/partners/partner_5.png" alt="U.S. Securities and Exchange Commission">
+                <img src="/img/partners/partner_7.png" alt="ASX">
+                <img src="/img/partners/partner_8.png" alt="NEO">
+                <img src="/img/partners/partner_9.png" alt="QuoteMedia">
+                <img src="/img/partners/partner_10.png" alt="London Stock Exchange Group">
+                <img src="/img/partners/partner_11.png" alt="Nasdaq OMX">
+                <img src="/img/partners/partner_12.png" alt="S&P Global">
+                <img src="/img/partners/partner_13.png" alt="JS">
+            </a>
+        </div>
+    </div>
+
+    <div class="section_mg">
+        <div class="container">
+            <!-- TrustBox script -->
+            <script type="text/javascript" src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
+            <!-- End TrustBox script -->
+
+            <!-- TrustBox widget - Carousel -->
+            <div class="trustpilot-widget" data-locale="en-GB" data-template-id="53aa8912dec7e10d38f59f36" data-businessunit-id="6501aa8d25ecf7dd85d9a3c9" data-style-height="140px" data-style-width="100%" data-theme="light" data-stars="4,5" data-review-languages="en">
+                <a href="https://uk.trustpilot.com/review/eodhd.com" target="_blank" rel="noopener">Trustpilot</a>
+            </div>
+            <!-- End TrustBox widget -->
+        </div>
+    </div>
+    <div class="section_mg">
+        <div class="container">
+            <div class="h1">Robust, powerful and easy to use APIs</div>
+            <h2 class="h2">Our advantages</h2>
+            <div class="advantages">
+                <div class="item">
+                    <h3 class="h3" style="background-image: url(/img/icons/advantages_1.svg)">Prices start at
+                        <span style="color: #F05F40;">
+                            €<span>19.99</span>
+                        </span>
+                    </h3>
+                    <p>Flexible plans</p>
+                    <p>No long-term obligation, <strong>only monthly subscriptions</strong></p>
+                    <a href="/pricing">
+                        <div class="btn_arrow blue">All pricing plans</div>
+                    </a>
+                </div>
+                <div class="item">
+                    <h3 class="h3" style="background-image: url(/img/icons/advantages_2.svg)">
+                        Fast+ support 24/7 via web-chat and email
+                    </h3>
+                    <p>Usually we <strong>answer in several minutes</strong> and fix 99.9% of issues within hours or
+                        even
+                        faster.</p>
+                </div>
+                <div class="item">
+                    <h3 class="h3" style="background-image: url(/img/icons/advantages_3.svg)">Robust, powerful and
+                        reliable
+                        data</h3>
+                    <p>We <strong>use several data providers</strong> to compare data against different sources and
+                        deliver
+                        the best.</p>
+                </div>
+                <div class="item">
+                    <h3 class="h3" style="background-image: url(/img/icons/advantages_4.svg)">One click API for all
+                        financial data you need</h3>
+                    <p>We <strong>cover most cases</strong> starting from EOD and Live data and ending with Screener,
+                        Fundamentals and Real-time.</p>
+                </div>
+            </div>
+            <h4 class="context" style="margin-top:50px;">
+                Easy-to-use JSON and CSV APIs for your financial needs
+            </h4>
+            <div class="advantages">
+                <div class="item json_box col2">
+                    <pre>
+General: {
+    Code: <span>AAPL</span>,
+    Type: <span>Common Stock</span>,
+    Name: <span>Apple Inc</span>,
+    Exchange: <span>NASDAQ</span>,
+    CurrencyCode: <span>USD</span>,
+    CurrencyName: <span>US Dollar</span>,
+    CurrencySymbol: <span>$</span>,
+    CountryName: <span>USA</span>,
+    CountryISO: <span>US</span>,
+    ISIN: <span>US0378331005</span>,
+    CUSIP: <span>037833100</span>,
+    CIK: <span>0000320193</span>,
+    EmployerIdNumber: <span>94-2404110</span>,
+    FiscalYearEnd: <span>September</span>,
+    IPODate: <span>1980-12-12</span>,
+    InternationalDomestic: <span>International/Domestic</span>,
+    Sector: <span>Technology</span>,
+    Industry: <span>Consumer Electronics</span>,
+    GicSector: <span>Information Technology</span>,
+    GicGroup: <span>Technology Hardware & Equipment</span>,
+    GicIndustry: <span>Technology Hardware, Storage & Peripherals</span>,
+    GicSubIndustry: <span>Technology Hardware, Storage & Peripherals</span>,
+    HomeCategory: <span>Domestic</span>,
+    IsDelisted: <span class="bool">false</span>
+}
+</pre>
+                </div>
+                <div class="item col2">
+                    <h3 class="h3" style="max-width: 300px; background-image: url(/img/icons/advantages_5.svg)">
+                        Quick start with sample codes
+                    </h3>
+                    <p class="black_font" style="max-width: 300px;">
+                        Excel/VBA, Google Sheets, Python, PHP, JAVA, C#, R, Matlab, and more...
+                    </p>
+                    <div class="pl_logotips">
+                        <a href="https://eodhd.com/financial-apis/python-example/">
+                            <img src="/img/theme/pl_logo_1.svg" alt="Financial APIs Python Example" async>
+                        </a>
+                        <a href="https://eodhd.com/financial-apis/php-laravel-example/">
+                            <img src="/img/theme/pl_logo_2.svg" alt="Financial APIs PHP Laravel Example" async>
+                        </a>
+                        <a href="https://eodhd.com/financial-apis/java-stock-api-example/">
+                            <img src="/img/theme/pl_logo_3.svg" alt="Financial APIs Java Example" async>
+                        </a>
+                        <a href="https://eodhd.com/financial-apis/c-net-api-stock-wrapper/">
+                            <img src="/img/theme/pl_logo_4.svg" alt="Financial APIs C# Example" async>
+                        </a>
+                        <a href="https://eodhd.com/financial-apis/matlab-api-connector-and-example/">
+                            <img src="/img/theme/pl_logo_5.svg" alt="Financial APIs MatLab Example" async>
+                        </a>
+                        <a href="https://eodhd.com/financial-apis/r-language-example/">
+                            <img src="/img/theme/pl_logo_6.svg" alt="Financial APIs R-Language Example" async>
+                        </a>
+                        <a href="https://eodhd.com/financial-apis/excel-vba-api-downloader/">
+                            <img src="/img/theme/pl_logo_7.svg" alt="Financial APIs Excel/VBA Example" async>
+                        </a>
+                        <a href="https://eodhd.com/financial-apis/curl-wget-stock-api-examples/">
+                            <img src="/img/theme/pl_logo_8.svg" alt="Financial APIs Bash/Wget/Curl Example" async>
+                        </a>
+
+                    </div>
+                    <div class="grid_with_btn" style="margin-top: 20px;">
+                        <p></p>
+                        <a class="btn_arrow blue"
+                           href="https://eodhd.com/financial-apis/category/excel-python-php-laravel-java-matlab-examples/">
+                            All Code Examples
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <h4 class="context" style="margin-top:50px;" id="ready-to-go-solutions">
+                Ready-to-go solutions
+            </h4>
+            <div class="advantages">
+                <div class="item col4">
+                    <div class="grid_with_btn">
+                        <p class="black_font">
+                            Our easy-to-use no-coding solutions help you get the data directly to <b>MS Excel</b> and
+                            Google Sheets.<br>
+                            Or download the <b>CSV (TXT) files</b> effortlessly with tools for Windows and Linux.
+                        </p>
+                        <a class="btn_arrow blue"
+                           href="https://eodhd.com/financial-apis/category/stock-prices-solutions/">
+                            Ready-to-Go Solutions
+                        </a>
+                    </div>
+                    <div class="solutions_list">
+                        <a class="py active"
+                           href="/financial-apis/python-financial-apis-sdk/">
+                            Python<br>APIs SDK
+                        </a>
+                        <a class="ex active"
+                           href="/financial-apis/excel-vba-api-downloader/">
+                            Excel Financial Add-In
+                        </a>
+                        <a class="gs active"
+                           href="/financial-apis/google-sheets-financial-add-in-for-eod-fundamentals-data/#Google_Sheets_Financial_Add-In">
+                            Google Sheets Financial Add-In
+                        </a>
+                        <a class="lin active"
+                           href="/financial-apis/windows-downloader-end-of-day-data/#Linux_Downloader_for_EOD_API">
+                            Linux Downloader
+                        </a>
+                        <a class="win active"
+                           href="/financial-apis/windows-downloader-end-of-day-data/">
+                            Windows Downloader
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="orange_bg get_api_box">
+        <div class="container">
+            <div>
+                                    <div class="h2">Register now<br>Free trial</div>
+                    <p>No credit cards required</p>
+                    <a class="btn white" href="/register">
+                        Get free API key
+                    </a>
+                            </div>
+            <nav class="documentation_links">
+                <a class="h2" href="https://eodhd.com/financial-apis/">
+                    Full Documentation
+                </a>
+                <a href="https://eodhd.com/financial-apis/stock-etfs-fundamental-data-feeds/">
+                    Fundamentals API
+                </a>
+                <a href="https://eodhd.com/financial-apis/api-for-historical-data-and-volumes/">
+                    End Of Day API
+                </a>
+                <a href="https://eodhd.com/financial-apis/live-realtime-stocks-api/">
+                    Live/Delayed Data API
+                </a>
+                <a href="https://eodhd.com/financial-apis/intraday-historical-data-api/">
+                    Intraday Data API
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <div class="section_pd">
+        <div id="pricing_plans" class="container pricing_plans">
+            <h2 class="h2">
+                <a href="/pricing">
+                    Data Bundles
+                </a>
+            </h2>
+            <div class="grid">
+                <p class="col2">
+                    No long-term obligations. The minimum period is <strong>one month only</strong>.
+                    No wait. You get an API key with instructions in a few seconds right after subscription.
+                </p>
+                <a class="btn" href="/pricing">
+                    Compare prices
+                </a>
+                <!--ALL-IN-ONE-->
+                <div id="plan_all_in_one" class="item save">
+                    <div class="header">
+                        <div class="flex">
+                            <h3 class="h3">All-In-One</h3>
+                            <div class="tooltip right_side">
+                                <span class="sale_tag">Value €150</span>
+                                <div class="tooltip_box">
+                                    <div>
+                                        <b>Take All-In-One package<br> for €79.99
+                                            /month</b><br>
+                                        <br>
+                                        <b>It includes:</b>
+                                        <ul>
+                                            <li>€29.99 EOD Historical Data<br> All
+                                                World
+                                            </li>
+                                            <li>€49.99 Fundamentals</li>
+                                            <li>€19.99 Options</li>
+                                            <li>€49.99 Bonds</li>
+                                        </ul>
+                                        <b>Total €149.80</b><br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="cost">€<span>79.99</span>/month</span>
+                    </div>
+
+                    <ul>
+                        <li>100 000+ API requests per day</li>
+                        <li>EOD Data - All World Extended</li>
+                        <li>Realtime Data via WebSockets</li>
+                        <li>Fundamental Data</li>
+                        <li>Bonds Data</li>
+                        <li>Economic Data</li>
+                        <li>Splits and Dividends</li>
+                        <li>US Tick Data (Beta)</li>
+                    </ul>
+
+                    <div class="footer">
+                        <div>
+            <a href="/register" class="btn blue">
+            Login/Register
+        </a>
+    </div>                    </div>
+
+                    <div class="line"></div>
+                </div>
+
+                <!--ALL WORLD-->
+                <div id="plan_all_world" class="item">
+                    <div class="header">
+                        <h3 class="h3">EOD - All World</h3>
+                        <span class="cost">€<span>19.99</span>/month</span>
+                    </div>
+
+                    <ul>
+                        <li>100 000 API requests per day</li>
+                        <li>EOD and Live API</li>
+                        <li>60+ stock exchanges</li>
+                        <li>100+ Indexes</li>
+                        <li>1000+ FOREX pairs</li>
+                        <li>Adjusted closes included</li>
+                        <li>Splits and Dividends included</li>
+                    </ul>
+
+                    <div class="footer">
+                        <div>
+            <a href="/register" class="btn blue">
+            Login/Register
+        </a>
+    </div>                    </div>
+                </div>
+
+                <!--FUNDAMENTALS-->
+                <div id="plan_fundamentals" class="item">
+                    <div class="header">
+                        <h3 class="h3">Fundamentals Data Feed</h3>
+                        <span class="cost">€<span>49.99</span>/month</span>
+                    </div>
+
+                    <ul>
+                        <li>100 000 API requests per day</li>
+                        <li>20+ years of Financial Reports</li>
+                        <li>10+ years of EPS</li>
+                        <li>All company details data</li>
+                        <li>60+ world exchanges</li>
+                        <li>20 0000+ Mutual Funds</li>
+                        <li>6000+ ETFs</li>
+                    </ul>
+
+                    <div class="footer">
+                        <div>
+            <a href="/register" class="btn blue">
+            Login/Register
+        </a>
+    </div>                    </div>
+                </div>
+
+                <!--ALL WORLD EXTENDED-->
+                <div id="plan_all_world_extended" class="item">
+                    <div class="header">
+                        <h3 class="h3">All World Extended</h3>
+                        <span class="cost">€<span>29.99</span>/month</span>
+                    </div>
+
+                    <ul>
+                        <li>100 000 API requests per day</li>
+                        <li>Realtime Data via WebSockets</li>
+                        <li>Screener + Intraday Data</li>
+                        <li>Technical Indicators</li>
+                        <li>+EOD All World Data Feeds</li>
+                        <li>US Tick Data (Beta)</li>
+                    </ul>
+
+                    <div class="footer">
+                        <div>
+            <a href="/register" class="btn blue">
+            Login/Register
+        </a>
+    </div>                    </div>
+                </div>
+
+                <!--CALENDAR API-->
+                <div id="plan_calendar_api" class="item">
+                    <div class="header">
+                        <h3 class="h3">Calendar Data Feed</h3>
+                        <span class="cost">€<span>19.99</span>/month</span>
+                    </div>
+
+                    <ul>
+                        <li>100 000 API requests per day</li>
+                        <li>Upcoming Earnings</li>
+                        <li>Upcoming IPOs</li>
+                        <li>Upcoming Splits</li>
+                        <li>60+ supported exchanges</li>
+                    </ul>
+
+                    <div class="footer">
+                        <a href="/register" class="btn blue">
+        Login/Register
+    </a>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="h3">For students and for academic purposes up to 50% off</h3>
+            <p>
+                Students can take advantage of our 50% discount on all our subscriptions for development of internal
+                projects and any educational or scientific purposes. Please contact sales to request a quote at
+                <a href="mailto:support@eodhistoricaldata.com">support@eodhistoricaldata.com</a>
+            </p>
+        </div>
+    </div>
+    <div class="orange_bg get_api_box">
+        <div class="container">
+            <div>
+                                    <div class="h2">Register now<br>Free trial</div>
+                    <p>No credit cards required</p>
+                    <a class="btn white" href="/register">
+                        Get free API key
+                    </a>
+                            </div>
+            <div class="chart_1"><img src="/img/theme/chart_1.jpg" async></div>
+            <div class="chart_2"><img src="/img/theme/chart_2.jpg" async></div>
+        </div>
+    </div>
+
+    <div class="section_mg">
+        <div class="h2">
+            The latest published features from our
+            <a href="https://eodhd.com/financial-apis-blog/">
+                Financial APIs Blog
+            </a>
+        </div>
+        <div class="our_features">
+                            <div class="post">
+                    <img class="cover" async src="https://eodhd.com/financial-apis-blog/wp-content/uploads/2023/09/us_ticks_market_data_api.jpg" loading="lazy">
+                    <div class="plate">
+                        <time>September 21, 2023</time>
+                        <h3 class="h3">US Stock Market Tick Data API</h3>
+                        <p>We’re proud to announce the release of our US Stock Market Tick Data API, tailored specifically for developers focusing on financial applications an...</p>
+                        <a href="https://eodhd.com/financial-apis-blog/us-stock-market-ticks-data-api/">Learn more</a>
+                        <br>
+                        <a class="btn_arrow red" href="/financial-apis-blog/">
+                            Our blog
+                        </a>
+                    </div>
+                </div>
+                            <div class="post">
+                    <img class="cover" async src="https://eodhd.com/financial-apis-blog/wp-content/uploads/2023/05/additional_financial_api_calls.jpg" loading="lazy">
+                    <div class="plate">
+                        <time>May 4, 2023</time>
+                        <h3 class="h3">Additional API Calls – Scale Your Needs Seamlessly</h3>
+                        <p>We are excited to announce a new feature for our users: Additional API Calls. This will enable you to scale your projects seamlessly and without inter...</p>
+                        <a href="https://eodhd.com/financial-apis-blog/additional-api-calls-scale-your-needs-seamlessly/">Learn more</a>
+                        <br>
+                        <a class="btn_arrow red" href="/financial-apis-blog/">
+                            Our blog
+                        </a>
+                    </div>
+                </div>
+                            <div class="post">
+                    <img class="cover" async src="https://eodhd.com/financial-apis-blog/wp-content/uploads/2023/03/statistics-chart.jpg" loading="lazy">
+                    <div class="plate">
+                        <time>March 16, 2023</time>
+                        <h3 class="h3">Introducing Charts for API Usage for Enhanced Insights</h3>
+                        <p>We are thrilled to announce the latest addition to our financial data services: API Usage Charts. This powerful new feature is designed to provide you...</p>
+                        <a href="https://eodhd.com/financial-apis-blog/introducing-charts-for-api-usage-for-enhanced-insights/">Learn more</a>
+                        <br>
+                        <a class="btn_arrow red" href="/financial-apis-blog/">
+                            Our blog
+                        </a>
+                    </div>
+                </div>
+                    </div>
+    </div>
+
+    
+<div class="section_mg social_segment">
+    <div class="container">
+        <div class="h2">Still have any questions?</div>
+        <div>
+            <p>Or need any other data for equities, funds or ETFs? Send us an email.</p>
+            <a class="mail"
+               href="mailto:support@eodhistoricaldata.com">
+                support@eodhistoricaldata.com
+            </a>
+            <div class="social_links">
+                <a href="https://www.facebook.com/eodhistoricaldata" target="_blank">
+                    <img alt="facebook" src="/img/icons/soc_fa.svg"/>
+                    <img class="hover" src="/img/icons/soc_fa_b.svg"/>
+                </a>
+                <a href="https://twitter.com/EOD_data" target="_blank">
+                    <img alt="twitter" src="/img/icons/soc_tw.svg"/>
+                    <img class="hover" src="/img/icons/soc_tw_b.svg"/>
+                </a>
+                <a href="https://www.reddit.com/r/EODHistoricalData/" target="_blank">
+                    <img alt="reddit" src="/img/icons/soc_re.svg"/>
+                    <img class="hover" src="/img/icons/soc_re_b.svg"/>
+                </a>
+                <a href="https://eod-historical-data.medium.com/" target="_blank">
+                    <img alt="" src="/img/icons/soc_.svg"/>
+                    <img class="hover" src="/img/icons/soc__b.svg"/>
+                </a>
+                <a href="/financial-apis-blog/" target="_blank">
+                    <img alt="rss" src="/img/icons/rss.svg"/>
+                    <img class="hover" src="/img/icons/rss_b.svg"/>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="section_pd basement">
+    <div class="container">
+        <img class="greffes" width="80" src="/img/greffes.png"/>
+        <div class="info">
+            <p class="b">Unicorn Data Services</p>
+            <p>835 149 998 R.C.S. LYON <br>Greffe du tribunal de Commerce de LYON</p>
+            <p>Address: LE FORUM, 27 rue Maurice<br>Flandin, 69003 Lyon, France.</p>
+            <p>Email: <a href="mailto:support@eodhistoricaldata.com">support@eodhistoricaldata.com</a>
+            </p>
+        </div>
+        <div class="policy">
+            <p class="b">
+                <a href="/financial-apis/privacy-policy/">Privacy
+                    Policy</a>
+                <a href="/financial-apis/terms-conditions/">Terms
+                    and Conditions</a>
+                <a href="/financial-apis/eodhd-affiliate-program/">Affiliate Program</a>
+            </p>
+            <p class="s">EOD Historical Data would like to remind you that the data contained in this website and via
+                API is not necessarily real-time nor accurate. All CFDs (stocks, indices, mutual funds, ETFs),
+                and Forex are not provided by exchanges but rather by market makers, and so prices may
+                not be accurate and may differ from the actual market price, meaning prices are indicative and not
+                appropriate for trading purposes. Therefore EOD Historical Data doesn’t bear any responsibility for any
+                trading losses you might incur as a result of using this data. EOD Historical Data or anyone involved
+                with EOD Historical Data will not accept any liability for loss or damage as a result of reliance on the
+                information including data, quotes, charts and buy/sell signals contained within this website. Please be
+                fully informed regarding the risks and costs associated with trading the financial markets, it is one
+                of the riskiest investment forms possible. EOD Historical Data does not give any warranties (including,
+                without limitation, as to merchantability or fitness for a particular purpose or use). Without
+                limitation to this clause, EOD Historical Data does not warrant that access to the Website will not
+                expose the User to viruses or other harmful items and no assurance can be given that the Website or any
+                linked website will not harm or cause loss to the User, or the User’s computer or network.</p>
+        </div>
+        <div class="copyright b">© Unicorn Data Services, 2017-2023</div>
+    </div>
+</footer>
+
+
+<div id="run_fresh_chat" class="d-hotline h-btn animated zoomIn faster   " tabindex="0" role="button"
+     data-ember-action="" data-ember-action-4="4">
+    <div class="chat-content">
+        <img width="24" src="/img/icons/fresh_chat.png">
+    </div>
+    <div class=" ">
+        <span aria-hidden="true"></span>
+    </div>
+</div>
+
+<div class="fixed-bottom js-cookie-consent cookie-consent cookie_panel">
+    <div>
+        <span class="cookie-consent__message">
+           
+            We use cookies to give you the best online experience.
+            By using our website you agree to our use of cookies in accordance with our
+            <a href="https://eodhd.com/knowledgebase/cookie-policy/" target="_blank">cookie policy</a>.
+        </span>
+        <button class="js-cookie-consent-agree cookie-consent__agree btn">
+            
+            OK
+        </button>
+    </div>
+</div>
+
+    <script>
+
+        window.laravelCookieConsent = (function () {
+
+            var COOKIE_VALUE = 1;
+
+            function consentWithCookies() {
+                setCookie('laravel_cookie_consent', COOKIE_VALUE, 365 * 20);
+                hideCookieDialog();
+            }
+
+            function cookieExists(name) {
+                return (document.cookie.split('; ').indexOf(name + '=' + COOKIE_VALUE) !== -1);
+            }
+
+            function hideCookieDialog() {
+                gtag('consent', 'update', {
+                    'ad_storage': 'granted'
+                });
+                var dialogs = document.getElementsByClassName('js-cookie-consent');
+
+                for (var i = 0; i < dialogs.length; ++i) {
+                    dialogs[i].style.display = 'none';
+                }
+            }
+
+            function setCookie(name, value, expirationInDays) {
+                var date = new Date();
+                date.setTime(date.getTime() + (expirationInDays * 24 * 60 * 60 * 1000));
+                document.cookie = name + '=' + value + '; ' + 'expires=' + date.toUTCString() +';path=/';
+            }
+
+            if(cookieExists('laravel_cookie_consent')) {
+                hideCookieDialog();
+            }
+
+            var buttons = document.getElementsByClassName('js-cookie-consent-agree');
+
+            for (var i = 0; i < buttons.length; ++i) {
+                buttons[i].addEventListener('click', consentWithCookies);
+            }
+
+            return {
+                consentWithCookies: consentWithCookies,
+                hideCookieDialog: hideCookieDialog
+            };
+        })();
+    </script>
+
+<script>var csrf = "2jX5IhKFniOEnsw6bmkEfomht9aM0QuZF6qfDZ7e";</script>
+
+<noscript>
+    <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=773060106484382&ev=PageView&noscript=1"/>
+</noscript>
+
+<script src="/vendor/jquery-confirm.min.js"></script>
+<script src="/vendor/jquery-easing/jquery.easing.min.js" async></script>
+<script src="/vendor/scrollreveal/scrollreveal.min.js" async></script>
+<script src="/js/creative.min.js?id=d374200d8daee4cea215a3728113f60e" async></script>
+
+<script>
+    function run_fresh_chat() {
+        fcJS = document.createElement('script');
+        fcJS.async = false;
+        fcJS.src = 'https://wchat.freshchat.com/js/widget.js';
+        fcJS.onload = initFreshChat;
+        document.head.appendChild(fcJS);
+    }
+
+    function initFreshChat() {
+        window.fcWidget.init({
+            token: "3566dfa0-7c66-471b-8225-1b44e0ae29e4",
+            host: "https://wchat.freshchat.com",
+        });
+                window.fcWidget.open();
+    }
+
+    $(function () {
+        // Init freshchat by button click
+        $('#run_fresh_chat').click(function (e) {
+            run_fresh_chat();
+            e.currentTarget.remove();
+        });
+    });
+</script>
+
+
+
+    <div id="g_id_onload"
+         data-client_id="258473626842-uk9u22l9d1r1tsiarqrgpalrg9mvarfn.apps.googleusercontent.com"
+         data-login_uri="/auth/google"
+         data-_token="2jX5IhKFniOEnsw6bmkEfomht9aM0QuZF6qfDZ7e"
+         data-context="use"
+         data-skip_prompt_cookie="true"
+         data-itp_support="true">
+    </div>
+
+</body>
+</html>
