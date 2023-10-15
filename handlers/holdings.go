@@ -25,7 +25,7 @@ func FilterHoldings(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	return c.Render("partials/holdingList", fiber.Map{
+	return c.Render("partials/fundDetails/holdings", fiber.Map{
 		"itemList": fundHoldings,
 		"limit":    hf.Limit,
 		"offset":   hf.Offset + hf.Limit,

@@ -14,7 +14,7 @@ type Body struct {
 }
 
 func SearchPage(c *fiber.Ctx) error {
-	return c.Render("search", fiber.Map{})
+	return c.Render("pages/search", fiber.Map{})
 }
 
 func SearchFunds(c *fiber.Ctx) error {
@@ -23,7 +23,7 @@ func SearchFunds(c *fiber.Ctx) error {
 		return err
 	}
 	if b.SearchTerm == "" {
-		return c.Render("partials/searchResults", fiber.Map{
+		return c.Render("partials/search/results", fiber.Map{
 			"funds": nil,
 		}, "")
 	}
@@ -33,7 +33,7 @@ func SearchFunds(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	return c.Render("partials/searchResults", fiber.Map{
+	return c.Render("partials/search/results", fiber.Map{
 		"funds": funds,
 	}, "")
 }
@@ -52,7 +52,7 @@ func FundDetails(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	return c.Render("fundDetails", fiber.Map{
+	return c.Render("pages/fundDetails", fiber.Map{
 		"itemList":         fundDetails.Holdings,
 		"sectorList":       fundDetails.Sectors,
 		"sectorWeightings": fundDetails.SectorWeightings,

@@ -1,0 +1,51 @@
+<div class="flex relative flex-col m-20 border-2 border-slate-800 p-2">
+    <input class="text-2xl" type="text" placeholder="Portfolio name">
+    <table class="relative">
+        <tr class="relative">
+            <td><input type="checkbox"></td>
+            <td><input placeholder="Name or ticker"
+                       type="search"
+                       name="searchTerm"
+                       hx-post="/search"
+                       hx-trigger="keyup changed delay:500ms, search"
+                       hx-target="#test"></td>
+            <td><input placeholder="Amount" type="text"></td>
+            <ul id="test" class="absolute top-20">
+                {{#each funds}}
+                {{this.Ticker}}
+                {{/each}}
+            </ul>
+        </tr>
+        <tr class="relative" id="lastRow">
+            <td><input type="checkbox" onblur="lastRowClicked(this)"></td>
+            <td><input placeholder="Name or ticker" onblur="lastRowClicked(this)" type="text"></td>
+            <td><input placeholder="Amount" onblur="lastRowClicked(this)" type="text"></td>
+        </tr>
+    </table>
+    <div class="cursor-pointer pl-40 pr-40 pt-1 pb-1 mt-3 border-solid border-2 rounded  border-slate-800 p-2 hover:bg-slate-100">
+        Create portfolio
+    </div>
+</div>
+
+<script>
+    function lastRowClicked(item) {
+        item.removeAttribute("id")
+        const table = item.parentNode.parentNode.parentNode;
+        for (let i = 0; i < item.parentNode.parentNode.children.length; i++) {
+            item.parentNode.parentNode.children[i].children[0].removeAttribute("onblur")
+        }
+        let row = table.insertRow(-1)
+        row.id = "lastRow"
+        let c1 = row.insertCell(0);
+        let c2 = row.insertCell(1);
+        let c3 = row.insertCell(2);
+        c1.innerHTML = "<input type=\"checkbox\" onblur=\"lastRowClicked(this)\">"
+        c2.innerHTML = "<input placeholder=\"Name or ticker\" onblur=\"lastRowClicked(this)\" type=\"text\">"
+        c3.innerHTML = "<input placeholder=\"Amount\" onblur=\"lastRowClicked(this)\" type=\"text\">"
+    }
+</script>
+
+{{#each portfolioList}}
+<div>test</div>
+
+{{/each}}

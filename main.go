@@ -20,11 +20,17 @@ func main() {
 	})
 
 	app.Get("/upsert-vanguard-funds", handlers.UpsertVanguardFunds)
-	app.Get("/search", handlers.SearchPage)
-	app.Post("/search", handlers.SearchFunds)
-	app.Post("/filter-holdings", handlers.FilterHoldings)
-	app.Get("/fund-details", handlers.FundDetails)
-	app.Get("/portfolios", handlers.PortfoliosPage)
+
+	search := app.Group("/search")
+	search.Get("/", handlers.SearchPage)
+	search.Post("/", handlers.SearchFunds)
+
+	fundDetails := app.Group("/fund-details")
+	fundDetails.Get("/", handlers.FundDetails)
+	fundDetails.Post("/filter", handlers.FilterHoldings)
+
+	portfolios := app.Group("/portfolios")
+	portfolios.Get("/", handlers.PortfoliosPage)
 
 	app.Static(
 		"/static", // mount address

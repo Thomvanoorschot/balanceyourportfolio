@@ -30,3 +30,14 @@ func (r *Repository) UpsertFundHoldings(ctx context.Context, s []model.FundHoldi
 	}
 	return nil
 }
+
+//Select all funds that have ASML in top 10
+//SELECT rank_filter.* FROM (
+//SELECT h.ticker,fh.*,
+//rank() OVER (
+//PARTITION BY fh.fund_id
+//ORDER BY percentage_of_total DESC
+//)
+//FROM fund_holding fh
+//INNER JOIN holding h ON h.id = fh.holding_id
+//) rank_filter WHERE ticker = 'ASML' AND rank < 10;

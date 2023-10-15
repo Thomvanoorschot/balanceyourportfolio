@@ -9,7 +9,7 @@ import (
 )
 
 func PortfoliosPage(c *fiber.Ctx) error {
-	return c.Render("portfolios", fiber.Map{})
+	return c.Render("pages/portfolios", fiber.Map{})
 }
 
 func CreatePortfolio(c *fiber.Ctx) error {
@@ -24,7 +24,7 @@ func CreatePortfolio(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	return c.Render("partials/portfolioList", fiber.Map{
+	return c.Render("partials/portfolios/list", fiber.Map{
 		"itemList": nil,
 	}, "")
 }

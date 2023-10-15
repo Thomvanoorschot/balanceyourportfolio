@@ -21,7 +21,7 @@
     {{/each}}
     <li hx-trigger="revealed"
         hx-swap="afterend"
-        hx-post="/filter-holdings"
+        hx-post="/fund-details/filter"
         hx-vals='{"limit": {{limit}}, "offset": {{offset}} }'
     >
     </li>
