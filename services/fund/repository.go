@@ -16,5 +16,6 @@ type Repository interface {
 	GetFundSectorWeightings(ctx context.Context, fundId uuid.UUID) ([]SectorWeighting, error)
 	FilterHoldings(ctx context.Context, filter HoldingsFilter) ([]Holding, error)
 	GetFunds(ctx context.Context, searchTerm string) ([]Fund, error)
+	GetFundsWithTickers(ctx context.Context, searchTerm string) ([]Fund, error)
 	GetFund(ctx context.Context, fundId uuid.UUID) (Information, error)
 }

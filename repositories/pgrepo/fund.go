@@ -32,6 +32,49 @@ func (r *Repository) GetFunds(ctx context.Context, searchTerm string) ([]fund.Fu
 	}
 	return f, nil
 }
+func (r *Repository) GetFundsWithTickers(ctx context.Context, searchTerm string) ([]fund.Fund, error) {
+	sql, args := SELECT(Fund.ID, Fund.Name, FundListing.Ticker).
+		FROM(Fund.
+			INNER_JOIN(FundListing, FundListing.FundID.EQ(Fund.ID)),
+		).
+		WHERE(ILike(Fund.Name, searchTerm).
+			OR(ILike(FundListing.Ticker, searchTerm)),
+		).
+		LIMIT(100).
+		Sql()
+	var funds []fund.Fund
+	rows, err := r.ConnectionPool.Query(ctx, sql, args...)
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var (
+			fundId     uuid.UUID
+			fundName   string
+			fundTicker string
+		)
+		err := rows.Scan(&fundId,
+			&fundName,
+			&fundTicker,
+		)
+		if err != nil {
+			return nil, err
+		}
+		if len(funds) == 0 || funds[len(funds)-1].Id != fundId {
+			newFund := fund.Fund{
+				Id:   fundId,
+				Name: fundName,
+			}
+			newFund.Tickers = append(newFund.Tickers, fundTicker)
+			funds = append(funds, newFund)
+			continue
+		}
+		f := &funds[len(funds)-1]
+		f.Tickers = append(f.Tickers, fundTicker)
+	}
+	return funds, nil
+}
 func (r *Repository) GetFund(ctx context.Context, fundId uuid.UUID) (fund.Information, error) {
 	sql, args := SELECT(
 		Fund.Name,

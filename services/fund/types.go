@@ -26,8 +26,9 @@ type Holding struct {
 }
 
 type Fund struct {
-	Id   string `db:"fund.id"`
-	Name string `db:"fund.name"`
+	Id      uuid.UUID `db:"fund.id"`
+	Name    string    `db:"fund.name"`
+	Tickers []string
 }
 
 type Information struct {

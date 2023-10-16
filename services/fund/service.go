@@ -22,6 +22,13 @@ func (s *Service) GetFunds(ctx context.Context, searchTerm string) ([]Fund, erro
 	}
 	return funds, nil
 }
+func (s *Service) GetFundsWithTickers(ctx context.Context, searchTerm string) ([]Fund, error) {
+	funds, err := s.repo.GetFundsWithTickers(ctx, searchTerm)
+	if err != nil {
+		return nil, err
+	}
+	return funds, nil
+}
 
 func (s *Service) GetEffectiveShares(ctx context.Context, fundId uuid.UUID) ([]EffectiveShare, error) {
 	//fundHoldings, err := s.repo.GetFundHoldings(ctx, fundId)

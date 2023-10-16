@@ -31,6 +31,7 @@ func main() {
 
 	portfolios := app.Group("/portfolios")
 	portfolios.Get("/", handlers.PortfoliosPage)
+	portfolios.Post("/search", handlers.SearchPortfolioFunds)
 
 	app.Static(
 		"/static", // mount address
