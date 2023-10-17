@@ -1,67 +1,41 @@
 <div class="flex relative flex-col m-20 border-2 border-slate-800 p-2">
     <input class="text-2xl" type="text" placeholder="Portfolio name">
-    <table class="relative">
-        <tr class="relative">
-            <td><input type="checkbox"></td>
-            <td><input placeholder="Name or ticker"
-                       type="search"
-                       name="searchTerm"
-                       hx-post="/portfolios/search"
-                       hx-trigger="keyup changed delay:500ms, search"
-                       hx-target="#funds-search-result"
-                       onblur="fundSearchBlurred(this)"></td>
-            <td><input placeholder="Amount" type="text"></td>
-            <td>
-                <ul id="funds-search-result" class="z-10 absolute top-20"></ul>
-
-            </td>
-        </tr>
-        <tr class="relative" id="lastRow">
-            <td><input type="checkbox" onblur="lastRowClicked(this)"></td>
-            <td><input placeholder="Name or ticker" onblur="lastRowClicked(this)" type="text"></td>
-            <td><input placeholder="Amount" onblur="lastRowClicked(this)" type="text"></td>
-        </tr>
-    </table>
+    <div id="row-container" class="flex flex-col"></div>
     <div class="cursor-pointer pl-40 pr-40 pt-1 pb-1 mt-3 border-solid border-2 rounded  border-slate-800 p-2 hover:bg-slate-100">
         Create portfolio
     </div>
 </div>
 
 <script>
-    function fundSearchBlurred() {
-        document.querySelectorAll('.funds-search-result').forEach(value => {
-            value.innerHTML = ""
-        })
+    window.onload = (_) => {
+        insertRow()
+        insertRow()
+    };
+
+    function rowItemBlurred(item) {
+        if (item.name === "searchTerm") {
+            document.querySelectorAll('.funds-search-result').forEach(value => {
+                value.innerHTML = ""
+            })
+        }
+        if (document.getElementById("row-container").lastChild.childNodes[1].value){
+            insertRow()
+        }
     }
 
-    function lastRowClicked(item) {
-        item.removeAttribute("id")
-        const table = item.parentNode.parentNode.parentNode;
-        for (let i = 0; i < item.parentNode.parentNode.children.length; i++) {
-            item.parentNode.parentNode.children[i].children[0].removeAttribute("onblur")
-        }
-        console.log(table.children.length)
-        let row = table.insertRow(-1)
-        row.id = "lastRow"
-        let c1 = row.insertCell(0);
-        let c2 = row.insertCell(1);
-        let c3 = row.insertCell(2);
-        c1.innerHTML = "<input type=\"checkbox\" onblur=\"lastRowClicked(this)\">"
-        c2.innerHTML = "<input placeholder=\"Name or ticker\"\n" +
-            "                       type=\"search\"\n" +
-            "                       name=\"searchTerm\"\n" +
-            "                       hx-post=\"/portfolios/search\"\n" +
-            "                       hx-trigger=\"keyup changed delay:500ms, search\"\n" +
-            "                       hx-target=\"#funds-search-result-" + table.children.length + "\"\n" +
-            "                       onblur=\"fundSearchBlurred(this)\">"
-        c3.innerHTML = "<input placeholder=\"Amount\" onblur=\"lastRowClicked(this)\" type=\"text\">"
-        htmx.process(c2);
-        const searchResultUl = document.createElement("ul")
-        searchResultUl.id = "funds-search-result-" + table.children.length
-        searchResultUl.className = "z-10 absolute top-20"
-        row.appendChild(searchResultUl)
-        // row.append("<ul id=\"funds-search-result-"+table.children.length+"\" class=\"z-10 absolute top-20\"></ul>")
+    function insertRow() {
+        const container = document.getElementById("row-container")
+        const containerRow = document.createElement("div")
+        containerRow.className = "relative"
+        const checkbox = '<input type="checkbox" onblur="rowItemBlurred(this)">'
+        const nameOrTicker = '<input class="w-[30rem] text-sm" id="funds-search-field-'+ container.children.length +'" placeholder="Name or ticker" type="search" name="searchTerm" hx-post="/portfolios/search" hx-trigger="keyup changed delay:500ms, search" hx-target="#funds-search-result-'+ container.children.length + '" onBlur="rowItemBlurred(this)">'
+        const amount = '<input class="w-20 text-sm" placeholder="Amount" onblur="rowItemBlurred(this)" type="text">'
+        const ul = '<ul id="funds-search-result-'+ container.children.length + '" class="funds-search-result z-10 absolute top-10"></ul>'
+        containerRow.innerHTML = checkbox + nameOrTicker + amount + ul
+        container.appendChild(containerRow)
+        htmx.process(containerRow)
     }
+
 </script>
 
 {{#each portfolioList}}
