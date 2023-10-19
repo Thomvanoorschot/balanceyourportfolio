@@ -1,0 +1,21 @@
+<form class="flex flex-col items-start justify-start p-10">
+    <div class="flex items-center pb-5 w-full">
+        <label for="company-search">Company:</label>
+        <input
+                id="company-search"
+                class="ml-3 w-full rounded-md bg-gray-200 text-gray-700 leading-tight focus:outline-none py-2 px-2"
+                type="search"
+                placeholder="Company name or ticker">
+    </div>
+    <div class="flex items-center">
+        <label for="sector-select">Sector:</label>
+        <select
+                id="sector-select"
+                class=" ml-3 w-full rounded-md bg-gray-200 text-gray-700 leading-tight focus:outline-none py-2 px-2"
+        >
+            <!--{{#each sectorList}}-->
+            <!--<option {{#if (equals this 'Any sector') }} selected {{/if }} > {{this}} </option>-->
+            <!--{{/each}}-->
+        </select>
+    </div>
+</form>
