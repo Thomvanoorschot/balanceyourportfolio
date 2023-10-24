@@ -13,7 +13,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func (r *Repository) GetFundHoldings(ctx context.Context, fundId uuid.UUID, limit int64) ([]fund.Holding, error) {
+func (r *Repository) GetFundHoldings(ctx context.Context, fundId uuid.UUID, limit int64) (fund.Holdings, error) {
 	return r.getHoldings(ctx, func(statement SelectStatement) SelectStatement {
 		return statement.
 			WHERE(Fund.ID.EQ(UUID(fundId))).
@@ -21,18 +21,18 @@ func (r *Repository) GetFundHoldings(ctx context.Context, fundId uuid.UUID, limi
 			LIMIT(limit)
 	})
 }
-func (r *Repository) FilterHoldings(ctx context.Context, filter fund.HoldingsFilter) ([]fund.Holding, error) {
+func (r *Repository) FilterHoldings(ctx context.Context, filter fund.HoldingsFilter) (fund.Holdings, error) {
 	var filterExp BoolExpression
-	if filter.FundId != uuid.Nil {
+	if filter.FundID != uuid.Nil {
 		if filterExp == nil {
-			filterExp = Fund.ID.EQ(UUID(filter.FundId))
+			filterExp = Fund.ID.EQ(UUID(filter.FundID))
 		}
 	}
 	if filter.SectorName != "" {
 		if filterExp == nil {
-			filterExp = Holding.Sector.EQ(String(string(filter.SectorName)))
+			filterExp = Holding.Sector.EQ(String(filter.SectorName))
 		} else {
-			filterExp = filterExp.AND(Holding.Sector.EQ(String(string(filter.SectorName))))
+			filterExp = filterExp.AND(Holding.Sector.EQ(String(filter.SectorName)))
 		}
 	}
 	if filter.SearchTerm != "" {
@@ -102,7 +102,7 @@ func (r *Repository) UpsertHoldings(ctx context.Context, holdings []model.Holdin
 	return holdingMap, nil
 }
 
-func (r *Repository) getHoldings(ctx context.Context, stmt func(SelectStatement) SelectStatement) ([]fund.Holding, error) {
+func (r *Repository) getHoldings(ctx context.Context, stmt func(SelectStatement) SelectStatement) (fund.Holdings, error) {
 	sql, args := stmt(SELECT(
 		FundHolding.Amount,
 		FundHolding.MarketValue,

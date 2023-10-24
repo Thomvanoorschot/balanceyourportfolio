@@ -13,7 +13,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func (r *Repository) GetFunds(ctx context.Context, searchTerm string) ([]fund.Fund, error) {
+func (r *Repository) GetFunds(ctx context.Context, searchTerm string) (fund.Funds, error) {
 	sql, args := SELECT(Fund.ID, Fund.Name).
 		FROM(Fund.
 			INNER_JOIN(FundListing, FundListing.FundID.EQ(Fund.ID)),
@@ -32,7 +32,7 @@ func (r *Repository) GetFunds(ctx context.Context, searchTerm string) ([]fund.Fu
 	}
 	return f, nil
 }
-func (r *Repository) GetFundsWithTickers(ctx context.Context, searchTerm string) ([]fund.Fund, error) {
+func (r *Repository) GetFundsWithTickers(ctx context.Context, searchTerm string) (fund.Funds, error) {
 	sql, args := SELECT(Fund.ID, Fund.Name, FundListing.Ticker).
 		FROM(Fund.
 			INNER_JOIN(FundListing, FundListing.FundID.EQ(Fund.ID)),
@@ -61,9 +61,9 @@ func (r *Repository) GetFundsWithTickers(ctx context.Context, searchTerm string)
 		if err != nil {
 			return nil, err
 		}
-		if len(funds) == 0 || funds[len(funds)-1].Id != fundId {
+		if len(funds) == 0 || funds[len(funds)-1].ID != fundId {
 			newFund := fund.Fund{
-				Id:   fundId,
+				ID:   fundId,
 				Name: fundName,
 			}
 			newFund.Tickers = append(newFund.Tickers, fundTicker)
@@ -77,6 +77,7 @@ func (r *Repository) GetFundsWithTickers(ctx context.Context, searchTerm string)
 }
 func (r *Repository) GetFund(ctx context.Context, fundId uuid.UUID) (fund.Information, error) {
 	sql, args := SELECT(
+		Fund.ID,
 		Fund.Name,
 		Fund.OutstandingShares,
 		Fund.EffectiveDate,

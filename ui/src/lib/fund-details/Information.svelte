@@ -1,3 +1,9 @@
-<h1 class="text-3xl ">Name</h1>
-<div>Outstanding shares: OutstandingShares</div>
-<div>Effective date: 26-02-1994</div>
+<script lang="ts">
+    import type {FundInformation} from "$lib/fund";
+
+    export let fundInformation: FundInformation;
+
+</script>
+<h1 class="text-3xl ">{fundInformation.name}</h1>
+<div>Outstanding shares: {fundInformation.outstandingShares}</div>
+<div>Effective date: {fundInformation.effectiveDate}</div>

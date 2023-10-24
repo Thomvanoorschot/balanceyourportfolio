@@ -3,6 +3,7 @@ package fund
 import (
 	"context"
 
+	"etfinsight/api/contracts"
 	"etfinsight/utils/concurrencyutils"
 
 	"github.com/google/uuid"
@@ -15,19 +16,19 @@ type Service struct {
 func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
-func (s *Service) GetFunds(ctx context.Context, searchTerm string) ([]Fund, error) {
+func (s *Service) GetFunds(ctx context.Context, searchTerm string) ([]contracts.Fund, error) {
 	funds, err := s.repo.GetFunds(ctx, searchTerm)
 	if err != nil {
 		return nil, err
 	}
-	return funds, nil
+	return funds.ConvertToResponse(), nil
 }
-func (s *Service) GetFundsWithTickers(ctx context.Context, searchTerm string) ([]Fund, error) {
+func (s *Service) GetFundsWithTickers(ctx context.Context, searchTerm string) ([]contracts.Fund, error) {
 	funds, err := s.repo.GetFundsWithTickers(ctx, searchTerm)
 	if err != nil {
 		return nil, err
 	}
-	return funds, nil
+	return funds.ConvertToResponse(), nil
 }
 
 func (s *Service) GetEffectiveShares(ctx context.Context, fundId uuid.UUID) ([]EffectiveShare, error) {
@@ -51,58 +52,44 @@ func (s *Service) GetEffectiveShares(ctx context.Context, fundId uuid.UUID) ([]E
 	//}
 	return nil, nil
 }
-func (s *Service) GetFundDetails(ctx context.Context, fundId uuid.UUID, limit int64) (Details, error) {
-	holdingsCh := concurrencyutils.Async2(func() ([]Holding, error) {
-		return s.repo.GetFundHoldings(ctx, fundId, limit)
-	})
-	fundSectorCh := concurrencyutils.Async2(func() ([]SectorName, error) {
-		return s.repo.GetFundSectors(ctx, fundId)
+func (s *Service) GetDetails(ctx context.Context, fundID uuid.UUID) (contracts.FundDetails, error) {
+	fundSectorCh := concurrencyutils.Async2(func() (SectorNames, error) {
+		return s.repo.GetFundSectors(ctx, fundID)
 	})
 	fundCh := concurrencyutils.Async2(func() (Information, error) {
-		return s.repo.GetFund(ctx, fundId)
+		return s.repo.GetFund(ctx, fundID)
 	})
-	sectorWeightingsCh := concurrencyutils.Async2(func() ([]SectorWeighting, error) {
-		return s.repo.GetFundSectorWeightings(ctx, fundId)
+	sectorWeightingsCh := concurrencyutils.Async2(func() (SectorWeightings, error) {
+		return s.repo.GetFundSectorWeightings(ctx, fundID)
 	})
-	holdingsResult := <-holdingsCh
 	fundSectorResult := <-fundSectorCh
 	fundResult := <-fundCh
 	sectorWeightingsResult := <-sectorWeightingsCh
-	if holdingsResult.Error != nil {
-		return Details{}, holdingsResult.Error
-	}
 	if fundSectorResult.Error != nil {
-		return Details{}, fundSectorResult.Error
+		return contracts.FundDetails{}, fundSectorResult.Error
 	}
 	if fundResult.Error != nil {
-		return Details{}, fundResult.Error
+		return contracts.FundDetails{}, fundResult.Error
 	}
 	if sectorWeightingsResult.Error != nil {
-		return Details{}, sectorWeightingsResult.Error
+		return contracts.FundDetails{}, sectorWeightingsResult.Error
 	}
 	fundSectorResult.Value = append([]SectorName{AnySector}, fundSectorResult.Value...)
 
-	var fh []Holding
-	for _, item := range holdingsResult.Value {
-		fh = append(fh, Holding{
-			Ticker:            item.Ticker,
-			Name:              item.Name,
-			Type:              item.Type,
-			PercentageOfTotal: item.PercentageOfTotal,
-		})
-	}
-
-	return Details{
-		Holdings:         fh,
-		Sectors:          fundSectorResult.Value,
-		Information:      fundResult.Value,
-		SectorWeightings: sectorWeightingsResult.Value,
+	return contracts.FundDetails{
+		Sectors:          fundSectorResult.Value.ConvertToResponse(),
+		Information:      fundResult.Value.ConvertToResponse(),
+		SectorWeightings: sectorWeightingsResult.Value.ConvertToResponse(),
 	}, nil
 }
-func (s *Service) FilterHoldings(ctx context.Context, filter HoldingsFilter) ([]Holding, error) {
-	fundHoldings, err := s.repo.FilterHoldings(ctx, filter)
+
+func (s *Service) FilterHoldings(ctx context.Context, filter contracts.FundHoldingsFilter) ([]contracts.FundHolding, error) {
+	if filter.SectorName == string(AnySector) {
+		filter.SectorName = ""
+	}
+	fundHoldings, err := s.repo.FilterHoldings(ctx, ConvertToHoldingsFilter(filter))
 	if err != nil {
 		return nil, err
 	}
-	return fundHoldings, nil
+	return fundHoldings.ConvertToResponse(), nil
 }

@@ -1,5 +1,21 @@
 <script lang="ts">
     import Result from "$lib/search/Result.svelte";
+
+    import {debounce} from "$lib/utils";
+    import type {Fund} from "$lib/fund";
+
+    let funds: Fund[] = []
+
+    let searchTerm: string;
+    const search = debounce(async function () {
+        if(searchTerm === ""){
+            funds = [];
+            return;
+        }
+        const f = await fetch(`http://localhost:8080/api/v1/fund/search?searchTerm=${searchTerm}`);
+        funds = await f.json();
+    }, 500)
+
 </script>
 <div class="flex flex-grow items-center w-full justify-center p-4 px-3 py-10">
     <div class="w-full max-w-3xl">
@@ -14,13 +30,17 @@
                         </svg>
                     </div>
                     <input
+                            bind:value={searchTerm}
+                            on:input={search}
                             class="w-full rounded-md bg-gray-200 text-gray-700 leading-tight focus:outline-none py-2 px-2"
                             type="search"
                             placeholder="ISIN, Name or Ticker"
                     >
                 </div>
                 <ul id="searchResults" class="absolute top-12 w-full">
-                    <Result></Result>
+                    {#each funds as fund}
+                        <Result href="/fund-details?fundId={fund.id}" fund="{fund}"></Result>
+                    {/each}
                 </ul>
             </div>
         </div>
