@@ -16,7 +16,7 @@
 
 </script>
 
-<form class="flex flex-col items-start justify-start p-10">
+<div class="flex flex-col items-start justify-start p-10">
     <div class="flex items-center pb-5 w-full">
         <label for="company-search">Company:</label>
         <input
@@ -44,4 +44,4 @@
             {/each}
         </select>
     </div>
-</form>
+</div>
