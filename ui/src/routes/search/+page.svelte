@@ -17,10 +17,9 @@
     }, 500)
 
 </script>
-<div class="flex flex-grow items-center w-full justify-center p-4 px-3 py-10">
-    <div class="w-full max-w-3xl">
-        <div class="bg-white shadow-md rounded-lg px-3 py-2">
-            <div class="flex relative flex-col items-center bg-gray-200 rounded-md">
+<div class="flex flex-grow items-center justify-center w-full">
+        <div class="bg-white shadow-md rounded-lg p-3 w-[50vw]">
+            <div class="flex relative flex-col items-center bg-gray-200 rounded-md w-full">
                 <div class="flex w-full items-center">
                     <div class="pl-2">
                         <svg class="fill-current text-gray-500 w-6 h-6" xmlns="http://www.w3.org/2000/svg"
@@ -44,5 +43,4 @@
                 </ul>
             </div>
         </div>
-    </div>
 </div>

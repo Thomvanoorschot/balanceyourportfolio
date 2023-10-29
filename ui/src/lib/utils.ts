@@ -6,4 +6,3 @@ export const debounce = (callback: Function, wait = 300) => {
         timeout = setTimeout(() => callback(...args), wait);
     };
 };
-

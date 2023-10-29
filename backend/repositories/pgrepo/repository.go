@@ -3,11 +3,13 @@ package pgrepo
 import (
 	"context"
 	"errors"
-	"etfinsight/config"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"log"
 	"sync"
+
+	"etfinsight/config"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Repository struct {

@@ -1,4 +1,4 @@
-import {type Updater, type Writable, writable, get} from 'svelte/store';
+import {type Updater, type Writable, writable, get} from "svelte/store";
 import type {FundHolding, FundHoldingsFilter} from "$lib/fund";
 
 type WritableHoldingsStore = {

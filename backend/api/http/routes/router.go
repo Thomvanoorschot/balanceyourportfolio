@@ -29,6 +29,7 @@ func (r Router) SetupRouter(engine *gin.Engine, config *config.Config, h *handle
 	v1 := engine.Group("/api/v1")
 
 	SetupFundRoutes(v1, h)
+	SetupPortfolioRoutes(v1, h)
 
 	return nil
 }

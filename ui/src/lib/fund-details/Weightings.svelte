@@ -1,7 +1,7 @@
 <script lang="ts">
     import type {FundSectorWeighting} from "$lib/fund";
     import {getContext} from "svelte";
-    import type {HoldingsStore} from "$lib/stores/FundFilterStore";
+    import type {HoldingsStore} from "$lib/stores/fund-filter-store";
 
     export let sectorWeightings: FundSectorWeighting[];
 

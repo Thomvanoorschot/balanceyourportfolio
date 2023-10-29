@@ -13,6 +13,8 @@ type FundService interface {
 }
 
 type PortfolioService interface {
+	GetPortfolios(ctx context.Context, userID uuid.UUID) ([]Portfolio, error)
+	UpsertPortfolio(ctx context.Context, userID uuid.UUID, portfolio Portfolio) (Portfolio, error)
 }
 
 type UserService interface {

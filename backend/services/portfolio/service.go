@@ -3,7 +3,7 @@ package portfolio
 import (
 	"context"
 
-	"etfinsight/generated/jet_gen/postgres/public/model"
+	"etfinsight/api/contracts"
 
 	"github.com/google/uuid"
 )
@@ -16,11 +16,36 @@ func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) CreatePortfolio(ctx context.Context, req CreatePortfolioRequest) error {
-	userId := uuid.MustParse("b21b14c9-70bb-4336-a35c-7a69396ffbd8")
+func (s *Service) GetPortfolios(ctx context.Context, userID uuid.UUID) ([]contracts.Portfolio, error) {
+	p, err := s.repo.GetPortfolios(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return p.ConvertToResponse(), nil
+}
+func (s *Service) UpsertPortfolio(ctx context.Context,
+	userID uuid.UUID,
+	req contracts.Portfolio) (resp contracts.Portfolio, err error) {
+	tx, err := s.repo.NewTransaction(ctx)
+	if err != nil {
+		return resp, err
+	}
+	defer s.repo.RollBack(tx, ctx)
 
-	return s.repo.CreatePortfolio(ctx, model.Portfolio{
-		UserID: &userId,
-		Name:   &req.Name,
-	})
+	p := ConvertToModel(req)
+	p, err = s.repo.UpsertPortfolio(ctx, userID, p, tx)
+	if err != nil {
+		return resp, err
+	}
+	pli, err := s.repo.UpsertPortfolioListItems(ctx, p.ID, p.Items, tx)
+	if err != nil {
+		return resp, err
+	}
+	err = tx.Commit(ctx)
+	if err != nil {
+		return contracts.Portfolio{}, err
+	}
+	p.Items = pli
+	resp = p.ConvertToResponse()
+	return resp, nil
 }

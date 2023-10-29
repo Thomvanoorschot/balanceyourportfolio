@@ -5,7 +5,7 @@
     import Holdings from "$lib/fund-details/Holdings.svelte";
 
     import type {PageData} from './$types';
-    import {createHoldingsStore} from "$lib/stores/FundFilterStore";
+    import {createHoldingsStore} from "$lib/stores/fund-filter-store";
     import {setContext} from "svelte";
     import {page} from "$app/stores";
 

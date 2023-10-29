@@ -1,6 +1,6 @@
 <script lang="ts">
     import {getContext} from "svelte";
-    import type {HoldingsStore} from "$lib/stores/FundFilterStore";
+    import type {HoldingsStore} from "$lib/stores/fund-filter-store";
     import {debounce} from "$lib/utils.js";
 
     export let sectors: string[];
