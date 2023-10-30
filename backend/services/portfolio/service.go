@@ -33,6 +33,33 @@ func (s *Service) UpsertPortfolio(ctx context.Context,
 	defer s.repo.RollBack(tx, ctx)
 
 	p := ConvertToModel(req)
+	if p.ID != uuid.Nil {
+		li, err := s.repo.GetListItems(ctx, p.ID)
+		if err != nil {
+			return resp, err
+		}
+		var itemsToDelete []uuid.UUID
+		comparisonLoop := func(dbItem ListItem) bool {
+			for _, newItem := range p.Items {
+				if dbItem.ID == newItem.ID {
+					return true
+				}
+			}
+			return false
+		}
+		for _, dbItem := range li {
+			match := comparisonLoop(dbItem)
+			if !match {
+				itemsToDelete = append(itemsToDelete, dbItem.ID)
+			}
+		}
+		if len(itemsToDelete) > 0 {
+			err = s.repo.DeleteListItems(ctx, itemsToDelete, tx)
+			if err != nil {
+				return resp, err
+			}
+		}
+	}
 	p, err = s.repo.UpsertPortfolio(ctx, userID, p, tx)
 	if err != nil {
 		return resp, err

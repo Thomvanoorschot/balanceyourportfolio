@@ -7,12 +7,49 @@ import (
 	. "etfinsight/generated/jet_gen/postgres/public/table"
 	"etfinsight/services/portfolio"
 
+	"github.com/georgysavva/scany/v2/pgxscan"
 	. "github.com/go-jet/jet/v2/postgres"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/google/uuid"
 )
 
+func (r *Repository) GetListItems(ctx context.Context,
+	portfolioID uuid.UUID,
+) (portfolio.ListItems, error) {
+	sql, args := SELECT(PortfolioFund.ID, PortfolioFund.Amount, Fund.ID, Fund.Name).
+		FROM(PortfolioFund.
+			INNER_JOIN(Fund, Fund.ID.EQ(PortfolioFund.FundID)),
+		).
+		WHERE(PortfolioFund.PortfolioID.EQ(UUID(portfolioID))).
+		Sql()
+
+	var li portfolio.ListItems
+	err := pgxscan.Select(ctx, r.ConnectionPool, &li, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	return li, nil
+}
+func (r *Repository) DeleteListItems(ctx context.Context,
+	ids []uuid.UUID,
+	tx pgx.Tx,
+) error {
+	var IDExpression []Expression
+	for _, h := range ids {
+		IDExpression = append(IDExpression, UUID(h))
+	}
+	sql, args := PortfolioFund.
+		DELETE().
+		WHERE(PortfolioFund.ID.IN(IDExpression...)).
+		Sql()
+
+	_, err := tx.Exec(ctx, sql, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func (r *Repository) UpsertPortfolioListItems(ctx context.Context,
 	portfolioID uuid.UUID,
 	li portfolio.ListItems,

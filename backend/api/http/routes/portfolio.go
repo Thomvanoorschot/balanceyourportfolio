@@ -9,5 +9,6 @@ import (
 func SetupPortfolioRoutes(routes *gin.RouterGroup, handler *handler.Handler) {
 	g := routes.Group("/portfolio")
 
+	g.GET("/", handler.Portfolios)
 	g.PUT("/", handler.UpsertPortfolio)
 }

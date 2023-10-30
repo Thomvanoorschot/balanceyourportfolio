@@ -87,6 +87,10 @@ func (r *Repository) UpsertHoldings(ctx context.Context, holdings []model.Holdin
 	sql, args := withStmt(UNION_ALL(SELECT(STAR).FROM(insertCte), selectStmt)).
 		Sql()
 	rows, err := tx.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 	holdingMap := map[string]uuid.UUID{}
 	_, err = pgx.CollectRows(rows, func(row pgx.CollectableRow) (uuid.UUID, error) {
 		var id uuid.UUID

@@ -9,16 +9,15 @@ import (
 	"github.com/google/uuid"
 )
 
-// func (h *Handler) Portfolios(c *gin.Context) {
-//
-//		fundDetails, err := h.portfolioService.GetPortfolios(c.Request.Context())
-//		if err != nil {
-//			_ = c.AbortWithError(http.StatusBadRequest, err)
-//			return
-//		}
-//
-//		c.JSON(http.StatusOK, fundDetails)
-//	}
+func (h *Handler) Portfolios(c *gin.Context) {
+	portfolios, err := h.portfolioService.GetPortfolios(c.Request.Context(), uuid.MustParse("b21b14c9-70bb-4336-a35c-7a69396ffbd8"))
+	if err != nil {
+		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, portfolios)
+}
 func (h *Handler) UpsertPortfolio(c *gin.Context) {
 	var req contracts.Portfolio
 	err := c.BindJSON(&req)
