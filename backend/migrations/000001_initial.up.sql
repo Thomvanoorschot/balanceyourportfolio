@@ -46,7 +46,10 @@ CREATE TABLE "user" (
 CREATE TABLE "portfolio" (
     id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id uuid REFERENCES "user" (id),
-    name  varchar(255)
+    name  varchar(255),
+    created_at timestamp,
+    updated_at timestamp,
+    deleted_at timestamp
 );
 
 CREATE TABLE portfolio_fund (

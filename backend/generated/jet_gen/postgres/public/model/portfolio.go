@@ -9,10 +9,14 @@ package model
 
 import (
 	"github.com/google/uuid"
+	"time"
 )
 
 type Portfolio struct {
-	ID     uuid.UUID `sql:"primary_key"`
-	UserID *uuid.UUID
-	Name   *string
+	ID        uuid.UUID `sql:"primary_key"`
+	UserID    *uuid.UUID
+	Name      *string
+	CreatedAt *time.Time
+	DeletedAt *time.Time
+	UpdatedAt *time.Time
 }

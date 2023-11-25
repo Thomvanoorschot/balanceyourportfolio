@@ -26,6 +26,7 @@ type Fund struct {
 	Tickers []string
 }
 
+type InformationList []Information
 type Information struct {
 	ID                uuid.UUID `db:"fund.id"`
 	Name              string    `db:"fund.name"`
@@ -89,7 +90,13 @@ func ConvertToHoldingsFilter(f contracts.FundHoldingsFilter) HoldingsFilter {
 		Offset:     f.Offset,
 	}
 }
-
+func (il InformationList) ConvertToResponse() []contracts.FundInformation {
+	fi := make([]contracts.FundInformation, len(il))
+	for i := range il {
+		fi[i] = il[i].ConvertToResponse()
+	}
+	return fi
+}
 func (i Information) ConvertToResponse() contracts.FundInformation {
 	return contracts.FundInformation{
 		ID:                i.ID,

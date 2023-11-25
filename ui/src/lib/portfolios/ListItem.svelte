@@ -4,16 +4,18 @@
     import {clickOutside} from "$lib/custom-svelte-typings";
     import type {Fund} from "$lib/fund";
     import {onMount} from "svelte";
+    import type {PortfolioListItem} from "$lib/portfolio";
+
+    export let listItem: PortfolioListItem;
 
     let showList = false;
     let funds: Fund[] = []
-    let searchTerm: string;
     const search = debounce(async function () {
-        if (searchTerm === "") {
+        if (listItem.name === "") {
             funds = [];
             return;
         }
-        const f = await fetch(`http://localhost:8080/api/v1/fund/search?searchTerm=${searchTerm}`);
+        const f = await fetch(`http://localhost:8080/api/v1/fund/search?searchTerm=${listItem.name}`);
         funds = await f.json();
     }, 500)
 
@@ -32,18 +34,34 @@
     }
     const handleFundClicked = (f: Fund) => {
         showList = false;
-        searchTerm = f.name
+        listItem.fundId = f.id;
+        listItem.name = f.name;
+    }
+    import { createEventDispatcher } from 'svelte'
+    const dispatch = createEventDispatcher()
+
+    function blurField() {
+        dispatch('blurField')
     }
 </script>
 <div class="w-full relative">
     <div class="flex">
         <input
-                bind:value={searchTerm}
+                bind:value={listItem.fundId}
+                class="hidden" type="text"
+        >
+        <input
+                bind:value={listItem.name}
                 on:input={search}
                 on:click={() => showList = true}
+                on:blur={blurField}
                 class="w-3/4" type="text" placeholder="Ticker or name"
         >
-        <input class="w-1/4" type="text" placeholder="Amount">
+        <input
+                bind:value={listItem.amount}
+                on:blur={blurField}
+                class="w-1/4" type="number" placeholder="Amount"
+        >
     </div>
     {#if showList}
         <ul

@@ -7,8 +7,8 @@
     <header class="flex justify-between p-3 items-center">
         <div>LOGO</div>
         <div class="flex items-center">
-            <a href="search" class="">Search</a>
-            <a href="portfolios" class="">Portfolios</a>
+            <a href="/search" class="">Search</a>
+            <a href="/portfolio/overview" class="">Portfolios</a>
         </div>
         <div class="flex items-center">
             <div class="p-2 rounded hover:bg-sky-200">Login</div>

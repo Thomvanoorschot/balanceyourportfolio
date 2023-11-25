@@ -2,6 +2,7 @@ package pgrepo
 
 import (
 	"context"
+	"time"
 
 	"etfinsight/generated/jet_gen/postgres/public/model"
 	. "etfinsight/generated/jet_gen/postgres/public/table"
@@ -26,6 +27,7 @@ func (r *Repository) GetPortfolios(ctx context.Context, userID uuid.UUID) (portf
 			INNER_JOIN(PortfolioFund, PortfolioFund.PortfolioID.EQ(Portfolio.ID)).
 			INNER_JOIN(Fund, Fund.ID.EQ(PortfolioFund.FundID)),
 		).
+		ORDER_BY(Portfolio.CreatedAt.ASC()).
 		WHERE(Portfolio.UserID.EQ(UUID(userID))).
 		Sql()
 
@@ -79,32 +81,22 @@ func (r *Repository) GetPortfolios(ctx context.Context, userID uuid.UUID) (portf
 }
 
 func (r *Repository) UpsertPortfolio(ctx context.Context,
-	userID uuid.UUID,
-	p portfolio.Model,
-	tx pgx.Tx) (portfolio.Model, error) {
-	if p.ID == uuid.Nil {
-		p.ID = uuid.New()
-	}
-	pm := model.Portfolio{
-		ID:     p.ID,
-		UserID: &userID,
-		Name:   &p.Name,
-	}
+	p model.Portfolio,
+	tx pgx.Tx) error {
+	now := time.Now()
+	p.UpdatedAt = &now
 	sql, args := Portfolio.
 		INSERT(Portfolio.AllColumns).
-		MODEL(pm).
+		MODEL(p).
 		ON_CONFLICT(Portfolio.ID).
 		DO_UPDATE(
 			SET(
 				Portfolio.Name.SET(Portfolio.EXCLUDED.Name),
+				Portfolio.UpdatedAt.SET(Portfolio.EXCLUDED.UpdatedAt),
 			),
 		).
 		Sql()
 
 	_, err := tx.Exec(ctx, sql, args...)
-	if err != nil {
-		return portfolio.Model{}, err
-	}
-
-	return p, err
+	return err
 }

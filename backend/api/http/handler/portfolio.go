@@ -33,3 +33,18 @@ func (h *Handler) UpsertPortfolio(c *gin.Context) {
 
 	c.JSON(http.StatusOK, fundDetails)
 }
+
+func (h *Handler) Portfolio(c *gin.Context) {
+	portfolioID, err := uuid.Parse(c.Param("portfolioID"))
+	if err != nil {
+		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	fundDetails, err := h.portfolioService.GetPortfolioDetails(c.Request.Context(), portfolioID)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, fundDetails)
+}

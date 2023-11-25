@@ -1,19 +1,20 @@
 <script lang="ts">
-    import {getContext} from "svelte";
-    import type {HoldingsStore} from "$lib/stores/fund-filter-store";
     import {debounce} from "$lib/utils.js";
+    import {createEventDispatcher} from 'svelte'
 
     export let sectors: string[];
+    export let searchTerm: string;
+    export let sectorName: string;
 
-    const holdingsStore = getContext<HoldingsStore>("holdingsStore")
-    let searchTerm: string= ""
-    const filterHoldings = debounce(async function() {
-        await holdingsStore.filter({searchTerm: searchTerm});
-    }, 500)
-    async function filterSector() {
-        await holdingsStore.filter({sectorName: $holdingsStore.filter.sectorName});
+    const dispatch = createEventDispatcher()
+    function filterChanged() {
+        dispatch('filterChanged')
     }
 
+    const filterHoldings = debounce(async function () {
+        filterChanged()
+    }, 500)
+    filterChanged()
 </script>
 
 <div class="flex flex-col items-start justify-start p-10">
@@ -30,8 +31,8 @@
     <div class="flex items-center">
         <label for="sector-select">Sector:</label>
         <select
-                bind:value={$holdingsStore.filter.sectorName}
-                on:change={filterSector}
+                bind:value={sectorName}
+                on:change={filterChanged}
                 id="sector-select"
                 class=" ml-3 w-full rounded-md bg-gray-200 text-gray-700 leading-tight focus:outline-none py-2 px-2"
         >

@@ -2,6 +2,7 @@ package portfolio
 
 import (
 	"etfinsight/api/contracts"
+	"etfinsight/services/fund"
 
 	"github.com/google/uuid"
 )
@@ -77,3 +78,12 @@ func (li ListItem) ConvertToResponse() contracts.PortfolioListItem {
 		Amount: li.Amount,
 	}
 }
+
+type RelativeSectorWeighting struct {
+	FundID              uuid.UUID
+	FundName            string
+	PortfolioFundAmount float64
+	FundPrice           float64
+	SectorWeightings    fund.SectorWeightings
+}
+type RelativeSectorWeightings []RelativeSectorWeighting

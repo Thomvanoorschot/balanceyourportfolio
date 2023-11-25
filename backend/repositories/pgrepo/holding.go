@@ -50,20 +50,6 @@ func (r *Repository) FilterHoldings(ctx context.Context, filter fund.HoldingsFil
 			OFFSET(filter.Offset)
 	})
 }
-func (r *Repository) GetFundSectors(ctx context.Context, fundId uuid.UUID) ([]fund.SectorName, error) {
-	sql, args := SELECT(DISTINCT(Holding.Sector)).
-		FROM(Holding.
-			INNER_JOIN(FundHolding, FundHolding.HoldingID.EQ(Holding.ID)),
-		).
-		WHERE(FundHolding.FundID.EQ(UUID(fundId))).
-		Sql()
-	var h []fund.SectorName
-	err := pgxscan.Select(ctx, r.ConnectionPool, &h, sql, args...)
-	if err != nil {
-		return nil, err
-	}
-	return h, nil
-}
 
 func (r *Repository) UpsertHoldings(ctx context.Context, holdings []model.Holding, tx pgx.Tx) (map[string]uuid.UUID, error) {
 	insertCte := CTE("insert_cte")
@@ -127,21 +113,4 @@ func (r *Repository) getHoldings(ctx context.Context, stmt func(SelectStatement)
 		return nil, err
 	}
 	return h, nil
-}
-
-func (r *Repository) GetFundSectorWeightings(ctx context.Context, fundId uuid.UUID) ([]fund.SectorWeighting, error) {
-	sql, args := SELECT(Holding.Sector, SUM(FundHolding.PercentageOfTotal).AS("percentage_sum")).
-		FROM(Holding.
-			INNER_JOIN(FundHolding, FundHolding.HoldingID.EQ(Holding.ID)),
-		).
-		WHERE(FundHolding.FundID.EQ(UUID(fundId))).
-		GROUP_BY(Holding.Sector).
-		ORDER_BY(Raw("percentage_sum").DESC()).
-		Sql()
-	var sw []fund.SectorWeighting
-	err := pgxscan.Select(ctx, r.ConnectionPool, &sw, sql, args...)
-	if err != nil {
-		return nil, err
-	}
-	return sw, nil
 }

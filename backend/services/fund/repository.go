@@ -11,11 +11,11 @@ type Repository interface {
 	NewTransaction(ctx context.Context) (pgx.Tx, error)
 	RollBack(tx pgx.Tx, ctx context.Context)
 
-	GetFundHoldings(ctx context.Context, fundId uuid.UUID, limit int64) (Holdings, error)
-	GetFundSectors(ctx context.Context, fundId uuid.UUID) ([]SectorName, error)
-	GetFundSectorWeightings(ctx context.Context, fundId uuid.UUID) ([]SectorWeighting, error)
+	GetFundHoldings(ctx context.Context, fundID uuid.UUID, limit int64) (Holdings, error)
+	GetFundSectors(ctx context.Context, fundID uuid.UUID) ([]SectorName, error)
+	GetFundSectorWeightings(ctx context.Context, fundID uuid.UUID) ([]SectorWeighting, error)
 	FilterHoldings(ctx context.Context, filter HoldingsFilter) (Holdings, error)
 	GetFunds(ctx context.Context, searchTerm string) (Funds, error)
 	GetFundsWithTickers(ctx context.Context, searchTerm string) (Funds, error)
-	GetFund(ctx context.Context, fundId uuid.UUID) (Information, error)
+	GetFund(ctx context.Context, fundID uuid.UUID) (Information, error)
 }

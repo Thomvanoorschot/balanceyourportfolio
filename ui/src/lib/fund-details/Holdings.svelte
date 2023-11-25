@@ -1,15 +1,20 @@
 <script lang="ts">
-    import {getContext, onDestroy, onMount} from "svelte";
-    import type {HoldingsStore} from "$lib/stores/fund-filter-store";
+    import {createEventDispatcher, onDestroy, onMount} from "svelte";
+    import type {FundHolding} from "$lib/fund";
 
     let observer: IntersectionObserver;
     let root: HTMLElement;
 
-    const holdingsStore = getContext<HoldingsStore>("holdingsStore")
+    export let holdings:FundHolding[] = []
+
+    const dispatch = createEventDispatcher()
+    function endOfPageReached() {
+        dispatch('endOfPageReached')
+    }
     onMount(() => {
         observer = new IntersectionObserver(async (entries) => {
             if (entries[0].isIntersecting) {
-                await holdingsStore.nextPage();
+                endOfPageReached()
             }
         });
         observer.observe(root);
@@ -23,7 +28,7 @@
 
 </script>
 <ul class="bg-gray-300 p-4">
-    {#each $holdingsStore.holdings as {name, ticker, percentageOfTotal, type}, _}
+    {#each holdings as {name, ticker, percentageOfTotal, type}}
         <li class="border-gray-400 flex flex-row mb-2">
             <div class="cursor-pointer bg-gray-200 rounded-md flex flex-1 items-center p-4  transition duration-500 ease-in-out transform hover:-translate-y-1 hover:shadow-lg">
                 <div class="flex flex-col rounded-md w-10 h-10 bg-gray-300 justify-center items-center mr-4">

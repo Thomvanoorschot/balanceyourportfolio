@@ -120,3 +120,35 @@ func (r *Repository) UpsertFund(ctx context.Context, f model.Fund, tx pgx.Tx) (u
 	err := row.Scan(&id)
 	return id, err
 }
+
+func (r *Repository) GetFundSectors(ctx context.Context, fundId uuid.UUID) ([]fund.SectorName, error) {
+	sql, args := SELECT(DISTINCT(Holding.Sector)).
+		FROM(Holding.
+			INNER_JOIN(FundHolding, FundHolding.HoldingID.EQ(Holding.ID)),
+		).
+		WHERE(FundHolding.FundID.EQ(UUID(fundId))).
+		Sql()
+	var h []fund.SectorName
+	err := pgxscan.Select(ctx, r.ConnectionPool, &h, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	return h, nil
+}
+
+func (r *Repository) GetFundSectorWeightings(ctx context.Context, fundId uuid.UUID) ([]fund.SectorWeighting, error) {
+	sql, args := SELECT(Holding.Sector, SUM(FundHolding.PercentageOfTotal).AS("percentage_sum")).
+		FROM(Holding.
+			INNER_JOIN(FundHolding, FundHolding.HoldingID.EQ(Holding.ID)),
+		).
+		WHERE(FundHolding.FundID.EQ(UUID(fundId))).
+		GROUP_BY(Holding.Sector).
+		ORDER_BY(Raw("percentage_sum").DESC()).
+		Sql()
+	var sw []fund.SectorWeighting
+	err := pgxscan.Select(ctx, r.ConnectionPool, &sw, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	return sw, nil
+}

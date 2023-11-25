@@ -17,9 +17,12 @@ type portfolioTable struct {
 	postgres.Table
 
 	// Columns
-	ID     postgres.ColumnString
-	UserID postgres.ColumnString
-	Name   postgres.ColumnString
+	ID        postgres.ColumnString
+	UserID    postgres.ColumnString
+	Name      postgres.ColumnString
+	CreatedAt postgres.ColumnDate
+	DeletedAt postgres.ColumnDate
+	UpdatedAt postgres.ColumnDate
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -60,20 +63,26 @@ func newPortfolioTable(schemaName, tableName, alias string) *PortfolioTable {
 
 func newPortfolioTableImpl(schemaName, tableName, alias string) portfolioTable {
 	var (
-		IDColumn       = postgres.StringColumn("id")
-		UserIDColumn   = postgres.StringColumn("user_id")
-		NameColumn     = postgres.StringColumn("name")
-		allColumns     = postgres.ColumnList{IDColumn, UserIDColumn, NameColumn}
-		mutableColumns = postgres.ColumnList{UserIDColumn, NameColumn}
+		IDColumn        = postgres.StringColumn("id")
+		UserIDColumn    = postgres.StringColumn("user_id")
+		NameColumn      = postgres.StringColumn("name")
+		CreatedAtColumn = postgres.DateColumn("created_at")
+		DeletedAtColumn = postgres.DateColumn("deleted_at")
+		UpdatedAtColumn = postgres.DateColumn("updated_at")
+		allColumns      = postgres.ColumnList{IDColumn, UserIDColumn, NameColumn, CreatedAtColumn, DeletedAtColumn, UpdatedAtColumn}
+		mutableColumns  = postgres.ColumnList{UserIDColumn, NameColumn, CreatedAtColumn, DeletedAtColumn, UpdatedAtColumn}
 	)
 
 	return portfolioTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:     IDColumn,
-		UserID: UserIDColumn,
-		Name:   NameColumn,
+		ID:        IDColumn,
+		UserID:    UserIDColumn,
+		Name:      NameColumn,
+		CreatedAt: CreatedAtColumn,
+		DeletedAt: DeletedAtColumn,
+		UpdatedAt: UpdatedAtColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,
