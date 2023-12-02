@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"etfinsight/api/contracts"
+	proto "etfinsight/generated/proto"
 	"etfinsight/utils/concurrencyutils"
 
 	"github.com/google/uuid"
@@ -17,13 +18,14 @@ func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
 func (s *Service) GetFunds(ctx context.Context, searchTerm string) ([]contracts.Fund, error) {
-	funds, err := s.repo.GetFunds(ctx, searchTerm)
-	if err != nil {
-		return nil, err
-	}
-	return funds.ConvertToResponse(), nil
+	//funds, err := s.repo.GetFunds(ctx, searchTerm)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//return funds.ConvertToResponse(), nil
+	return nil, nil
 }
-func (s *Service) GetFundsWithTickers(ctx context.Context, searchTerm string) ([]contracts.Fund, error) {
+func (s *Service) GetFundsWithTickers(ctx context.Context, searchTerm string) (*proto.SearchFundsResponse, error) {
 	funds, err := s.repo.GetFundsWithTickers(ctx, searchTerm)
 	if err != nil {
 		return nil, err
@@ -52,7 +54,7 @@ func (s *Service) GetEffectiveShares(ctx context.Context, fundId uuid.UUID) ([]E
 	//}
 	return nil, nil
 }
-func (s *Service) GetDetails(ctx context.Context, fundID uuid.UUID) (contracts.FundDetails, error) {
+func (s *Service) GetDetails(ctx context.Context, fundID uuid.UUID) (*proto.FundDetailsResponse, error) {
 	fundSectorCh := concurrencyutils.Async2(func() (SectorNames, error) {
 		return s.repo.GetFundSectors(ctx, fundID)
 	})
@@ -66,24 +68,24 @@ func (s *Service) GetDetails(ctx context.Context, fundID uuid.UUID) (contracts.F
 	fundResult := <-fundCh
 	sectorWeightingsResult := <-sectorWeightingsCh
 	if fundSectorResult.Error != nil {
-		return contracts.FundDetails{}, fundSectorResult.Error
+		return nil, fundSectorResult.Error
 	}
 	if fundResult.Error != nil {
-		return contracts.FundDetails{}, fundResult.Error
+		return nil, fundResult.Error
 	}
 	if sectorWeightingsResult.Error != nil {
-		return contracts.FundDetails{}, sectorWeightingsResult.Error
+		return nil, sectorWeightingsResult.Error
 	}
 	fundSectorResult.Value = append([]SectorName{AnySector}, fundSectorResult.Value...)
 
-	return contracts.FundDetails{
+	return &proto.FundDetailsResponse{
 		Sectors:          fundSectorResult.Value.ConvertToResponse(),
 		Information:      fundResult.Value.ConvertToResponse(),
 		SectorWeightings: sectorWeightingsResult.Value.ConvertToResponse(),
 	}, nil
 }
 
-func (s *Service) FilterHoldings(ctx context.Context, filter contracts.FundHoldingsFilter) ([]contracts.FundHolding, error) {
+func (s *Service) FilterHoldings(ctx context.Context, filter *proto.FilterHoldingsRequest) (*proto.HoldingsListResponse, error) {
 	if filter.SectorName == string(AnySector) {
 		filter.SectorName = ""
 	}

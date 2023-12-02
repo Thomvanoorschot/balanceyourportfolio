@@ -1,8 +1,8 @@
 <script lang="ts">
 
-    import type {Fund} from "$lib/fund";
+    import type {SearchFundsEntry} from "$lib/proto/proto/SearchFundsEntry";
 
-    export let fund: Fund;
+    export let fund: SearchFundsEntry;
     export let href: string;
 </script>
 <li>
@@ -10,7 +10,7 @@
         <div>
             <div class="font-medium text-sm">{fund.name}</div>
             <div class="flex">
-                {#each fund.tickers as ticker}
+                {#each fund.tickers || [] as ticker}
                     <div class="font-light text-xs pr-2">{ticker}</div>
                 {/each}
             </div>

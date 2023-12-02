@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "./proto";
+
+//Search
+message SearchFundsRequest {
+  string searchTerm = 1;
+}
+message SearchFundsResponse {
+  repeated SearchFundsEntry entries = 1;
+}
+message SearchFundsEntry {
+  string id = 1;
+  string name = 2;
+  repeated string tickers = 3;
+}
+
+//Details
+message GetFundDetailsRequest {
+  string fundId = 1;
+}
+message FundDetailsResponse {
+  FundInformation information = 1;
+  repeated FundSectorWeighting sectorWeightings = 2;
+  repeated string sectors = 3;
+}
+message FundInformation{
+  string id = 1;
+  string name = 2;
+  double outstandingShares = 3;
+  string effectiveDate = 4;
+}
+message FundSectorWeighting {
+  string sectorName = 1;
+  double percentage = 2;
+}
+
+//Holdings
+message FilterHoldingsRequest {
+  string fundId = 1;
+  string searchTerm = 2;
+  string sectorName = 3;
+  int64 limit = 4;
+  int64 offset = 5;
+}
+message HoldingsListResponse {
+  repeated HoldingsResponse entries = 1;
+}
+message HoldingsResponse {
+  string ticker = 1;
+  string name = 2;
+  string type = 3;
+  string sector = 4;
+  double amount = 5;
+  double percentageOfTotal = 6;
+  double marketValue = 7;
+}

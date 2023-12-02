@@ -3,59 +3,136 @@
     import Information from "$lib/fund-details/Information.svelte";
     import Weightings from "$lib/fund-details/Weightings.svelte";
     import Holdings from "$lib/fund-details/Holdings.svelte";
+    import type {HoldingsResponse__Output} from "$lib/proto/proto/HoldingsResponse";
 
     import type {PageData} from './$types';
-    import type {FundHolding, FundHoldingsFilter} from "$lib/fund";
+    import type {FundHoldingsFilter, FundSectorWeighting} from "$lib/fund";
     import {page} from "$app/stores";
+    import {enhance} from '$app/forms';
+    import type {ActionResult} from "@sveltejs/kit";
+    import type {FundDetailsResponse__Output} from "$lib/proto/proto/FundDetailsResponse";
 
     export let data: PageData;
-    $: ({details} = data);
-    let holdings: FundHolding[] = [];
-    let holdingsFilter: FundHoldingsFilter =  {
+
+    let details: FundDetailsResponse__Output | undefined;
+    let holdings: HoldingsResponse__Output[];
+    let error: string | undefined
+    $:{
+        holdings = data?.holdings?.entries || []
+        details = data?.details
+        error = ""
+    }
+
+    let holdingsFilter: FundHoldingsFilter = {
         fundId: $page.url.searchParams.get("fundId")!,
         sectorName: "Any sector",
         searchTerm: "",
         limit: 20,
         offset: 0,
     }
+    let searchForm: HTMLFormElement;
+    let filterForm: HTMLFormElement;
 
-    async function nextPage(): Promise<void> {
-        holdingsFilter.offset = holdings.length
-        const holdingsResult = await fetch(`http://localhost:8080/api/v1/fund/holdings/filter`, {
-            method: "POST",
-            body: JSON.stringify(holdingsFilter)
-        });
-        holdings = [...holdings,...await holdingsResult.json()];
+    function submitNextPage(): void {
+        searchForm.requestSubmit()
     }
-    async function filter(): Promise<void> {
-        const holdingsResult = await fetch(`http://localhost:8080/api/v1/fund/holdings/filter`, {
-            method: "POST",
-            body: JSON.stringify(holdingsFilter)
-        });
-        holdings = await holdingsResult.json();
+
+    function filterSector(fsw: CustomEvent<FundSectorWeighting>) {
+        holdingsFilter.sectorName = fsw.detail.sectorName
+        submitFilter()
+    }
+
+    function submitFilter(): void {
+        filterForm.requestSubmit()
+    }
+
+    const updateNextPage = () => {
+        return ({result}: { result: ActionResult }) => {
+            if (result.type === "success" && result?.data?.holdings.entries) {
+                holdings = [...holdings, ...result?.data?.holdings.entries]
+            } else if (result.type === "failure") {
+                error = result.data?.error
+            }
+        };
+    };
+
+    const updateFilteredHoldings = () => {
+        return ({result}: { result: ActionResult }) => {
+            if (result.type === "success" && result?.data?.holdings.entries) {
+                holdings = [...result?.data?.holdings.entries]
+            } else if (result.type === "failure") {
+                error = result.data?.error
+            }
+        };
+    };
+
+    function setFilterForm(formData: FormData) {
+        formData.set("fundId", holdingsFilter.fundId);
+        formData.set("sectorName", holdingsFilter.sectorName);
+        formData.set("searchTerm", holdingsFilter.searchTerm);
     }
 </script>
 
-<div class="flex flex-grow items-start justify-between w-full">
-    <Filter
-            on:filterChanged={filter}
-            bind:searchTerm={holdingsFilter.searchTerm}
-            bind:sectorName={holdingsFilter.sectorName}
-            sectors="{details.sectors}"
-    ></Filter>
-    <div class="flex flex-col flex-grow">
-        <div class="flex flex-col p-4">
-            <Information fundInformation="{details.information}"></Information>
+{#if (!error && details && details.information)}
+    <div class="flex flex-grow items-start justify-between w-full">
+        <form
+                method="POST"
+                action="?/filterHoldings"
+                bind:this={filterForm}
+                use:enhance={({formData}) => {
+                    setFilterForm(formData);
+                    return updateFilteredHoldings();
+                }}
+        >
+            {#if (details?.sectors)}
+                <Filter
+                        on:filterChanged={submitFilter}
+                        bind:searchTerm={holdingsFilter.searchTerm}
+                        bind:sectorName={holdingsFilter.sectorName}
+                        sectors="{details.sectors || []}"
+                ></Filter>
+            {/if}
+        </form>
+        <div class="flex flex-col flex-grow">
+            <div class="flex flex-col p-4">
+                {#if (details?.information)}
+                    <Information fundInformation="{details.information}"></Information>
+                {/if}
+            </div>
+            <form
+                    class="flex flex-col p-4"
+                    method="POST"
+                    action="?/filterHoldings"
+                    bind:this={filterForm}
+                    use:enhance={({formData}) => {
+                    setFilterForm(formData);
+                    return updateFilteredHoldings()
+                }}
+            >
+                {#if (details?.sectorWeightings)}
+                    <Weightings
+                            on:sectorClicked={filterSector}
+                            sectorWeightings="{details.sectorWeightings || []}"
+                    ></Weightings>
+                {/if}
+            </form>
+            <form
+                    method="POST"
+                    action="?/filterHoldings"
+                    bind:this={searchForm}
+                    use:enhance={({formData}) => {
+                    setFilterForm(formData);
+                    formData.set("holdingsLength", holdings.length.toString());
+                    return updateNextPage()
+                }}
+            >
+                <Holdings
+                        on:endOfPageReached={submitNextPage}
+                        holdings="{holdings || []}"
+                ></Holdings>
+            </form>
         </div>
-        <div class="flex flex-col p-4">
-            <Weightings
-                    on:sectorClicked={filter}
-                    sectorWeightings="{details.sectorWeightings}"
-            ></Weightings>
-        </div>
-        <Holdings
-                on:endOfPageReached={nextPage}
-                holdings="{holdings}"
-        ></Holdings>
     </div>
-</div>
+{:else}
+    <h1>{error}</h1>
+{/if}

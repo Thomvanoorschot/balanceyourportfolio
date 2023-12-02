@@ -1,20 +1,21 @@
 package portfolio
 
 import (
-	"etfinsight/api/contracts"
+	"etfinsight/generated/proto"
 	"etfinsight/services/fund"
+	"etfinsight/utils/stringutils"
 
 	"github.com/google/uuid"
 )
 
 type Models []Model
 
-func (m Models) ConvertToResponse() []contracts.Portfolio {
-	p := make([]contracts.Portfolio, len(m))
+func (m Models) ConvertToResponse() *proto.PortfoliosResponse {
+	resp := &proto.PortfoliosResponse{}
 	for i := range m {
-		p[i] = m[i].ConvertToResponse()
+		resp.Entries = append(resp.Entries, m[i].ConvertToResponse())
 	}
-	return p
+	return resp
 }
 
 type Model struct {
@@ -23,32 +24,32 @@ type Model struct {
 	Items ListItems
 }
 
-func ConvertToModel(p contracts.Portfolio) Model {
+func ConvertToModel(p *proto.Portfolio) Model {
 	return Model{
-		ID:    p.ID,
+		ID:    stringutils.ConvertToUUID(p.Id),
 		Name:  p.Name,
-		Items: ConvertToListItems(p.Items),
+		Items: ConvertToListItems(p.Entries),
 	}
 }
-func (m *Model) ConvertToResponse() contracts.Portfolio {
-	return contracts.Portfolio{
-		ID:    m.ID,
-		Name:  m.Name,
-		Items: m.Items.ConvertToResponse(),
+func (m *Model) ConvertToResponse() *proto.Portfolio {
+	return &proto.Portfolio{
+		Id:      m.ID.String(),
+		Name:    m.Name,
+		Entries: m.Items.ConvertToResponse(),
 	}
 }
 
 type ListItems []ListItem
 
-func ConvertToListItems(pli []contracts.PortfolioListItem) []ListItem {
+func ConvertToListItems(pli []*proto.PortfolioListItem) []ListItem {
 	li := make([]ListItem, len(pli))
 	for i := range pli {
 		li[i] = ConvertToListItem(pli[i])
 	}
 	return li
 }
-func (li ListItems) ConvertToResponse() []contracts.PortfolioListItem {
-	pli := make([]contracts.PortfolioListItem, len(li))
+func (li ListItems) ConvertToResponse() []*proto.PortfolioListItem {
+	pli := make([]*proto.PortfolioListItem, len(li))
 	for i := range li {
 		pli[i] = li[i].ConvertToResponse()
 	}
@@ -62,18 +63,18 @@ type ListItem struct {
 	Name   string    `db:"fund.name"`
 }
 
-func ConvertToListItem(pli contracts.PortfolioListItem) ListItem {
+func ConvertToListItem(pli *proto.PortfolioListItem) ListItem {
 	return ListItem{
-		ID:     pli.ID,
-		FundID: pli.FundID,
+		ID:     stringutils.ConvertToUUID(pli.Id),
+		FundID: stringutils.ConvertToUUID(pli.FundId),
 		Amount: pli.Amount,
 		Name:   pli.Name,
 	}
 }
-func (li ListItem) ConvertToResponse() contracts.PortfolioListItem {
-	return contracts.PortfolioListItem{
-		ID:     li.ID,
-		FundID: li.FundID,
+func (li ListItem) ConvertToResponse() *proto.PortfolioListItem {
+	return &proto.PortfolioListItem{
+		Id:     li.ID.String(),
+		FundId: li.FundID.String(),
 		Name:   li.Name,
 		Amount: li.Amount,
 	}

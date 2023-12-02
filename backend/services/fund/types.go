@@ -3,7 +3,8 @@ package fund
 import (
 	"time"
 
-	"etfinsight/api/contracts"
+	"etfinsight/generated/proto"
+	"etfinsight/utils/stringutils"
 
 	"github.com/google/uuid"
 )
@@ -30,7 +31,7 @@ type InformationList []Information
 type Information struct {
 	ID                uuid.UUID `db:"fund.id"`
 	Name              string    `db:"fund.name"`
-	OutstandingShares string    `db:"fund.outstanding_shares"`
+	OutstandingShares float64   `db:"fund.outstanding_shares"`
 	EffectiveDate     time.Time `db:"fund.effective_date"`
 }
 
@@ -81,54 +82,56 @@ type HoldingsFilter struct {
 	Offset     int64
 }
 
-func ConvertToHoldingsFilter(f contracts.FundHoldingsFilter) HoldingsFilter {
+func ConvertToHoldingsFilter(f *proto.FilterHoldingsRequest) HoldingsFilter {
 	return HoldingsFilter{
-		FundID:     f.FundID,
+		FundID:     stringutils.ConvertToUUID(f.FundId),
 		SearchTerm: f.SearchTerm,
 		SectorName: f.SectorName,
 		Limit:      f.Limit,
 		Offset:     f.Offset,
 	}
 }
-func (il InformationList) ConvertToResponse() []contracts.FundInformation {
-	fi := make([]contracts.FundInformation, len(il))
+func (il InformationList) ConvertToResponse() []*proto.FundInformation {
+	fi := make([]*proto.FundInformation, len(il))
 	for i := range il {
 		fi[i] = il[i].ConvertToResponse()
 	}
 	return fi
 }
-func (i Information) ConvertToResponse() contracts.FundInformation {
-	return contracts.FundInformation{
-		ID:                i.ID,
+func (i Information) ConvertToResponse() *proto.FundInformation {
+	return &proto.FundInformation{
+		Id:                i.ID.String(),
 		Name:              i.Name,
 		OutstandingShares: i.OutstandingShares,
-		EffectiveDate:     i.EffectiveDate,
+		EffectiveDate:     i.EffectiveDate.String(),
 	}
 }
-func (f Funds) ConvertToResponse() []contracts.Fund {
-	cf := make([]contracts.Fund, len(f))
+func (f Funds) ConvertToResponse() *proto.SearchFundsResponse {
+	resp := &proto.SearchFundsResponse{}
+
 	for i := range f {
-		cf[i] = f[i].ConvertToResponse()
+		resp.Entries = append(resp.Entries, f[i].ConvertToResponse())
 	}
-	return cf
+	return resp
 }
-func (f Fund) ConvertToResponse() contracts.Fund {
-	return contracts.Fund{
-		ID:      f.ID,
+func (f Fund) ConvertToResponse() *proto.SearchFundsEntry {
+	return &proto.SearchFundsEntry{
+		Id:      f.ID.String(),
 		Name:    f.Name,
 		Tickers: f.Tickers,
 	}
 }
-func (h Holdings) ConvertToResponse() []contracts.FundHolding {
-	fh := make([]contracts.FundHolding, len(h))
+func (h Holdings) ConvertToResponse() *proto.HoldingsListResponse {
+	resp := &proto.HoldingsListResponse{}
+
 	for i := range h {
-		fh[i] = h[i].ConvertToResponse()
+		resp.Entries = append(resp.Entries, h[i].ConvertToResponse())
 	}
-	return fh
+	return resp
 }
 
-func (h Holding) ConvertToResponse() contracts.FundHolding {
-	return contracts.FundHolding{
+func (h Holding) ConvertToResponse() *proto.HoldingsResponse {
+	return &proto.HoldingsResponse{
 		Ticker:            h.Ticker,
 		Name:              h.Name,
 		Type:              string(h.Type),
@@ -139,15 +142,15 @@ func (h Holding) ConvertToResponse() contracts.FundHolding {
 	}
 }
 
-func (sw SectorWeightings) ConvertToResponse() []contracts.FundSectorWeighting {
-	fsw := make([]contracts.FundSectorWeighting, len(sw))
+func (sw SectorWeightings) ConvertToResponse() []*proto.FundSectorWeighting {
+	fsw := make([]*proto.FundSectorWeighting, len(sw))
 	for i := range sw {
 		fsw[i] = sw[i].ConvertToResponse()
 	}
 	return fsw
 }
-func (sw SectorWeighting) ConvertToResponse() contracts.FundSectorWeighting {
-	return contracts.FundSectorWeighting{
+func (sw SectorWeighting) ConvertToResponse() *proto.FundSectorWeighting {
+	return &proto.FundSectorWeighting{
 		SectorName: string(sw.SectorName),
 		Percentage: sw.Percentage,
 	}

@@ -1,0 +1,46 @@
+syntax = "proto3";
+import "fund.proto";
+
+package proto;
+
+option go_package = "./proto";
+
+//Overview
+message PortfoliosRequest {
+}
+message PortfoliosResponse {
+  repeated Portfolio entries = 1;
+}
+message Portfolio {
+  string id = 1;
+  string name = 2;
+  repeated PortfolioListItem entries = 3;
+}
+message PortfolioListItem {
+  string id = 1;
+  string fundId = 2;
+  string name = 3;
+  double amount = 4;
+}
+message UpsertPortfolioRequest{
+  Portfolio portfolio = 1;
+}
+message UpsertPortfolioResponse {
+  Portfolio portfolio = 1;
+}
+
+//Details
+
+message PortfolioDetailsRequest {
+  string portfolioId = 1;
+}
+message PortfolioDetailsResponse {
+  repeated string sectors = 1;
+  repeated FundInformation fundInformation = 2;
+  repeated PortfolioFundSectorWeightings portfolioFundSectorWeightings = 3;
+}
+message PortfolioFundSectorWeightings {
+  string fundName = 1;
+  double percentageOfTotal = 2;
+  repeated FundSectorWeighting fundSectorWeightings = 3;
+}

@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type {FundInformation} from "$lib/fund";
+    import type {FundInformation__Output} from "$lib/proto/proto/FundInformation";
 
-    export let fundInformation: FundInformation;
+    export let fundInformation: FundInformation__Output;
 
 </script>
 <h1 class="text-3xl ">{fundInformation.name}</h1>

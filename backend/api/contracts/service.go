@@ -8,7 +8,7 @@ import (
 
 type FundService interface {
 	GetDetails(ctx context.Context, fundID uuid.UUID) (FundDetails, error)
-	GetFundsWithTickers(ctx context.Context, searchTerm string) ([]Fund, error)
+	//GetFundsWithTickers(ctx context.Context, searchTerm string) ([]Fund, error)
 	FilterHoldings(ctx context.Context, filter FundHoldingsFilter) ([]FundHolding, error)
 }
 

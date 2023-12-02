@@ -1,0 +1,18 @@
+syntax = "proto3";
+import "fund.proto";
+import "portfolio.proto";
+
+package proto;
+
+option go_package = "./proto";
+
+service FundService {
+  rpc GetDetails(GetFundDetailsRequest) returns (FundDetailsResponse);
+  rpc SearchFunds(SearchFundsRequest) returns (SearchFundsResponse);
+  rpc FilterHoldings(FilterHoldingsRequest) returns (HoldingsListResponse);
+}
+service PortfolioService {
+  rpc GetPortfolios(PortfoliosRequest) returns (PortfoliosResponse);
+  rpc UpsertPortfolio(UpsertPortfolioRequest) returns (UpsertPortfolioResponse);
+  rpc GetPortfolioDetails(PortfolioDetailsRequest) returns (PortfolioDetailsResponse);
+}

@@ -5,8 +5,8 @@ import (
 	"sort"
 	"time"
 
-	"etfinsight/api/contracts"
 	"etfinsight/generated/jet_gen/postgres/public/model"
+	"etfinsight/generated/proto"
 	"etfinsight/services/fund"
 	"etfinsight/utils/concurrencyutils"
 
@@ -21,30 +21,30 @@ func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) GetPortfolioDetails(ctx context.Context, portfolioID uuid.UUID) (contracts.PortfolioDetails, error) {
+func (s *Service) GetPortfolioDetails(ctx context.Context, userId uuid.UUID, portfolioId uuid.UUID) (*proto.PortfolioDetailsResponse, error) {
 	portfolioSectorCh := concurrencyutils.Async2(func() (fund.SectorNames, error) {
-		return s.repo.GetPortfolioFundSectors(ctx, portfolioID)
+		return s.repo.GetPortfolioFundSectors(ctx, portfolioId)
 	})
 	informationCh := concurrencyutils.Async2(func() (fund.InformationList, error) {
-		return s.repo.GetPortfolioFunds(ctx, portfolioID)
+		return s.repo.GetPortfolioFunds(ctx, portfolioId)
 	})
 	relativeWeightings := concurrencyutils.Async2(func() (RelativeSectorWeightings, error) {
-		return s.repo.GetPortfolioFundRelativeWeightings(ctx, portfolioID)
+		return s.repo.GetPortfolioFundRelativeWeightings(ctx, portfolioId)
 	})
 	portfolioSectorResult := <-portfolioSectorCh
 	informationResult := <-informationCh
 	relativeWeightingsResult := <-relativeWeightings
-	var portfolioFundSectorWeightings []contracts.PortfolioFundSectorWeightings
+	var portfolioFundSectorWeightings []*proto.PortfolioFundSectorWeightings
 	cumulativeSectorWeightings := map[string]float64{}
 	var cumulativeValue float64
 
 	for _, rw := range relativeWeightingsResult.Value {
 		cumulativeValue += rw.PortfolioFundAmount * rw.FundPrice
-		sw := contracts.PortfolioFundSectorWeightings{
+		sw := &proto.PortfolioFundSectorWeightings{
 			FundName: rw.FundName,
 		}
 		for _, sectorWeighting := range rw.SectorWeightings {
-			sw.FundSectorWeighting = append(sw.FundSectorWeighting, contracts.FundSectorWeighting{
+			sw.FundSectorWeightings = append(sw.FundSectorWeightings, &proto.FundSectorWeighting{
 				SectorName: string(sectorWeighting.SectorName),
 				Percentage: sectorWeighting.Percentage,
 			})
@@ -55,7 +55,7 @@ func (s *Service) GetPortfolioDetails(ctx context.Context, portfolioID uuid.UUID
 		percentageOfTotal := (rw.PortfolioFundAmount * rw.FundPrice) / cumulativeValue
 		portfolioFundSectorWeightings[rwi].PercentageOfTotal = percentageOfTotal
 		for _, sectorWeighting := range rw.SectorWeightings {
-			for _, weighting := range portfolioFundSectorWeightings[0].FundSectorWeighting {
+			for _, weighting := range portfolioFundSectorWeightings[0].FundSectorWeightings {
 				if weighting.SectorName == string(sectorWeighting.SectorName) {
 					cumulativeSectorWeightings[weighting.SectorName] += sectorWeighting.Percentage * percentageOfTotal
 					continue
@@ -77,19 +77,19 @@ func (s *Service) GetPortfolioDetails(ctx context.Context, portfolioID uuid.UUID
 
 	portfolioSectorResult.Value = append([]fund.SectorName{fund.AnySector}, portfolioSectorResult.Value...)
 	for _, weighting := range portfolioFundSectorWeightings {
-		sort.Slice(weighting.FundSectorWeighting, func(i, j int) bool {
-			iRank, jRank := sortedKeys[weighting.FundSectorWeighting[i].SectorName], sortedKeys[weighting.FundSectorWeighting[j].SectorName]
+		sort.Slice(weighting.FundSectorWeightings, func(i, j int) bool {
+			iRank, jRank := sortedKeys[weighting.FundSectorWeightings[i].SectorName], sortedKeys[weighting.FundSectorWeightings[j].SectorName]
 			return iRank < jRank
 		})
 	}
-	return contracts.PortfolioDetails{
+	return &proto.PortfolioDetailsResponse{
 		FundInformation:               informationResult.Value.ConvertToResponse(),
 		Sectors:                       portfolioSectorResult.Value.ConvertToResponse(),
 		PortfolioFundSectorWeightings: portfolioFundSectorWeightings,
 	}, nil
 }
-func (s *Service) GetPortfolios(ctx context.Context, userID uuid.UUID) ([]contracts.Portfolio, error) {
-	p, err := s.repo.GetPortfolios(ctx, userID)
+func (s *Service) GetPortfolios(ctx context.Context, userId uuid.UUID) (*proto.PortfoliosResponse, error) {
+	p, err := s.repo.GetPortfolios(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (s *Service) GetPortfolios(ctx context.Context, userID uuid.UUID) ([]contra
 }
 func (s *Service) UpsertPortfolio(ctx context.Context,
 	userID uuid.UUID,
-	req contracts.Portfolio) (resp contracts.Portfolio, err error) {
+	req *proto.Portfolio) (resp *proto.UpsertPortfolioResponse, err error) {
 	tx, err := s.repo.NewTransaction(ctx)
 	if err != nil {
 		return resp, err
@@ -172,8 +172,7 @@ func (s *Service) UpsertPortfolio(ctx context.Context,
 	}
 	err = tx.Commit(ctx)
 	if err != nil {
-		return contracts.Portfolio{}, err
+		return nil, err
 	}
-	resp = p.ConvertToResponse()
-	return resp, nil
+	return &proto.UpsertPortfolioResponse{Portfolio: p.ConvertToResponse()}, nil
 }

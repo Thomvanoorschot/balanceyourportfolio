@@ -1,9 +1,11 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
     import type {PortfolioFundSectorWeightings} from "$lib/portfolio";
+    import type {PortfolioFundSectorWeightings__Output} from "$lib/proto/proto/PortfolioFundSectorWeightings";
 
-    export let sectorWeightings: PortfolioFundSectorWeightings[];
+    export let sectorWeightings: PortfolioFundSectorWeightings__Output[];
     export let colorMap: Map<string, string>;
+
     interface Sector {
         cumulativePercentage: number;
         fundWeightings: FundWeighting[]
@@ -16,7 +18,7 @@
 
     const sectorMap = new Map<string, Sector>()
     sectorWeightings.forEach((x) => {
-        x.fundSectorWeighting.forEach((y) => {
+        x.fundSectorWeightings.forEach((y) => {
             const sector = sectorMap.get(y.sectorName)
             if (sector) {
                 sector.cumulativePercentage += y.percentage * x.percentageOfTotal

@@ -4,13 +4,14 @@ import (
 	"net/http"
 
 	"etfinsight/api/contracts"
+	"etfinsight/utils/stringutils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 func (h *Handler) Portfolios(c *gin.Context) {
-	portfolios, err := h.portfolioService.GetPortfolios(c.Request.Context(), uuid.MustParse("b21b14c9-70bb-4336-a35c-7a69396ffbd8"))
+	portfolios, err := h.portfolioService.GetPortfolios(c.Request.Context(), stringutils.ConvertToUUID("b21b14c9-70bb-4336-a35c-7a69396ffbd8"))
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -25,7 +26,7 @@ func (h *Handler) UpsertPortfolio(c *gin.Context) {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	fundDetails, err := h.portfolioService.UpsertPortfolio(c.Request.Context(), uuid.MustParse("b21b14c9-70bb-4336-a35c-7a69396ffbd8"), req)
+	fundDetails, err := h.portfolioService.UpsertPortfolio(c.Request.Context(), stringutils.ConvertToUUID("b21b14c9-70bb-4336-a35c-7a69396ffbd8"), req)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
