@@ -8,17 +8,19 @@
     import {enhance} from '$app/forms';
     import type {ActionResult} from "@sveltejs/kit";
 
-    let testForm: HTMLFormElement;
+    let portfolioForm: HTMLFormElement;
 
 
     export let portfolio: Portfolio__Output;
-    // const portfoliosStore = getContext<PortfolioStore>("portfoliosStore")
+    $:{
+        portfolio
+    }
     const addNewRow = (clickedRow: PortfolioListItem__Output) => {
         // if (portfolio.items[portfolio.items.length - 1] === clickedRow) {
         //     portfoliosStore.addEmptyItem(portfolio)
         // }
     }
-    const updatePortfolio = () => {
+    const upsertPortfolio = () => {
         return ({result}: {
             result: ActionResult
         }) => {
@@ -30,12 +32,13 @@
 </script>
 
 <form
-        bind:this={testForm}
+        bind:this={portfolioForm}
         method="POST"
         use:enhance={({formData}) => {
                      formData.set("portfolio", JSON.stringify(portfolio))
-                         updatePortfolio()
+                         upsertPortfolio()
                      return async ({ update, result }) => {
+                         update({reset:false})
                      };
                 }}
         action="?/upsertPortfolio"
@@ -58,7 +61,7 @@
 
                 buttonText="{portfolio.id === EMPTY_UUID ? 'Create portfolio' : 'Update portfolio'}"
                 on:buttonClicked={() => {
-                    testForm.requestSubmit()
+                    portfolioForm.requestSubmit()
                     "portfoliosStore.upsertPortfolio(portfolio)"
                 }
                 }

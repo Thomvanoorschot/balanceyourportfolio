@@ -21,7 +21,8 @@ export interface ProtoGrpcType {
     Portfolio: MessageTypeDefinition
     PortfolioDetailsRequest: MessageTypeDefinition
     PortfolioDetailsResponse: MessageTypeDefinition
-    PortfolioFundSectorWeightings: MessageTypeDefinition
+    PortfolioFundSectorWeighting: MessageTypeDefinition
+    PortfolioFundSectorWeightingEntry: MessageTypeDefinition
     PortfolioListItem: MessageTypeDefinition
     PortfolioService: SubtypeConstructor<typeof grpc.Client, _proto_PortfolioServiceClient> & { service: _proto_PortfolioServiceDefinition }
     PortfoliosRequest: MessageTypeDefinition

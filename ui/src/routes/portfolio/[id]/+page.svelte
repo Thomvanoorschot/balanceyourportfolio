@@ -4,19 +4,18 @@
     import Filter from "$lib/fund-details/Filter.svelte";
     import {page} from "$app/stores";
     import type {PortfolioHoldingsFilter} from "$lib/portfolio";
-    import {colors, stringToRandomInteger} from "$lib/utils";
     import FundColors from "$lib/portfolios/FundColors.svelte";
-    import type {PortfolioDetailsResponse__Output} from "$lib/proto/proto/PortfolioDetailsResponse";
+    import type {FundInformation__Output} from "$lib/proto/proto/FundInformation";
+    import type {PortfolioSectorWeighting} from "./+page.server";
 
     export let data: PageData;
-    let details: PortfolioDetailsResponse__Output | undefined;
     let colorMap: Map<string, string> | undefined
     let error: string | undefined
-    $:{
-        details = data?.details
-        colorMap = data?.colorMap || new Map<string, string>()
-        error = ""
-    }
+    let sectors: string[] | undefined
+    let fundInformation: FundInformation__Output[] | undefined
+    let portfolioFundSectorWeightings: PortfolioSectorWeighting[] | undefined
+    $: ({ sectors, fundInformation, portfolioFundSectorWeightings, colorMap } = data);
+
 
     let holdingsFilter: PortfolioHoldingsFilter = {
         portfolioId: $page.url.searchParams.get("portfolioId")!,
@@ -30,13 +29,13 @@
 
     }
 </script>
-{#if (!error && details && colorMap)}
+{#if (!error && sectors && colorMap && portfolioFundSectorWeightings)}
     <div class="flex flex-grow items-start justify-between w-full">
         <Filter
                 on:filterChanged={filter}
                 bind:searchTerm={holdingsFilter.searchTerm}
                 bind:sectorName={holdingsFilter.sectorName}
-                sectors="{details.sectors}"
+                sectors="{sectors}"
         ></Filter>
         <div class="flex flex-col flex-grow">
             <div class="pl-4">
@@ -44,7 +43,7 @@
             </div>
             <div class="flex flex-col p-4">
                 <Weightings colorMap="{colorMap}"
-                            sectorWeightings="{details.portfolioFundSectorWeightings}"></Weightings>
+                            sectorWeightings="{portfolioFundSectorWeightings}"></Weightings>
             </div>
             <!--        <Holdings></Holdings>-->
         </div>

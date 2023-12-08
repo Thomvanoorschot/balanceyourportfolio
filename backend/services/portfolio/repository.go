@@ -20,7 +20,9 @@ type Repository interface {
 	UpsertPortfolio(ctx context.Context, portfolio model.Portfolio, tx pgx.Tx) error
 	UpsertPortfolioListItems(ctx context.Context, listItems []model.PortfolioFund, tx pgx.Tx) error
 
+	GetRatio(ctx context.Context, portfolioId uuid.UUID) (map[uuid.UUID]float64, error)
 	GetPortfolioFundSectors(ctx context.Context, portfolioID uuid.UUID) ([]fund.SectorName, error)
 	GetPortfolioFundRelativeWeightings(ctx context.Context, portfolioID uuid.UUID) (RelativeSectorWeightings, error)
 	GetPortfolioFunds(ctx context.Context, portfolioID uuid.UUID) ([]fund.Information, error)
+	GetPortfolioFundHoldings(ctx context.Context, portfolioId uuid.UUID) ([]fund.Information, error)
 }

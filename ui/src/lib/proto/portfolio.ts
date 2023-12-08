@@ -18,7 +18,8 @@ export interface ProtoGrpcType {
     Portfolio: MessageTypeDefinition
     PortfolioDetailsRequest: MessageTypeDefinition
     PortfolioDetailsResponse: MessageTypeDefinition
-    PortfolioFundSectorWeightings: MessageTypeDefinition
+    PortfolioFundSectorWeighting: MessageTypeDefinition
+    PortfolioFundSectorWeightingEntry: MessageTypeDefinition
     PortfolioListItem: MessageTypeDefinition
     PortfoliosRequest: MessageTypeDefinition
     PortfoliosResponse: MessageTypeDefinition

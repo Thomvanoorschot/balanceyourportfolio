@@ -30,17 +30,21 @@ message UpsertPortfolioResponse {
 }
 
 //Details
-
 message PortfolioDetailsRequest {
   string portfolioId = 1;
 }
 message PortfolioDetailsResponse {
   repeated string sectors = 1;
   repeated FundInformation fundInformation = 2;
-  repeated PortfolioFundSectorWeightings portfolioFundSectorWeightings = 3;
+  map<string, PortfolioFundSectorWeighting>  portfolioFundSectorWeightings = 3;
 }
-message PortfolioFundSectorWeightings {
+
+message PortfolioFundSectorWeighting {
+  double totalPercentage = 2;
+  repeated PortfolioFundSectorWeightingEntry fundSectorWeighting = 3;
+}
+message PortfolioFundSectorWeightingEntry {
   string fundName = 1;
-  double percentageOfTotal = 2;
-  repeated FundSectorWeighting fundSectorWeightings = 3;
+  double percentage = 2;
 }
+

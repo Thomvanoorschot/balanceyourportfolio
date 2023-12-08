@@ -57,12 +57,12 @@ func (r *Repository) GetPortfolios(ctx context.Context, userID uuid.UUID) (portf
 		if err != nil {
 			return nil, err
 		}
-		if len(models) == 0 || models[len(models)-1].ID != portfolioID {
+		if len(models) == 0 || models[len(models)-1].Id != portfolioID {
 			models = append(models, portfolio.Model{
-				ID:   portfolioID,
+				Id:   portfolioID,
 				Name: portfolioName,
 				Items: []portfolio.ListItem{{
-					ID:     portfolioFundID,
+					Id:     portfolioFundID,
 					Amount: portfolioFundAmount,
 					FundID: fundID,
 					Name:   fundName,
@@ -71,7 +71,7 @@ func (r *Repository) GetPortfolios(ctx context.Context, userID uuid.UUID) (portf
 			continue
 		}
 		models[len(models)-1].Items = append(models[len(models)-1].Items, portfolio.ListItem{
-			ID:     portfolioFundID,
+			Id:     portfolioFundID,
 			Amount: portfolioFundAmount,
 			FundID: fundID,
 			Name:   fundName,

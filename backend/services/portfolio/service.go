@@ -2,7 +2,7 @@ package portfolio
 
 import (
 	"context"
-	"sort"
+	"fmt"
 	"time"
 
 	"etfinsight/generated/jet_gen/postgres/public/model"
@@ -11,6 +11,7 @@ import (
 	"etfinsight/utils/concurrencyutils"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 type Service struct {
@@ -22,70 +23,32 @@ func NewService(repo Repository) *Service {
 }
 
 func (s *Service) GetPortfolioDetails(ctx context.Context, userId uuid.UUID, portfolioId uuid.UUID) (*proto.PortfolioDetailsResponse, error) {
+	ratioCh := concurrencyutils.Async2(func() (map[uuid.UUID]float64, error) {
+		return s.repo.GetRatio(ctx, portfolioId)
+	})
 	portfolioSectorCh := concurrencyutils.Async2(func() (fund.SectorNames, error) {
 		return s.repo.GetPortfolioFundSectors(ctx, portfolioId)
 	})
 	informationCh := concurrencyutils.Async2(func() (fund.InformationList, error) {
 		return s.repo.GetPortfolioFunds(ctx, portfolioId)
 	})
-	relativeWeightings := concurrencyutils.Async2(func() (RelativeSectorWeightings, error) {
+	relativeWeightingsCh := concurrencyutils.Async2(func() (RelativeSectorWeightings, error) {
 		return s.repo.GetPortfolioFundRelativeWeightings(ctx, portfolioId)
 	})
+	portfolioFundHoldingsCh := concurrencyutils.Async2(func() (fund.InformationList, error) {
+		return s.repo.GetPortfolioFundHoldings(ctx, portfolioId)
+	})
+	ratioResult := <-ratioCh
 	portfolioSectorResult := <-portfolioSectorCh
 	informationResult := <-informationCh
-	relativeWeightingsResult := <-relativeWeightings
-	var portfolioFundSectorWeightings []*proto.PortfolioFundSectorWeightings
-	cumulativeSectorWeightings := map[string]float64{}
-	var cumulativeValue float64
+	relativeWeightingsResult := <-relativeWeightingsCh
+	test := <-portfolioFundHoldingsCh
+	fmt.Println(test)
 
-	for _, rw := range relativeWeightingsResult.Value {
-		cumulativeValue += rw.PortfolioFundAmount * rw.FundPrice
-		sw := &proto.PortfolioFundSectorWeightings{
-			FundName: rw.FundName,
-		}
-		for _, sectorWeighting := range rw.SectorWeightings {
-			sw.FundSectorWeightings = append(sw.FundSectorWeightings, &proto.FundSectorWeighting{
-				SectorName: string(sectorWeighting.SectorName),
-				Percentage: sectorWeighting.Percentage,
-			})
-		}
-		portfolioFundSectorWeightings = append(portfolioFundSectorWeightings, sw)
-	}
-	for rwi, rw := range relativeWeightingsResult.Value {
-		percentageOfTotal := (rw.PortfolioFundAmount * rw.FundPrice) / cumulativeValue
-		portfolioFundSectorWeightings[rwi].PercentageOfTotal = percentageOfTotal
-		for _, sectorWeighting := range rw.SectorWeightings {
-			for _, weighting := range portfolioFundSectorWeightings[0].FundSectorWeightings {
-				if weighting.SectorName == string(sectorWeighting.SectorName) {
-					cumulativeSectorWeightings[weighting.SectorName] += sectorWeighting.Percentage * percentageOfTotal
-					continue
-				}
-			}
-		}
-	}
-	keys := make([]string, 0, len(cumulativeSectorWeightings))
-	for key := range cumulativeSectorWeightings {
-		keys = append(keys, key)
-	}
-	sort.SliceStable(keys, func(i, j int) bool {
-		return cumulativeSectorWeightings[keys[i]] > cumulativeSectorWeightings[keys[j]]
-	})
-	sortedKeys := map[string]int{}
-	for i, k := range keys {
-		sortedKeys[k] = i
-	}
-
-	portfolioSectorResult.Value = append([]fund.SectorName{fund.AnySector}, portfolioSectorResult.Value...)
-	for _, weighting := range portfolioFundSectorWeightings {
-		sort.Slice(weighting.FundSectorWeightings, func(i, j int) bool {
-			iRank, jRank := sortedKeys[weighting.FundSectorWeightings[i].SectorName], sortedKeys[weighting.FundSectorWeightings[j].SectorName]
-			return iRank < jRank
-		})
-	}
 	return &proto.PortfolioDetailsResponse{
 		FundInformation:               informationResult.Value.ConvertToResponse(),
 		Sectors:                       portfolioSectorResult.Value.ConvertToResponse(),
-		PortfolioFundSectorWeightings: portfolioFundSectorWeightings,
+		PortfolioFundSectorWeightings: relativeWeightingsResult.Value.ConvertToResponse(ratioResult.Value),
 	}, nil
 }
 func (s *Service) GetPortfolios(ctx context.Context, userId uuid.UUID) (*proto.PortfoliosResponse, error) {
@@ -105,67 +68,26 @@ func (s *Service) UpsertPortfolio(ctx context.Context,
 	defer s.repo.RollBack(tx, ctx)
 
 	p := ConvertToModel(req)
-	if p.ID != uuid.Nil {
-		li, err := s.repo.GetListItems(ctx, p.ID)
-		if err != nil {
-			return resp, err
-		}
-		var itemsToDelete []uuid.UUID
-		comparisonLoop := func(dbItem ListItem) bool {
-			for _, newItem := range p.Items {
-				if dbItem.ID == newItem.ID {
-					return true
-				}
-			}
-			return false
-		}
-		for _, dbItem := range li {
-			match := comparisonLoop(dbItem)
-			if !match {
-				itemsToDelete = append(itemsToDelete, dbItem.ID)
-			}
-		}
-		if len(itemsToDelete) > 0 {
-			err = s.repo.DeleteListItems(ctx, itemsToDelete, tx)
-			if err != nil {
-				return resp, err
-			}
-		}
-	}
-	shouldSetCreatedAt := false
-	if p.ID == uuid.Nil {
-		p.ID = uuid.New()
-		shouldSetCreatedAt = true
-	}
 	portfolioModel := model.Portfolio{
-		ID:     p.ID,
+		ID:     p.Id,
 		UserID: &userID,
 		Name:   &p.Name,
 	}
-	if shouldSetCreatedAt {
+	if p.Id == uuid.Nil {
+		p.Id = uuid.New()
 		now := time.Now()
 		portfolioModel.CreatedAt = &now
+	} else {
+		err = s.checkAndDeleteFunds(ctx, p, tx)
+		if err != nil {
+			return nil, err
+		}
 	}
 	err = s.repo.UpsertPortfolio(ctx, portfolioModel, tx)
 	if err != nil {
 		return resp, err
 	}
-	var pfs []model.PortfolioFund
-	for i := range p.Items {
-		if p.Items[i].FundID == uuid.Nil {
-			continue
-		}
-		if p.Items[i].ID == uuid.Nil {
-			p.Items[i].ID = uuid.New()
-		}
-		pf := model.PortfolioFund{
-			ID:          p.Items[i].ID,
-			PortfolioID: &p.ID,
-			FundID:      &p.Items[i].FundID,
-			Amount:      &p.Items[i].Amount,
-		}
-		pfs = append(pfs, pf)
-	}
+	pfs := p.Items.ConvertToDbModel(p.Id)
 	err = s.repo.UpsertPortfolioListItems(ctx, pfs, tx)
 	if err != nil {
 		return resp, err
@@ -175,4 +97,33 @@ func (s *Service) UpsertPortfolio(ctx context.Context,
 		return nil, err
 	}
 	return &proto.UpsertPortfolioResponse{Portfolio: p.ConvertToResponse()}, nil
+}
+
+func (s *Service) checkAndDeleteFunds(ctx context.Context, model Model, tx pgx.Tx) error {
+	li, err := s.repo.GetListItems(ctx, model.Id)
+	if err != nil {
+		return err
+	}
+	var itemsToDelete []uuid.UUID
+	comparisonLoop := func(dbItem ListItem) bool {
+		for _, newItem := range model.Items {
+			if dbItem.Id == newItem.Id {
+				return true
+			}
+		}
+		return false
+	}
+	for _, dbItem := range li {
+		match := comparisonLoop(dbItem)
+		if !match {
+			itemsToDelete = append(itemsToDelete, dbItem.Id)
+		}
+	}
+	if len(itemsToDelete) > 0 {
+		err = s.repo.DeleteListItems(ctx, itemsToDelete, tx)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

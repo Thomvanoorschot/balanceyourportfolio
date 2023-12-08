@@ -1,6 +1,7 @@
 package portfolio
 
 import (
+	"etfinsight/generated/jet_gen/postgres/public/model"
 	"etfinsight/generated/proto"
 	"etfinsight/services/fund"
 	"etfinsight/utils/stringutils"
@@ -19,21 +20,21 @@ func (m Models) ConvertToResponse() *proto.PortfoliosResponse {
 }
 
 type Model struct {
-	ID    uuid.UUID `db:"portfolio.id"`
+	Id    uuid.UUID `db:"portfolio.id"`
 	Name  string    `db:"portfolio.name"`
 	Items ListItems
 }
 
 func ConvertToModel(p *proto.Portfolio) Model {
 	return Model{
-		ID:    stringutils.ConvertToUUID(p.Id),
+		Id:    stringutils.ConvertToUUID(p.Id),
 		Name:  p.Name,
 		Items: ConvertToListItems(p.Entries),
 	}
 }
 func (m *Model) ConvertToResponse() *proto.Portfolio {
 	return &proto.Portfolio{
-		Id:      m.ID.String(),
+		Id:      m.Id.String(),
 		Name:    m.Name,
 		Entries: m.Items.ConvertToResponse(),
 	}
@@ -55,9 +56,29 @@ func (li ListItems) ConvertToResponse() []*proto.PortfolioListItem {
 	}
 	return pli
 }
+func (li ListItems) ConvertToDbModel(portfolioId uuid.UUID) []model.PortfolioFund {
+	var pfs []model.PortfolioFund
+
+	for i := range li {
+		if li[i].FundID == uuid.Nil {
+			continue
+		}
+		if li[i].Id == uuid.Nil {
+			li[i].Id = uuid.New()
+		}
+		pf := model.PortfolioFund{
+			ID:          li[i].Id,
+			PortfolioID: &portfolioId,
+			FundID:      &li[i].FundID,
+			Amount:      &li[i].Amount,
+		}
+		pfs = append(pfs, pf)
+	}
+	return pfs
+}
 
 type ListItem struct {
-	ID     uuid.UUID `db:"portfolio_fund.id"`
+	Id     uuid.UUID `db:"portfolio_fund.id"`
 	Amount float64   `db:"portfolio_fund.amount"`
 	FundID uuid.UUID `db:"fund.id"`
 	Name   string    `db:"fund.name"`
@@ -65,7 +86,7 @@ type ListItem struct {
 
 func ConvertToListItem(pli *proto.PortfolioListItem) ListItem {
 	return ListItem{
-		ID:     stringutils.ConvertToUUID(pli.Id),
+		Id:     stringutils.ConvertToUUID(pli.Id),
 		FundID: stringutils.ConvertToUUID(pli.FundId),
 		Amount: pli.Amount,
 		Name:   pli.Name,
@@ -73,18 +94,54 @@ func ConvertToListItem(pli *proto.PortfolioListItem) ListItem {
 }
 func (li ListItem) ConvertToResponse() *proto.PortfolioListItem {
 	return &proto.PortfolioListItem{
-		Id:     li.ID.String(),
+		Id:     li.Id.String(),
 		FundId: li.FundID.String(),
 		Name:   li.Name,
 		Amount: li.Amount,
 	}
 }
 
-type RelativeSectorWeighting struct {
-	FundID              uuid.UUID
-	FundName            string
-	PortfolioFundAmount float64
-	FundPrice           float64
-	SectorWeightings    fund.SectorWeightings
-}
 type RelativeSectorWeightings []RelativeSectorWeighting
+type RelativeSectorWeighting struct {
+	FundID           uuid.UUID
+	FundName         string
+	SectorWeightings SectorWeightings
+}
+
+func (rsw RelativeSectorWeightings) ConvertToResponse(ratio map[uuid.UUID]float64) map[string]*proto.PortfolioFundSectorWeighting {
+	pfsw := map[string]*proto.PortfolioFundSectorWeighting{}
+	for i := range rsw {
+		rsw[i].ConvertToResponse(ratio, pfsw)
+	}
+	return pfsw
+}
+func (rsw RelativeSectorWeighting) ConvertToResponse(ratio map[uuid.UUID]float64, pfsw map[string]*proto.PortfolioFundSectorWeighting) {
+	for _, sw := range rsw.SectorWeightings {
+		ratiodPerentage := sw.Percentage * ratio[rsw.FundID]
+		sector, ok := pfsw[string(sw.SectorName)]
+		if !ok {
+			newEntry := &proto.PortfolioFundSectorWeighting{
+				TotalPercentage: ratiodPerentage,
+				FundSectorWeighting: []*proto.PortfolioFundSectorWeightingEntry{
+					{
+						FundName:   rsw.FundName,
+						Percentage: ratiodPerentage,
+					},
+				},
+			}
+			pfsw[string(sw.SectorName)] = newEntry
+			sector = newEntry
+			continue
+		}
+		sector.TotalPercentage += ratiodPerentage
+		sector.FundSectorWeighting = append(sector.FundSectorWeighting, &proto.PortfolioFundSectorWeightingEntry{
+			FundName:   rsw.FundName,
+			Percentage: ratiodPerentage,
+		})
+	}
+}
+
+type SectorWeightings []SectorWeighting
+type SectorWeighting struct {
+	fund.SectorWeighting
+}

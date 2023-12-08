@@ -87,11 +87,37 @@ func (r *Repository) GetPortfolioFundSectors(ctx context.Context, portfolioID uu
 	return h, nil
 }
 
-func (r *Repository) GetPortfolioFundRelativeWeightings(ctx context.Context, portfolioID uuid.UUID) (portfolio.RelativeSectorWeightings, error) {
+func (r *Repository) GetRatio(ctx context.Context, portfolioId uuid.UUID) (map[uuid.UUID]float64, error) {
+	sql, args := SELECT(Fund.ID, Fund.Price.MUL(PortfolioFund.Amount).DIV(SUMf(Fund.Price.MUL(PortfolioFund.Amount)).OVER()).AS("ratio")).
+		FROM(PortfolioFund.
+			INNER_JOIN(Fund, Fund.ID.EQ(PortfolioFund.FundID))).
+		WHERE(PortfolioFund.PortfolioID.EQ(UUID(portfolioId))).
+		Sql()
+	rows, err := r.ConnectionPool.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	ratios := map[uuid.UUID]float64{}
+	for rows.Next() {
+		var (
+			fundId uuid.UUID
+			ratio  float64
+		)
+		err = rows.Scan(
+			&fundId,
+			&ratio,
+		)
+		if err != nil {
+			return nil, err
+		}
+		ratios[fundId] = ratio
+	}
+	return ratios, nil
+}
+func (r *Repository) GetPortfolioFundRelativeWeightings(ctx context.Context, portfolioId uuid.UUID) (portfolio.RelativeSectorWeightings, error) {
 	sql, args := SELECT(
 		PortfolioFund.FundID,
-		PortfolioFund.Amount,
-		Fund.Price,
 		Fund.Name,
 		Holding.Sector,
 		SUM(FundHolding.PercentageOfTotal).AS("percentage_sum"),
@@ -101,11 +127,10 @@ func (r *Repository) GetPortfolioFundRelativeWeightings(ctx context.Context, por
 			INNER_JOIN(PortfolioFund, PortfolioFund.FundID.EQ(FundHolding.FundID)).
 			INNER_JOIN(Fund, PortfolioFund.FundID.EQ(Fund.ID)),
 		).
-		WHERE(PortfolioFund.PortfolioID.EQ(UUID(portfolioID))).
+		WHERE(PortfolioFund.PortfolioID.EQ(UUID(portfolioId))).
 		GROUP_BY(
 			PortfolioFund.FundID,
 			PortfolioFund.Amount,
-			Fund.Price,
 			Fund.Name,
 			Holding.Sector,
 		).
@@ -121,15 +146,11 @@ func (r *Repository) GetPortfolioFundRelativeWeightings(ctx context.Context, por
 		var (
 			fundID                     uuid.UUID
 			fundName                   string
-			portfolioFundAmount        float64
-			fundPrice                  float64
 			sectorName                 fund.SectorName
 			sectorWeightingsPercentage float64
 		)
 		err = rows.Scan(
 			&fundID,
-			&portfolioFundAmount,
-			&fundPrice,
 			&fundName,
 			&sectorName,
 			&sectorWeightingsPercentage,
@@ -139,28 +160,30 @@ func (r *Repository) GetPortfolioFundRelativeWeightings(ctx context.Context, por
 		}
 		if len(rw) == 0 || rw[len(rw)-1].FundID != fundID {
 			rw = append(rw, portfolio.RelativeSectorWeighting{
-				FundID:              fundID,
-				FundName:            fundName,
-				FundPrice:           fundPrice,
-				PortfolioFundAmount: portfolioFundAmount,
-				SectorWeightings: []fund.SectorWeighting{
+				FundID:   fundID,
+				FundName: fundName,
+				SectorWeightings: []portfolio.SectorWeighting{
 					{
-						SectorName: sectorName,
-						Percentage: sectorWeightingsPercentage,
+						SectorWeighting: fund.SectorWeighting{
+							SectorName: sectorName,
+							Percentage: sectorWeightingsPercentage,
+						},
 					},
 				},
 			})
 			continue
 		}
-		rw[len(rw)-1].SectorWeightings = append(rw[len(rw)-1].SectorWeightings, fund.SectorWeighting{
-			SectorName: sectorName,
-			Percentage: sectorWeightingsPercentage,
+		rw[len(rw)-1].SectorWeightings = append(rw[len(rw)-1].SectorWeightings, portfolio.SectorWeighting{
+			SectorWeighting: fund.SectorWeighting{
+				SectorName: sectorName,
+				Percentage: sectorWeightingsPercentage,
+			},
 		})
 	}
 	return rw, nil
 }
 
-func (r *Repository) GetPortfolioFunds(ctx context.Context, portfolioID uuid.UUID) ([]fund.Information, error) {
+func (r *Repository) GetPortfolioFunds(ctx context.Context, portfolioId uuid.UUID) ([]fund.Information, error) {
 	sql, args := SELECT(
 		Fund.ID,
 		Fund.Name,
@@ -171,7 +194,7 @@ func (r *Repository) GetPortfolioFunds(ctx context.Context, portfolioID uuid.UUI
 		FROM(Fund.
 			INNER_JOIN(PortfolioFund, PortfolioFund.FundID.EQ(Fund.ID)),
 		).
-		WHERE(PortfolioFund.PortfolioID.EQ(UUID(portfolioID))).
+		WHERE(PortfolioFund.PortfolioID.EQ(UUID(portfolioId))).
 		Sql()
 
 	var fi []fund.Information
@@ -180,4 +203,59 @@ func (r *Repository) GetPortfolioFunds(ctx context.Context, portfolioID uuid.UUI
 		return nil, err
 	}
 	return fi, nil
+}
+func (r *Repository) GetPortfolioFundHoldings(ctx context.Context, portfolioId uuid.UUID) ([]fund.Information, error) {
+	sql, args := RawStatement(
+		`WITH ratio_cte AS (
+     SELECT fund.id AS "fund.id",
+          ((fund.price * portfolio_fund.amount) / SUM(fund.price * portfolio_fund.amount) OVER ()) AS "ratio"
+     FROM public.portfolio_fund
+          INNER JOIN public.fund ON (fund.id = portfolio_fund.fund_id)
+     WHERE portfolio_fund.portfolio_id = :portfolioId
+	),
+	relative_weightings_cte AS (
+		 SELECT H.Id as "holdingId", H.ticker, (ratio_cte.ratio * FH.percentage_of_total) as ratiodSum, F.id as "fundId"
+		 FROM holding H
+			  INNER JOIN fund_holding FH ON (FH.holding_id = H.id)
+			  INNER JOIN portfolio_fund PF ON (PF.fund_id = FH.fund_id)
+			  INNER JOIN fund F ON (PF.fund_id = F.id)
+			  INNER JOIN ratio_cte ON (ratio_cte."fund.id" = F.id)
+		 WHERE PF.portfolio_id = :portfolioId
+	), limiting_cte as (
+		SELECT distinct("holdingId"), (SUM(ratiodSum) OVER(PARTITION BY ticker)) as groupedPercentage 
+		from relative_weightings_cte 
+		order by groupedPercentage desc
+		limit 20 
+		offset 0
+	) SELECT *, (SUM(ratiodSum) OVER(PARTITION BY ticker)) as groupedPercentage from relative_weightings_cte 
+	where "holdingId" in (select "holdingId" from limiting_cte)
+	order by groupedPercentage desc`, RawArgs{":portfolioId": portfolioId},
+	).
+		Sql()
+
+	rows, err := r.ConnectionPool.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var (
+			holdingId         uuid.UUID
+			ticker            string
+			ratiodSum         float64
+			fundId            uuid.UUID
+			groupedPercentage float64
+		)
+		err = rows.Scan(
+			&holdingId,
+			&ticker,
+			&ratiodSum,
+			&fundId,
+			&groupedPercentage,
+		)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return nil, nil
 }

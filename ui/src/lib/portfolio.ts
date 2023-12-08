@@ -1,4 +1,5 @@
 import type {FundInformation, FundSectorWeighting} from "$lib/fund";
+import type {PortfolioFundSectorWeighting__Output} from "$lib/proto/proto/PortfolioFundSectorWeighting";
 
 export interface Portfolio {
     id: string;
@@ -31,4 +32,9 @@ export interface PortfolioHoldingsFilter {
     sectorName: string;
     limit: number;
     offset: number;
+}
+
+export interface PortfolioSectorWeighting {
+    sectorName: string
+    weighting: PortfolioFundSectorWeighting__Output
 }
