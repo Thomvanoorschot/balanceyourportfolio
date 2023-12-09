@@ -6,6 +6,7 @@ import type {FundDetailsResponse__Output} from "$lib/proto/proto/FundDetailsResp
 import type {FilterHoldingsRequest, FilterHoldingsRequest__Output} from "$lib/proto/proto/FilterHoldingsRequest";
 import type {HoldingsListResponse__Output} from "$lib/proto/proto/HoldingsListResponse";
 import type {GetFundDetailsRequest__Output} from "$lib/proto/proto/GetFundDetailsRequest";
+import type {Holding} from "$lib/holding";
 
 export const load = (async ({fetch, params, url}) => {
     const fundId = url.searchParams.get("fundId")
@@ -32,9 +33,18 @@ export const load = (async ({fetch, params, url}) => {
     if (!holdingsResp.success) {
         return fail(500, {error: "could not filter holdings"});
     }
+    const holdings: Holding[] = holdingsResp.data.entries.map(x => (
+        {
+            id: "",
+            name: x.name,
+            ticker: x.ticker,
+            percentage: x.percentageOfTotal,
+            funds: []
+        }
+    ))
     return {
         details: detailsResp.data,
-        holdings: holdingsResp.data
+        holdings: holdings
     };
 
 }) satisfies PageServerLoad;
@@ -64,8 +74,17 @@ export const actions = {
         if (!holdingsResp.success) {
             return fail(500, {error: "could not filter holdings"});
         }
+        const holdings: Holding[] = holdingsResp.data.entries.map(x => (
+            {
+                id: "",
+                name: x.name,
+                ticker: x.ticker,
+                percentage: x.percentageOfTotal,
+                funds: []
+            }
+        ))
         return {
-            holdings: holdingsResp.data
+            holdings: holdings
         };
     }
 } satisfies Actions;

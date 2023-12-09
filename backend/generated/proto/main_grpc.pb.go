@@ -183,6 +183,7 @@ type PortfolioServiceClient interface {
 	GetPortfolios(ctx context.Context, in *PortfoliosRequest, opts ...grpc.CallOption) (*PortfoliosResponse, error)
 	UpsertPortfolio(ctx context.Context, in *UpsertPortfolioRequest, opts ...grpc.CallOption) (*UpsertPortfolioResponse, error)
 	GetPortfolioDetails(ctx context.Context, in *PortfolioDetailsRequest, opts ...grpc.CallOption) (*PortfolioDetailsResponse, error)
+	FilterPortfolioHoldings(ctx context.Context, in *FilterPortfolioHoldingsRequest, opts ...grpc.CallOption) (*FilterPortfolioHoldingsResponse, error)
 }
 
 type portfolioServiceClient struct {
@@ -220,6 +221,15 @@ func (c *portfolioServiceClient) GetPortfolioDetails(ctx context.Context, in *Po
 	return out, nil
 }
 
+func (c *portfolioServiceClient) FilterPortfolioHoldings(ctx context.Context, in *FilterPortfolioHoldingsRequest, opts ...grpc.CallOption) (*FilterPortfolioHoldingsResponse, error) {
+	out := new(FilterPortfolioHoldingsResponse)
+	err := c.cc.Invoke(ctx, "/proto.PortfolioService/FilterPortfolioHoldings", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PortfolioServiceServer is the server API for PortfolioService service.
 // All implementations must embed UnimplementedPortfolioServiceServer
 // for forward compatibility
@@ -227,6 +237,7 @@ type PortfolioServiceServer interface {
 	GetPortfolios(context.Context, *PortfoliosRequest) (*PortfoliosResponse, error)
 	UpsertPortfolio(context.Context, *UpsertPortfolioRequest) (*UpsertPortfolioResponse, error)
 	GetPortfolioDetails(context.Context, *PortfolioDetailsRequest) (*PortfolioDetailsResponse, error)
+	FilterPortfolioHoldings(context.Context, *FilterPortfolioHoldingsRequest) (*FilterPortfolioHoldingsResponse, error)
 	mustEmbedUnimplementedPortfolioServiceServer()
 }
 
@@ -242,6 +253,9 @@ func (UnimplementedPortfolioServiceServer) UpsertPortfolio(context.Context, *Ups
 }
 func (UnimplementedPortfolioServiceServer) GetPortfolioDetails(context.Context, *PortfolioDetailsRequest) (*PortfolioDetailsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPortfolioDetails not implemented")
+}
+func (UnimplementedPortfolioServiceServer) FilterPortfolioHoldings(context.Context, *FilterPortfolioHoldingsRequest) (*FilterPortfolioHoldingsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FilterPortfolioHoldings not implemented")
 }
 func (UnimplementedPortfolioServiceServer) mustEmbedUnimplementedPortfolioServiceServer() {}
 
@@ -310,6 +324,24 @@ func _PortfolioService_GetPortfolioDetails_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PortfolioService_FilterPortfolioHoldings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FilterPortfolioHoldingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PortfolioServiceServer).FilterPortfolioHoldings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.PortfolioService/FilterPortfolioHoldings",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PortfolioServiceServer).FilterPortfolioHoldings(ctx, req.(*FilterPortfolioHoldingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PortfolioService_ServiceDesc is the grpc.ServiceDesc for PortfolioService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -328,6 +360,10 @@ var PortfolioService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPortfolioDetails",
 			Handler:    _PortfolioService_GetPortfolioDetails_Handler,
+		},
+		{
+			MethodName: "FilterPortfolioHoldings",
+			Handler:    _PortfolioService_FilterPortfolioHoldings_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

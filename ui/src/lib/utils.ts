@@ -10,15 +10,14 @@ export const debounce = (callback: Function, wait = 300) => {
 export const EMPTY_UUID = "00000000-0000-0000-0000-000000000000"
 
 export const colors = [
-    "#dc2626",
-    "#ea580c",
-    "#d97706",
-    "#16a34a",
-    "#0284c7",
-    "#2563eb",
-    "#7c3aed",
-    "#c026d3",
-    "#374151"
+    "#cb8655",
+    "#e09b80",
+    "#7e8e65",
+    "#deb3e0",
+    "#b65149",
+    "#feecd6",
+    "#a39fe1",
+    "#9bb8ed"
 ];
 
 export function stringToRandomInteger(inputString: string, maxNumber: number) {

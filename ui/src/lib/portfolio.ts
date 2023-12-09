@@ -1,4 +1,3 @@
-import type {FundInformation, FundSectorWeighting} from "$lib/fund";
 import type {PortfolioFundSectorWeighting__Output} from "$lib/proto/proto/PortfolioFundSectorWeighting";
 
 export interface Portfolio {
@@ -14,17 +13,6 @@ export interface PortfolioListItem {
     amount: number | undefined;
 }
 
-export interface PortfolioDetails {
-    fundInformation: FundInformation[]
-    sectors: string[]
-    portfolioFundSectorWeightings: PortfolioFundSectorWeightings[]
-}
-
-export interface PortfolioFundSectorWeightings {
-    fundName: string;
-    percentageOfTotal: number;
-    fundSectorWeighting: FundSectorWeighting[]
-}
 
 export interface PortfolioHoldingsFilter {
     portfolioId: string;

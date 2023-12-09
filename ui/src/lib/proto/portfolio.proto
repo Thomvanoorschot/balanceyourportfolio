@@ -37,6 +37,7 @@ message PortfolioDetailsResponse {
   repeated string sectors = 1;
   repeated FundInformation fundInformation = 2;
   map<string, PortfolioFundSectorWeighting>  portfolioFundSectorWeightings = 3;
+  repeated PortfolioFundHolding portfolioFundHoldings = 4;
 }
 
 message PortfolioFundSectorWeighting {
@@ -44,7 +45,30 @@ message PortfolioFundSectorWeighting {
   repeated PortfolioFundSectorWeightingEntry fundSectorWeighting = 3;
 }
 message PortfolioFundSectorWeightingEntry {
-  string fundName = 1;
-  double percentage = 2;
+  string fundId = 1;
+  string fundName = 2;
+  double percentage = 3;
+}
+
+message FilterPortfolioHoldingsRequest {
+  string portfolioId = 1;
+  string searchTerm = 2;
+  string sectorName = 3;
+  int64 limit = 4;
+  int64 offset = 5;
+}
+message FilterPortfolioHoldingsResponse {
+  repeated PortfolioFundHolding entries = 1;
+}
+message PortfolioFundHolding {
+  string ticker = 1;
+  string holdingId = 2;
+  string holdingName = 3;
+  double cumulativePercentage = 4;
+  repeated PortfolioFundHoldingEntry funds = 5;
+}
+message PortfolioFundHoldingEntry {
+  string fundId = 1;
+  double ratiodPercentage = 2;
 }
 

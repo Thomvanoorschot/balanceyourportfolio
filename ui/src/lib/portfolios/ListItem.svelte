@@ -46,7 +46,6 @@
 
     const updateFunds = () => {
         return ({result}: { result: ActionResult }) => {
-            console.log(result)
             if (result.type === "success" && result?.data?.funds) {
                 funds = result?.data?.funds
             } else if (result.type === "failure") {

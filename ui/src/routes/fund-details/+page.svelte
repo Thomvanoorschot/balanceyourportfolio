@@ -2,8 +2,7 @@
     import Filter from "$lib/fund-details/Filter.svelte";
     import Information from "$lib/fund-details/Information.svelte";
     import Weightings from "$lib/fund-details/Weightings.svelte";
-    import Holdings from "$lib/fund-details/Holdings.svelte";
-    import type {HoldingsResponse__Output} from "$lib/proto/proto/HoldingsResponse";
+    import Holdings from "$lib/holding/Holdings.svelte";
 
     import type {PageData} from './$types';
     import type {FundHoldingsFilter, FundSectorWeighting} from "$lib/fund";
@@ -11,14 +10,15 @@
     import {enhance} from '$app/forms';
     import type {ActionResult} from "@sveltejs/kit";
     import type {FundDetailsResponse__Output} from "$lib/proto/proto/FundDetailsResponse";
+    import type {Holding} from "$lib/holding";
 
     export let data: PageData;
 
     let details: FundDetailsResponse__Output | undefined;
-    let holdings: HoldingsResponse__Output[];
+    let holdings: Holding[];
     let error: string | undefined
     $:{
-        holdings = data?.holdings?.entries || []
+        holdings = data?.holdings || []
         details = data?.details
         error = ""
     }
@@ -48,8 +48,8 @@
 
     const updateNextPage = () => {
         return ({result}: { result: ActionResult }) => {
-            if (result.type === "success" && result?.data?.holdings.entries) {
-                holdings = [...holdings, ...result?.data?.holdings.entries]
+            if (result.type === "success" && result?.data?.holdings) {
+                holdings = [...holdings, ...result?.data?.holdings]
             } else if (result.type === "failure") {
                 error = result.data?.error
             }
@@ -58,7 +58,7 @@
 
     const updateFilteredHoldings = () => {
         return ({result}: { result: ActionResult }) => {
-            if (result.type === "success" && result?.data?.holdings.entries) {
+            if (result.type === "success" && result?.data?.holdings) {
                 holdings = [...result?.data?.holdings.entries]
             } else if (result.type === "failure") {
                 error = result.data?.error

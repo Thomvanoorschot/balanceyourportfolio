@@ -11,6 +11,8 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 export interface ProtoGrpcType {
   proto: {
     FilterHoldingsRequest: MessageTypeDefinition
+    FilterPortfolioHoldingsRequest: MessageTypeDefinition
+    FilterPortfolioHoldingsResponse: MessageTypeDefinition
     FundDetailsResponse: MessageTypeDefinition
     FundInformation: MessageTypeDefinition
     FundSectorWeighting: MessageTypeDefinition
@@ -21,6 +23,8 @@ export interface ProtoGrpcType {
     Portfolio: MessageTypeDefinition
     PortfolioDetailsRequest: MessageTypeDefinition
     PortfolioDetailsResponse: MessageTypeDefinition
+    PortfolioFundHolding: MessageTypeDefinition
+    PortfolioFundHoldingEntry: MessageTypeDefinition
     PortfolioFundSectorWeighting: MessageTypeDefinition
     PortfolioFundSectorWeightingEntry: MessageTypeDefinition
     PortfolioListItem: MessageTypeDefinition

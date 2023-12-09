@@ -124,6 +124,7 @@ func (rsw RelativeSectorWeighting) ConvertToResponse(ratio map[uuid.UUID]float64
 				TotalPercentage: ratiodPerentage,
 				FundSectorWeighting: []*proto.PortfolioFundSectorWeightingEntry{
 					{
+						FundId:     rsw.FundID.String(),
 						FundName:   rsw.FundName,
 						Percentage: ratiodPerentage,
 					},
@@ -135,6 +136,7 @@ func (rsw RelativeSectorWeighting) ConvertToResponse(ratio map[uuid.UUID]float64
 		}
 		sector.TotalPercentage += ratiodPerentage
 		sector.FundSectorWeighting = append(sector.FundSectorWeighting, &proto.PortfolioFundSectorWeightingEntry{
+			FundId:     rsw.FundID.String(),
 			FundName:   rsw.FundName,
 			Percentage: ratiodPerentage,
 		})
@@ -144,4 +146,50 @@ func (rsw RelativeSectorWeighting) ConvertToResponse(ratio map[uuid.UUID]float64
 type SectorWeightings []SectorWeighting
 type SectorWeighting struct {
 	fund.SectorWeighting
+}
+
+type FundHoldings []FundHolding
+type FundHolding struct {
+	Ticker               string
+	HoldingName          string
+	HoldingId            uuid.UUID
+	CumulativePercentage float64
+	Funds                FundsHoldingEntries
+}
+
+func (fh FundHoldings) ConvertToResponse() []*proto.PortfolioFundHolding {
+	pfh := make([]*proto.PortfolioFundHolding, len(fh))
+	for i := range fh {
+		pfh[i] = fh[i].ConvertToResponse()
+	}
+	return pfh
+}
+func (rsw FundHolding) ConvertToResponse() *proto.PortfolioFundHolding {
+	return &proto.PortfolioFundHolding{
+		Ticker:               rsw.Ticker,
+		HoldingId:            rsw.HoldingId.String(),
+		HoldingName:          rsw.HoldingName,
+		CumulativePercentage: rsw.CumulativePercentage,
+		Funds:                rsw.Funds.ConvertToResponse(),
+	}
+}
+
+type FundsHoldingEntries []FundHoldingEntry
+type FundHoldingEntry struct {
+	FundId          uuid.UUID
+	RatiodPerentage float64
+}
+
+func (fh FundsHoldingEntries) ConvertToResponse() []*proto.PortfolioFundHoldingEntry {
+	pfhe := make([]*proto.PortfolioFundHoldingEntry, len(fh))
+	for i := range fh {
+		pfhe[i] = fh[i].ConvertToResponse()
+	}
+	return pfhe
+}
+func (fhe FundHoldingEntry) ConvertToResponse() *proto.PortfolioFundHoldingEntry {
+	return &proto.PortfolioFundHoldingEntry{
+		FundId:           fhe.FundId.String(),
+		RatiodPercentage: fhe.RatiodPerentage,
+	}
 }

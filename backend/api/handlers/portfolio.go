@@ -15,6 +15,7 @@ type PortfolioService interface {
 	GetPortfolios(ctx context.Context, userId uuid.UUID) (*proto.PortfoliosResponse, error)
 	UpsertPortfolio(ctx context.Context, userId uuid.UUID, req *proto.Portfolio) (*proto.UpsertPortfolioResponse, error)
 	GetPortfolioDetails(ctx context.Context, userId uuid.UUID, portfolioId uuid.UUID) (*proto.PortfolioDetailsResponse, error)
+	FilterPortfolioHoldings(ctx context.Context, req *proto.FilterPortfolioHoldingsRequest) (*proto.FilterPortfolioHoldingsResponse, error)
 }
 
 type PortfolioHandler struct {
@@ -53,6 +54,17 @@ func (h *PortfolioHandler) GetPortfolioDetails(ctx context.Context, req *proto.P
 		stringutils.ConvertToUUID("b21b14c9-70bb-4336-a35c-7a69396ffbd8"),
 		stringutils.ConvertToUUID(req.PortfolioId),
 	)
+	if err != nil {
+		return nil, status.Error(
+			codes.Unknown, err.Error(),
+		)
+	}
+
+	return resp, nil
+}
+
+func (h *PortfolioHandler) FilterPortfolioHoldings(ctx context.Context, req *proto.FilterPortfolioHoldingsRequest) (*proto.FilterPortfolioHoldingsResponse, error) {
+	resp, err := h.portfolioService.FilterPortfolioHoldings(ctx, req)
 	if err != nil {
 		return nil, status.Error(
 			codes.Unknown, err.Error(),

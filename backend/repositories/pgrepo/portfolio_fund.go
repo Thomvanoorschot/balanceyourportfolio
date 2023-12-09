@@ -204,7 +204,7 @@ func (r *Repository) GetPortfolioFunds(ctx context.Context, portfolioId uuid.UUI
 	}
 	return fi, nil
 }
-func (r *Repository) GetPortfolioFundHoldings(ctx context.Context, portfolioId uuid.UUID) ([]fund.Information, error) {
+func (r *Repository) GetPortfolioFundHoldings(ctx context.Context, portfolioId uuid.UUID, limit int64, offset int64) (portfolio.FundHoldings, error) {
 	sql, args := RawStatement(
 		`WITH ratio_cte AS (
      SELECT fund.id AS "fund.id",
@@ -214,7 +214,7 @@ func (r *Repository) GetPortfolioFundHoldings(ctx context.Context, portfolioId u
      WHERE portfolio_fund.portfolio_id = :portfolioId
 	),
 	relative_weightings_cte AS (
-		 SELECT H.Id as "holdingId", H.ticker, (ratio_cte.ratio * FH.percentage_of_total) as ratiodSum, F.id as "fundId"
+		 SELECT H.Id as "holdingId", H.ticker, H."name", (ratio_cte.ratio * FH.percentage_of_total) as ratiodPercentage, F.id as "fundId"
 		 FROM holding H
 			  INNER JOIN fund_holding FH ON (FH.holding_id = H.id)
 			  INNER JOIN portfolio_fund PF ON (PF.fund_id = FH.fund_id)
@@ -222,14 +222,14 @@ func (r *Repository) GetPortfolioFundHoldings(ctx context.Context, portfolioId u
 			  INNER JOIN ratio_cte ON (ratio_cte."fund.id" = F.id)
 		 WHERE PF.portfolio_id = :portfolioId
 	), limiting_cte as (
-		SELECT distinct("holdingId"), (SUM(ratiodSum) OVER(PARTITION BY ticker)) as groupedPercentage 
+		SELECT distinct("holdingId"), (SUM(ratiodPercentage) OVER(PARTITION BY ticker)) as cumulativePercentage 
 		from relative_weightings_cte 
-		order by groupedPercentage desc
-		limit 20 
-		offset 0
-	) SELECT *, (SUM(ratiodSum) OVER(PARTITION BY ticker)) as groupedPercentage from relative_weightings_cte 
+		order by cumulativePercentage desc
+		limit :limit 
+		offset :offset
+	) SELECT *, (SUM(ratiodPercentage) OVER(PARTITION BY ticker)) as cumulativePercentage from relative_weightings_cte 
 	where "holdingId" in (select "holdingId" from limiting_cte)
-	order by groupedPercentage desc`, RawArgs{":portfolioId": portfolioId},
+	order by cumulativePercentage desc`, RawArgs{":portfolioId": portfolioId, ":limit": limit, ":offset": offset},
 	).
 		Sql()
 
@@ -238,24 +238,46 @@ func (r *Repository) GetPortfolioFundHoldings(ctx context.Context, portfolioId u
 		return nil, err
 	}
 	defer rows.Close()
+	var fh portfolio.FundHoldings
 	for rows.Next() {
 		var (
-			holdingId         uuid.UUID
-			ticker            string
-			ratiodSum         float64
-			fundId            uuid.UUID
-			groupedPercentage float64
+			holdingId            uuid.UUID
+			ticker               string
+			holdingName          string
+			ratiodPercentage     float64
+			fundId               uuid.UUID
+			cumulativePercentage float64
 		)
 		err = rows.Scan(
 			&holdingId,
 			&ticker,
-			&ratiodSum,
+			&holdingName,
+			&ratiodPercentage,
 			&fundId,
-			&groupedPercentage,
+			&cumulativePercentage,
 		)
 		if err != nil {
 			return nil, err
 		}
+		if len(fh) == 0 || fh[len(fh)-1].Ticker != ticker {
+			fh = append(fh, portfolio.FundHolding{
+				Ticker:               ticker,
+				HoldingId:            holdingId,
+				HoldingName:          holdingName,
+				CumulativePercentage: cumulativePercentage,
+				Funds: []portfolio.FundHoldingEntry{
+					{
+						FundId:          fundId,
+						RatiodPerentage: ratiodPercentage,
+					},
+				},
+			})
+			continue
+		}
+		fh[len(fh)-1].Funds = append(fh[len(fh)-1].Funds, portfolio.FundHoldingEntry{
+			FundId:          fundId,
+			RatiodPerentage: ratiodPercentage,
+		})
 	}
-	return nil, nil
+	return fh, nil
 }

@@ -3,12 +3,7 @@
     import type {PortfolioSectorWeighting} from "$lib/portfolio";
 
     export let sectorWeightings:  PortfolioSectorWeighting[]
-    export let colorMap: Map<string, string>;
-
-    interface Sector {
-        cumulativePercentage: number;
-        fundWeightings: FundWeighting[]
-    }
+    export let colorMap: Map<string, {fundName: string, color: string}>;
 
     interface FundWeighting {
         fundName: string;
@@ -18,7 +13,6 @@
     const dispatch = createEventDispatcher()
 
     function sectorClicked(test: string) {
-        console.log(test)
         // dispatch('sectorClicked',sw)
     }
 </script>
@@ -37,7 +31,7 @@
                 {#each sectorWeighting.weighting.fundSectorWeighting as fundSector}
                     <div class="h-4 bg-blue-300"
                          style="
-                         background-color: {colorMap.get(fundSector.fundName)};
+                         background-color: {colorMap.get(fundSector.fundId)?.color};
                          width: { `${Math.round(fundSector.percentage / sectorWeightings[0].weighting.totalPercentage * 100)}%`}">
                     </div>
                 {/each}

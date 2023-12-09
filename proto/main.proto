@@ -15,4 +15,5 @@ service PortfolioService {
   rpc GetPortfolios(PortfoliosRequest) returns (PortfoliosResponse);
   rpc UpsertPortfolio(UpsertPortfolioRequest) returns (UpsertPortfolioResponse);
   rpc GetPortfolioDetails(PortfolioDetailsRequest) returns (PortfolioDetailsResponse);
+  rpc FilterPortfolioHoldings(FilterPortfolioHoldingsRequest) returns (FilterPortfolioHoldingsResponse);
 }

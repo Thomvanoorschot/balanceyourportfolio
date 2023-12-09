@@ -2,7 +2,6 @@ package portfolio
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"etfinsight/generated/jet_gen/postgres/public/model"
@@ -35,20 +34,20 @@ func (s *Service) GetPortfolioDetails(ctx context.Context, userId uuid.UUID, por
 	relativeWeightingsCh := concurrencyutils.Async2(func() (RelativeSectorWeightings, error) {
 		return s.repo.GetPortfolioFundRelativeWeightings(ctx, portfolioId)
 	})
-	portfolioFundHoldingsCh := concurrencyutils.Async2(func() (fund.InformationList, error) {
-		return s.repo.GetPortfolioFundHoldings(ctx, portfolioId)
+	portfolioFundHoldingsCh := concurrencyutils.Async2(func() (FundHoldings, error) {
+		return s.repo.GetPortfolioFundHoldings(ctx, portfolioId, 20, 0)
 	})
 	ratioResult := <-ratioCh
 	portfolioSectorResult := <-portfolioSectorCh
 	informationResult := <-informationCh
 	relativeWeightingsResult := <-relativeWeightingsCh
-	test := <-portfolioFundHoldingsCh
-	fmt.Println(test)
+	portfolioFundHoldingsResult := <-portfolioFundHoldingsCh
 
 	return &proto.PortfolioDetailsResponse{
 		FundInformation:               informationResult.Value.ConvertToResponse(),
 		Sectors:                       portfolioSectorResult.Value.ConvertToResponse(),
 		PortfolioFundSectorWeightings: relativeWeightingsResult.Value.ConvertToResponse(ratioResult.Value),
+		PortfolioFundHoldings:         portfolioFundHoldingsResult.Value.ConvertToResponse(),
 	}, nil
 }
 func (s *Service) GetPortfolios(ctx context.Context, userId uuid.UUID) (*proto.PortfoliosResponse, error) {
@@ -126,4 +125,15 @@ func (s *Service) checkAndDeleteFunds(ctx context.Context, model Model, tx pgx.T
 		}
 	}
 	return nil
+}
+
+func (s *Service) FilterPortfolioHoldings(ctx context.Context, filter *proto.FilterPortfolioHoldingsRequest) (*proto.FilterPortfolioHoldingsResponse, error) {
+	if filter.SectorName == string(fund.AnySector) {
+		filter.SectorName = ""
+	}
+	fundHoldings, err := s.repo.GetPortfolioFundHoldings(ctx, uuid.MustParse(filter.PortfolioId), filter.Limit, filter.Offset)
+	if err != nil {
+		return nil, err
+	}
+	return &proto.FilterPortfolioHoldingsResponse{Entries: fundHoldings.ConvertToResponse()}, nil
 }

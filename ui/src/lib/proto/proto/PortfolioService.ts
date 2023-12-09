@@ -2,6 +2,8 @@
 
 import type * as grpc from '@grpc/grpc-js'
 import type { MethodDefinition } from '@grpc/proto-loader'
+import type { FilterPortfolioHoldingsRequest as _proto_FilterPortfolioHoldingsRequest, FilterPortfolioHoldingsRequest__Output as _proto_FilterPortfolioHoldingsRequest__Output } from '../proto/FilterPortfolioHoldingsRequest';
+import type { FilterPortfolioHoldingsResponse as _proto_FilterPortfolioHoldingsResponse, FilterPortfolioHoldingsResponse__Output as _proto_FilterPortfolioHoldingsResponse__Output } from '../proto/FilterPortfolioHoldingsResponse';
 import type { PortfolioDetailsRequest as _proto_PortfolioDetailsRequest, PortfolioDetailsRequest__Output as _proto_PortfolioDetailsRequest__Output } from '../proto/PortfolioDetailsRequest';
 import type { PortfolioDetailsResponse as _proto_PortfolioDetailsResponse, PortfolioDetailsResponse__Output as _proto_PortfolioDetailsResponse__Output } from '../proto/PortfolioDetailsResponse';
 import type { PortfoliosRequest as _proto_PortfoliosRequest, PortfoliosRequest__Output as _proto_PortfoliosRequest__Output } from '../proto/PortfoliosRequest';
@@ -10,6 +12,15 @@ import type { UpsertPortfolioRequest as _proto_UpsertPortfolioRequest, UpsertPor
 import type { UpsertPortfolioResponse as _proto_UpsertPortfolioResponse, UpsertPortfolioResponse__Output as _proto_UpsertPortfolioResponse__Output } from '../proto/UpsertPortfolioResponse';
 
 export interface PortfolioServiceClient extends grpc.Client {
+  FilterPortfolioHoldings(argument: _proto_FilterPortfolioHoldingsRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_proto_FilterPortfolioHoldingsResponse__Output>): grpc.ClientUnaryCall;
+  FilterPortfolioHoldings(argument: _proto_FilterPortfolioHoldingsRequest, metadata: grpc.Metadata, callback: grpc.requestCallback<_proto_FilterPortfolioHoldingsResponse__Output>): grpc.ClientUnaryCall;
+  FilterPortfolioHoldings(argument: _proto_FilterPortfolioHoldingsRequest, options: grpc.CallOptions, callback: grpc.requestCallback<_proto_FilterPortfolioHoldingsResponse__Output>): grpc.ClientUnaryCall;
+  FilterPortfolioHoldings(argument: _proto_FilterPortfolioHoldingsRequest, callback: grpc.requestCallback<_proto_FilterPortfolioHoldingsResponse__Output>): grpc.ClientUnaryCall;
+  filterPortfolioHoldings(argument: _proto_FilterPortfolioHoldingsRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_proto_FilterPortfolioHoldingsResponse__Output>): grpc.ClientUnaryCall;
+  filterPortfolioHoldings(argument: _proto_FilterPortfolioHoldingsRequest, metadata: grpc.Metadata, callback: grpc.requestCallback<_proto_FilterPortfolioHoldingsResponse__Output>): grpc.ClientUnaryCall;
+  filterPortfolioHoldings(argument: _proto_FilterPortfolioHoldingsRequest, options: grpc.CallOptions, callback: grpc.requestCallback<_proto_FilterPortfolioHoldingsResponse__Output>): grpc.ClientUnaryCall;
+  filterPortfolioHoldings(argument: _proto_FilterPortfolioHoldingsRequest, callback: grpc.requestCallback<_proto_FilterPortfolioHoldingsResponse__Output>): grpc.ClientUnaryCall;
+  
   GetPortfolioDetails(argument: _proto_PortfolioDetailsRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_proto_PortfolioDetailsResponse__Output>): grpc.ClientUnaryCall;
   GetPortfolioDetails(argument: _proto_PortfolioDetailsRequest, metadata: grpc.Metadata, callback: grpc.requestCallback<_proto_PortfolioDetailsResponse__Output>): grpc.ClientUnaryCall;
   GetPortfolioDetails(argument: _proto_PortfolioDetailsRequest, options: grpc.CallOptions, callback: grpc.requestCallback<_proto_PortfolioDetailsResponse__Output>): grpc.ClientUnaryCall;
@@ -40,6 +51,8 @@ export interface PortfolioServiceClient extends grpc.Client {
 }
 
 export interface PortfolioServiceHandlers extends grpc.UntypedServiceImplementation {
+  FilterPortfolioHoldings: grpc.handleUnaryCall<_proto_FilterPortfolioHoldingsRequest__Output, _proto_FilterPortfolioHoldingsResponse>;
+  
   GetPortfolioDetails: grpc.handleUnaryCall<_proto_PortfolioDetailsRequest__Output, _proto_PortfolioDetailsResponse>;
   
   GetPortfolios: grpc.handleUnaryCall<_proto_PortfoliosRequest__Output, _proto_PortfoliosResponse>;
@@ -49,6 +62,7 @@ export interface PortfolioServiceHandlers extends grpc.UntypedServiceImplementat
 }
 
 export interface PortfolioServiceDefinition extends grpc.ServiceDefinition {
+  FilterPortfolioHoldings: MethodDefinition<_proto_FilterPortfolioHoldingsRequest, _proto_FilterPortfolioHoldingsResponse, _proto_FilterPortfolioHoldingsRequest__Output, _proto_FilterPortfolioHoldingsResponse__Output>
   GetPortfolioDetails: MethodDefinition<_proto_PortfolioDetailsRequest, _proto_PortfolioDetailsResponse, _proto_PortfolioDetailsRequest__Output, _proto_PortfolioDetailsResponse__Output>
   GetPortfolios: MethodDefinition<_proto_PortfoliosRequest, _proto_PortfoliosResponse, _proto_PortfoliosRequest__Output, _proto_PortfoliosResponse__Output>
   UpsertPortfolio: MethodDefinition<_proto_UpsertPortfolioRequest, _proto_UpsertPortfolioResponse, _proto_UpsertPortfolioRequest__Output, _proto_UpsertPortfolioResponse__Output>

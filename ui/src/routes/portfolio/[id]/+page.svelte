@@ -3,33 +3,53 @@
     import Weightings from "$lib/portfolios/Weightings.svelte";
     import Filter from "$lib/fund-details/Filter.svelte";
     import {page} from "$app/stores";
-    import type {PortfolioHoldingsFilter} from "$lib/portfolio";
+    import type {PortfolioHoldingsFilter, PortfolioSectorWeighting} from "$lib/portfolio";
     import FundColors from "$lib/portfolios/FundColors.svelte";
     import type {FundInformation__Output} from "$lib/proto/proto/FundInformation";
-    import type {PortfolioSectorWeighting} from "./+page.server";
+    import Holdings from "$lib/holding/Holdings.svelte";
+    import type {Holding} from "$lib/holding";
+    import type {ActionResult} from "@sveltejs/kit";
+    import {enhance} from '$app/forms';
 
     export let data: PageData;
-    let colorMap: Map<string, string> | undefined
+    let colorMap: Map<string, {fundName: string, color: string}> | undefined
     let error: string | undefined
     let sectors: string[] | undefined
     let fundInformation: FundInformation__Output[] | undefined
     let portfolioFundSectorWeightings: PortfolioSectorWeighting[] | undefined
-    $: ({ sectors, fundInformation, portfolioFundSectorWeightings, colorMap } = data);
+    let holdings: Holding[] = []
+    let fundsForm: HTMLFormElement;
+    $: ({sectors, fundInformation, portfolioFundSectorWeightings, colorMap, holdings} = data);
 
+    const updateNextPage = () => {
+        return ({result}: { result: ActionResult }) => {
+            if (result.type === "success" && result?.data?.holdings && holdings) {
+                holdings = [...holdings, ...result?.data?.holdings]
+            } else if (result.type === "failure") {
+                error = result.data?.error
+            }
+        };
+    };
 
     let holdingsFilter: PortfolioHoldingsFilter = {
-        portfolioId: $page.url.searchParams.get("portfolioId")!,
+        portfolioId: "",
         sectorName: "Any sector",
         searchTerm: "",
         limit: 20,
         offset: 0,
     }
-
+    function submitNextPage(): void {
+        fundsForm.requestSubmit()
+    }
     async function filter() {
 
     }
+    function setFilterForm(formData: FormData) {
+        formData.set("sectorName", holdingsFilter.sectorName);
+        formData.set("searchTerm", holdingsFilter.searchTerm);
+    }
 </script>
-{#if (!error && sectors && colorMap && portfolioFundSectorWeightings)}
+{#if (!error && sectors && colorMap && portfolioFundSectorWeightings && holdings)}
     <div class="flex flex-grow items-start justify-between w-full">
         <Filter
                 on:filterChanged={filter}
@@ -45,7 +65,22 @@
                 <Weightings colorMap="{colorMap}"
                             sectorWeightings="{portfolioFundSectorWeightings}"></Weightings>
             </div>
-            <!--        <Holdings></Holdings>-->
+            <form
+                    method="POST"
+                    action="?/filterHoldings"
+                    bind:this={fundsForm}
+                    use:enhance={({formData}) => {
+                    setFilterForm(formData);
+                    formData.set("holdingsLength", holdings.length.toString());
+                    return updateNextPage()
+                }}
+            >
+                <Holdings
+                        on:endOfPageReached={submitNextPage}
+                        holdings="{holdings}"
+                        colorMap="{colorMap}"
+                ></Holdings>
+            </form>
         </div>
     </div>
 {/if}
