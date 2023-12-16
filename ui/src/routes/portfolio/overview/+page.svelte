@@ -16,10 +16,6 @@
 </script>
 {#if (!error && portfolios)}
     <div id="portfolios" class="flex flex-grow flex-col w-full items-center justify-start">
-        <form class="flex relative flex-col m-20 w-[50vw] rounded-lg shadow-lg">
-            <Table headers="{['Ticker or name', 'Amount', 'Edit', 'Delete']}"></Table>
-
-        </form>
         {#each portfolios.entries as portfolio}
             <Portfolio portfolio="{portfolio}"></Portfolio>
         {/each}

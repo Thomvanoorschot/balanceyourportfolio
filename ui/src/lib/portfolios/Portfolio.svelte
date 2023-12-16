@@ -1,24 +1,35 @@
 <script lang="ts">
-    import ListItem from "$lib/portfolios/ListItem.svelte";
-    import {EMPTY_UUID} from "$lib/utils";
-    import CustomButton from "$lib/CustomButton.svelte";
-    import {goto} from "$app/navigation";
     import type {Portfolio__Output} from "$lib/proto/proto/Portfolio";
-    import type {PortfolioListItem__Output} from "$lib/proto/proto/PortfolioListItem";
     import {enhance} from '$app/forms';
     import type {ActionResult} from "@sveltejs/kit";
+    import Table from "$lib/table/Table.svelte";
+    import TableRow from "$lib/table/TableRow.svelte";
+    import EditCell from "$lib/table/EditCell.svelte";
+    import SearchFundCell from "$lib/table/SearchFundCell.svelte";
+    import NumberCell from "$lib/table/NumberCell.svelte";
+    import {EMPTY_UUID} from "$lib/utils.ts";
+    import {goto} from "$app/navigation";
+    import PrimaryButton from "$lib/shared/PrimaryButton.svelte";
+    import SecondaryButton from "$lib/shared/SecondaryButton.svelte";
+    import TableHeaderRow from "$lib/table/TableHeaderRow.svelte";
+    import TableHeader from "$lib/table/TableHeader.svelte";
+    import AddButton from "$lib/shared/AddButton.svelte";
+    import toast, {Toaster} from "svelte-french-toast";
 
     let portfolioForm: HTMLFormElement;
-
-
     export let portfolio: Portfolio__Output;
-    $:{
-        portfolio
-    }
-    const addNewRow = (clickedRow: PortfolioListItem__Output) => {
-        // if (portfolio.items[portfolio.items.length - 1] === clickedRow) {
-        //     portfoliosStore.addEmptyItem(portfolio)
-        // }
+
+    let disabledList: boolean[] = new Array(portfolio.entries.length).fill(true);
+
+    const addNewRow = () => {
+        portfolio.entries.push({
+            amount: 0,
+            fundId: '',
+            name: '',
+            id: ''
+        })
+        disabledList.push(false)
+        portfolio = portfolio
     }
     const upsertPortfolio = () => {
         return ({result}: {
@@ -26,45 +37,70 @@
         }) => {
             if (result.type === "success" && result.data) {
                 portfolio = result.data.portfolio
+                toast.success("Updated portfolio");
             }
         };
     };
+    const removeFund = (index: number) => {
+        portfolio.entries.splice(index, 1);
+        disabledList.splice(index, 1)
+        portfolio = portfolio;
+    }
+
 </script>
 
+<Toaster position="bottom-right" toastOptions="{{iconTheme: {
+		primary: '#9333ea',
+		secondary: '#FFFAEE'
+	}}}"/>
 <form
+        class="flex relative flex-col m-20 w-[50vw] rounded-lg shadow-lg"
         bind:this={portfolioForm}
         method="POST"
         use:enhance={({formData}) => {
                      formData.set("portfolio", JSON.stringify(portfolio))
-                         upsertPortfolio()
-                     return async ({ update, result }) => {
-                         update({reset:false})
-                     };
+                     return upsertPortfolio()
                 }}
         action="?/upsertPortfolio"
-        class="flex relative flex-col m-20 border-2 border-slate-800 p-2 w-[50vw]">
-    <input
-            bind:value={portfolio.name}
-            class="text-2xl" name="name" type="text" placeholder="Portfolio name"
-    >
-    {#each portfolio.entries as entry}
-        <ListItem listItem="{entry}" on:blurField={() => addNewRow(entry)}></ListItem>
-    {/each}
-    <div class="flex pt-5 gap-2">
+>
+    <Table>
+        <TableHeaderRow slot="headerRow">
+            <TableHeader>Ticker or name</TableHeader>
+            <TableHeader>Amount</TableHeader>
+            <TableHeader>
+                <AddButton on:buttonClicked={addNewRow}></AddButton>
+            </TableHeader>
+        </TableHeaderRow>
+        {#each portfolio.entries as row, index}
+            <TableRow>
+                <SearchFundCell disabled="{disabledList[index]}"
+                                bind:label="{row.name}"
+                                bind:value="{row.fundId}"
+                ></SearchFundCell>
+                <NumberCell disabled="{disabledList[index]}"
+                            bind:value="{row.amount}"
+                ></NumberCell>
+                <EditCell
+                        on:editClicked={() => disabledList[index] = !disabledList[index]}
+                        on:deleteClicked={() => removeFund(index)}
+                ></EditCell>
+            </TableRow>
+        {/each}
+    </Table>
+    <div class="flex">
         {#if portfolio.id !== EMPTY_UUID }
-            <CustomButton
-                    buttonText="Details"
-                    on:buttonClicked={() => goto(`/portfolio/${portfolio.id}`)}
-            ></CustomButton>
+            <div class="w-full p-2">
+                <PrimaryButton
+                        text="Details"
+                        on:buttonClicked={() => goto(`/portfolio/${portfolio.id}`)}
+                ></PrimaryButton>
+            </div>
         {/if}
-        <CustomButton
-
-                buttonText="{portfolio.id === EMPTY_UUID ? 'Create portfolio' : 'Update portfolio'}"
-                on:buttonClicked={() => {
-                    portfolioForm.requestSubmit()
-                    "portfoliosStore.upsertPortfolio(portfolio)"
-                }
-                }
-        ></CustomButton>
+        <div class="w-full p-2">
+            <SecondaryButton
+                    text=" {portfolio.id === EMPTY_UUID ? 'Create portfolio' : 'Update portfolio'}"
+                    on:buttonClicked={() => portfolioForm.requestSubmit()}
+            ></SecondaryButton>
+        </div>
     </div>
 </form>

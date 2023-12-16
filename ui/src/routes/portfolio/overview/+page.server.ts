@@ -20,9 +20,6 @@ export const load = (async ({}) => {
     if (!portfoliosResp.success) {
         return fail(500, {error: "could not fetch portfolios"});
     }
-    portfoliosResp.data.entries.forEach(x => {
-        x.entries.push({amount: 0, fundId: "", id: "", name: ""})
-    })
     return {
         portfolios: portfoliosResp.data,
     };
