@@ -6,12 +6,12 @@
     export let href: string;
 </script>
 <li>
-    <a href="{href}" class="cursor-pointer bg-gray-200 rounded-md flex items-center m-1 p-3 transition duration-500 ease-in-out transform hover:-translate-y-1 hover:shadow-lg">
+    <a href="{href}" class="cursor-pointer bg-purple-100 rounded-md flex items-center m-0.5 p-3 hover:drop-shadow-md hover:bg-purple-200">
         <div>
             <div class="font-medium text-sm">{fund.name}</div>
             <div class="flex">
                 {#each fund.tickers || [] as ticker}
-                    <div class="font-light text-xs pr-2">{ticker}</div>
+                    <div class="font-light text-xs pr-2 text-purple-900 ">{ticker}</div>
                 {/each}
             </div>
         </div>

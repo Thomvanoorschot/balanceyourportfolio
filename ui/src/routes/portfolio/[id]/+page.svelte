@@ -58,7 +58,7 @@
                 sectors="{sectors}"
         ></Filter>
         <div class="flex flex-col flex-grow">
-            <div class="pl-4">
+            <div class="pl-4 sticky top-0 bg-white w-full z-50">
                 <FundColors colorMap="{colorMap}"></FundColors>
             </div>
             <div class="flex flex-col p-4">

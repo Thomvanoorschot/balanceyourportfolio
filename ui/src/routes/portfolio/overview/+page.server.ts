@@ -56,7 +56,7 @@ export const actions = {
                 funds: []
             }
         }
-        const req: SearchFundsRequest__Output = {searchTerm: searchTerm}
+        const req: SearchFundsRequest__Output = {searchTerm: searchTerm, }
         const resp = await safe(
             new Promise<SearchFundsResponse__Output>((resolve, reject) => {
                 fundClient.searchFunds(req, (err, response) => {

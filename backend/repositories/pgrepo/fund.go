@@ -32,15 +32,30 @@ func (r *Repository) GetFunds(ctx context.Context, searchTerm string) (fund.Fund
 	}
 	return f, nil
 }
+
 func (r *Repository) GetFundsWithTickers(ctx context.Context, searchTerm string) (fund.Funds, error) {
-	sql, args := SELECT(Fund.ID, Fund.Name, FundListing.Ticker).
+	queryCte := CTE("queryCte")
+	queryStmt := SELECT(Fund.ID, Fund.Name, FundListing.Ticker).
 		FROM(Fund.
 			INNER_JOIN(FundListing, FundListing.FundID.EQ(Fund.ID)),
 		).
 		WHERE(ILike(Fund.Name, searchTerm).
 			OR(ILike(FundListing.Ticker, searchTerm)),
-		).
-		LIMIT(100).
+		)
+
+	limitCte := CTE("limitCte")
+	limitStmt := SELECT(DISTINCT(StringColumn("fund.id"))).FROM(queryCte).LIMIT(5)
+
+	withStmt := WITH(
+		queryCte.AS(
+			queryStmt,
+		),
+		limitCte.
+			AS(
+				limitStmt,
+			),
+	)
+	sql, args := withStmt(SELECT(STAR).FROM(queryCte).WHERE(StringColumn("fund.id").IN(SELECT(StringColumn("fund.id")).FROM(limitCte)))).
 		Sql()
 	var funds []fund.Fund
 	rows, err := r.ConnectionPool.Query(ctx, sql, args...)
