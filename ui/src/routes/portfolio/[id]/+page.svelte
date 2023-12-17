@@ -10,6 +10,19 @@
     import type {Holding} from "$lib/holding";
     import type {ActionResult} from "@sveltejs/kit";
     import {enhance} from '$app/forms';
+    import TableHeaderRow from "$lib/table/TableHeaderRow.svelte";
+    import SearchFundCell from "$lib/table/SearchFundCell.svelte";
+    import TableRow from "$lib/table/TableRow.svelte";
+    import TableHeader from "$lib/table/TableHeader.svelte";
+    import Table from "$lib/table/Table.svelte";
+    import NumberCell from "$lib/table/NumberCell.svelte";
+    import EditCell from "$lib/table/EditCell.svelte";
+    import AddButton from "$lib/shared/AddButton.svelte";
+    import TextCell from "$lib/table/TextCell.svelte";
+    import FilterList from "$lib/filters/FilterList.svelte";
+    import SearchBar from "$lib/search/SearchBar.svelte";
+    import CheckButtonList from "$lib/filters/CheckButtonList.svelte";
+    import {debounce} from "$lib/utils.ts";
 
     export let data: PageData;
     let colorMap: Map<string, {fundName: string, color: string}> | undefined
@@ -41,9 +54,9 @@
     function submitNextPage(): void {
         fundsForm.requestSubmit()
     }
-    async function filter() {
-
-    }
+    const filterHoldings = debounce(async function () {
+        searchForm.requestSubmit();
+    }, 200)
     function setFilterForm(formData: FormData) {
         formData.set("sectorName", holdingsFilter.sectorName);
         formData.set("searchTerm", holdingsFilter.searchTerm);
@@ -51,12 +64,14 @@
 </script>
 {#if (!error && sectors && colorMap && portfolioFundSectorWeightings && holdings)}
     <div class="flex flex-grow items-start justify-between w-full">
-        <Filter
-                on:filterChanged={filter}
-                bind:searchTerm={holdingsFilter.searchTerm}
-                bind:sectorName={holdingsFilter.sectorName}
-                sectors="{sectors}"
-        ></Filter>
+        <FilterList>
+            <SearchBar placeholder="Company name or ticker" on:inputChanged={filterHoldings}></SearchBar>
+            <CheckButtonList
+                    title="Sectors"
+                    list="{['Technology', 'Consumer Discretionary', 'HealthCare', 'Financials']}"
+            >
+            </CheckButtonList>
+        </FilterList>
         <div class="flex flex-col flex-grow">
             <div class="pl-4 sticky top-0 bg-white w-full z-50">
                 <FundColors colorMap="{colorMap}"></FundColors>

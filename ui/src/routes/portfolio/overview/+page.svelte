@@ -19,6 +19,7 @@
         {#each portfolios.entries as portfolio}
             <Portfolio portfolio="{portfolio}"></Portfolio>
         {/each}
+        <Portfolio portfolio="{{entries:[], name: '', id: ''}}"></Portfolio>
     </div>
 {:else}
     <h1>{error}</h1>

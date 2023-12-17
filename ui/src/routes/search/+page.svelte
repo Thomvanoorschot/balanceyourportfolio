@@ -29,7 +29,6 @@
                         method="GET"
                         data-sveltekit-keepfocus
                         class="w-full"
-
                 >
                     <input
                             name="searchTerm"

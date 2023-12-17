@@ -7,7 +7,6 @@
     import EditCell from "$lib/table/EditCell.svelte";
     import SearchFundCell from "$lib/table/SearchFundCell.svelte";
     import NumberCell from "$lib/table/NumberCell.svelte";
-    import {EMPTY_UUID} from "$lib/utils.ts";
     import {goto} from "$app/navigation";
     import PrimaryButton from "$lib/shared/PrimaryButton.svelte";
     import SecondaryButton from "$lib/shared/SecondaryButton.svelte";
@@ -31,13 +30,13 @@
         disabledList.push(false)
         portfolio = portfolio
     }
-    const upsertPortfolio = () => {
+    const upsertPortfolio = (message: string) => {
         return ({result}: {
             result: ActionResult
         }) => {
             if (result.type === "success" && result.data) {
                 portfolio = result.data.portfolio
-                toast.success("Updated portfolio");
+                toast.success(message);
             }
         };
     };
@@ -59,7 +58,7 @@
         method="POST"
         use:enhance={({formData}) => {
                      formData.set("portfolio", JSON.stringify(portfolio))
-                     return upsertPortfolio()
+                     return upsertPortfolio(portfolio.id ? 'Updated portfolio' : 'Created portfolio')
                 }}
         action="?/upsertPortfolio"
 >
@@ -88,7 +87,7 @@
         {/each}
     </Table>
     <div class="flex">
-        {#if portfolio.id !== EMPTY_UUID }
+        {#if portfolio.id}
             <div class="w-full p-2">
                 <PrimaryButton
                         text="Details"
@@ -98,7 +97,7 @@
         {/if}
         <div class="w-full p-2">
             <SecondaryButton
-                    text=" {portfolio.id === EMPTY_UUID ? 'Create portfolio' : 'Update portfolio'}"
+                    text=" {portfolio.id ?  'Update portfolio' : 'Create portfolio' }"
                     on:buttonClicked={() => portfolioForm.requestSubmit()}
             ></SecondaryButton>
         </div>

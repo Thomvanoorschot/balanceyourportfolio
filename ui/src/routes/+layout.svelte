@@ -4,19 +4,15 @@
     import {theme} from "$lib/stores/theme-store.ts";
     import SidebarElement from "$lib/layout/SidebarElement.svelte";
     import PortfolioIcon from "$lib/icons/PortfolioIcon.svelte";
-    import SearchBar from "$lib/search/SearchBar.svelte";
     import ThemeSelector from "$lib/theme/ThemeSelector.svelte";
     import TopMenu from "$lib/menu/TopMenu.svelte";
+    import FundSearchBar from "$lib/search/FundSearchBar.svelte";
 
     onMount(() => {
         // We load the in the <script> tag in load, but then also here onMount to setup stores
         if (!('theme' in localStorage)) {
             theme.useLocalStorage();
-            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                theme.set({...$theme, mode: 'dark'});
-            } else {
-                theme.set({...$theme, mode: 'light'});
-            }
+            theme.set({...$theme, mode: 'light'});
         } else {
             theme.useLocalStorage();
         }
@@ -26,8 +22,7 @@
 
 
 <div
-        id="core"
-        class="flex h-screen bg-gray-50 dark:bg-gray-900 {isSideMenuOpen ? 'overflow-hidden' : ''} {$theme.mode}"
+        class="flex h-screen bg-gray-50 dark:bg-gray-900 {isSideMenuOpen ? 'overflow-hidden' : ''}"
 >
     <!-- Desktop sidebar -->
     <aside
@@ -92,10 +87,10 @@
                     </svg>
                 </button>
                 <!-- Search input -->
-                <SearchBar placeholder="Search for funds"></SearchBar>
+                <FundSearchBar></FundSearchBar>
                 <div class="flex items-center flex-shrink-0 space-x-6">
-                   <ThemeSelector></ThemeSelector>
-                   <TopMenu></TopMenu>
+                    <ThemeSelector></ThemeSelector>
+                    <TopMenu></TopMenu>
                 </div>
             </div>
         </header>

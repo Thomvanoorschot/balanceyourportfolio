@@ -9,7 +9,7 @@ export function toggleTheme(theme: any, $theme: any): void {
 }
 
 function updateDocument(name: string, klass: string, other: string) {
-    // document.cookie = `${name}=${klass};path=/;expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+    document.cookie = `${name}=${klass};path=/;expires=Fri, 31 Dec 9999 23:59:59 GMT`;
     document.getElementById('core')?.classList.remove(other);
     document.documentElement.classList.remove(other);
     document.getElementById('core')?.classList.add(klass);

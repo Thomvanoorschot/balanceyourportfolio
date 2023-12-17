@@ -76,6 +76,7 @@ func (s *Service) UpsertPortfolio(ctx context.Context,
 		p.Id = uuid.New()
 		now := time.Now()
 		portfolioModel.CreatedAt = &now
+		portfolioModel.ID = p.Id
 	} else {
 		err = s.checkAndDeleteFunds(ctx, p, tx)
 		if err != nil {
