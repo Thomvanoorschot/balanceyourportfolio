@@ -76,7 +76,6 @@ export const actions = {
             searchTerm: searchTerm,
             sectorName: sectorName
         }
-
         const holdingsResp = await safe(
             new Promise<FilterPortfolioHoldingsResponse__Output>((resolve, reject) => {
                 portfolioClient.filterPortfolioHoldings(holdingsReq, (err, response) => {

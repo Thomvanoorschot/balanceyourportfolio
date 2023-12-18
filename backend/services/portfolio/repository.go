@@ -24,5 +24,5 @@ type Repository interface {
 	GetPortfolioFundSectors(ctx context.Context, portfolioID uuid.UUID) ([]fund.SectorName, error)
 	GetPortfolioFundRelativeWeightings(ctx context.Context, portfolioID uuid.UUID) (RelativeSectorWeightings, error)
 	GetPortfolioFunds(ctx context.Context, portfolioID uuid.UUID) ([]fund.Information, error)
-	GetPortfolioFundHoldings(ctx context.Context, portfolioId uuid.UUID, limit int64, offset int64) (FundHoldings, error)
+	GetPortfolioFundHoldings(ctx context.Context, portfolioId uuid.UUID, searchTerm string, sector string, limit int64, offset int64) (FundHoldings, error)
 }

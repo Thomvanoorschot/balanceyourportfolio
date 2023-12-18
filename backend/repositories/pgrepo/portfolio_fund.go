@@ -2,6 +2,7 @@ package pgrepo
 
 import (
 	"context"
+	"fmt"
 
 	"etfinsight/generated/jet_gen/postgres/public/model"
 	. "etfinsight/generated/jet_gen/postgres/public/table"
@@ -204,7 +205,13 @@ func (r *Repository) GetPortfolioFunds(ctx context.Context, portfolioId uuid.UUI
 	}
 	return fi, nil
 }
-func (r *Repository) GetPortfolioFundHoldings(ctx context.Context, portfolioId uuid.UUID, limit int64, offset int64) (portfolio.FundHoldings, error) {
+func (r *Repository) GetPortfolioFundHoldings(ctx context.Context,
+	portfolioId uuid.UUID,
+	searchTerm string,
+	sector string,
+	limit int64,
+	offset int64,
+) (portfolio.FundHoldings, error) {
 	sql, args := RawStatement(
 		`WITH ratio_cte AS (
      SELECT fund.id AS "fund.id",
@@ -221,6 +228,7 @@ func (r *Repository) GetPortfolioFundHoldings(ctx context.Context, portfolioId u
 			  INNER JOIN fund F ON (PF.fund_id = F.id)
 			  INNER JOIN ratio_cte ON (ratio_cte."fund.id" = F.id)
 		 WHERE PF.portfolio_id = :portfolioId
+		 AND (H.name ILIKE :searchTerm OR h.ticker ILIKE :searchTerm)
 	), limiting_cte as (
 		SELECT distinct("holdingId"), (SUM(ratiodPercentage) OVER(PARTITION BY ticker)) as cumulativePercentage 
 		from relative_weightings_cte 
@@ -229,7 +237,12 @@ func (r *Repository) GetPortfolioFundHoldings(ctx context.Context, portfolioId u
 		offset :offset
 	) SELECT *, (SUM(ratiodPercentage) OVER(PARTITION BY ticker)) as cumulativePercentage from relative_weightings_cte 
 	where "holdingId" in (select "holdingId" from limiting_cte)
-	order by cumulativePercentage desc`, RawArgs{":portfolioId": portfolioId, ":limit": limit, ":offset": offset},
+	order by cumulativePercentage desc`, RawArgs{
+			":portfolioId": portfolioId,
+			":searchTerm":  fmt.Sprintf("%%%s%%", searchTerm),
+			":limit":       limit,
+			":offset":      offset,
+		},
 	).
 		Sql()
 

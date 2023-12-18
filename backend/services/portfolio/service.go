@@ -35,7 +35,7 @@ func (s *Service) GetPortfolioDetails(ctx context.Context, userId uuid.UUID, por
 		return s.repo.GetPortfolioFundRelativeWeightings(ctx, portfolioId)
 	})
 	portfolioFundHoldingsCh := concurrencyutils.Async2(func() (FundHoldings, error) {
-		return s.repo.GetPortfolioFundHoldings(ctx, portfolioId, 20, 0)
+		return s.repo.GetPortfolioFundHoldings(ctx, portfolioId, "", "", 20, 0)
 	})
 	ratioResult := <-ratioCh
 	portfolioSectorResult := <-portfolioSectorCh
@@ -132,7 +132,13 @@ func (s *Service) FilterPortfolioHoldings(ctx context.Context, filter *proto.Fil
 	if filter.SectorName == string(fund.AnySector) {
 		filter.SectorName = ""
 	}
-	fundHoldings, err := s.repo.GetPortfolioFundHoldings(ctx, uuid.MustParse(filter.PortfolioId), filter.Limit, filter.Offset)
+	fundHoldings, err := s.repo.GetPortfolioFundHoldings(ctx,
+		uuid.MustParse(filter.PortfolioId),
+		filter.SearchTerm,
+		filter.SectorName,
+		filter.Limit,
+		filter.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}

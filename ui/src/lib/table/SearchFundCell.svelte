@@ -81,7 +81,7 @@
                 on:click={() => showDropdown = true}
                 bind:value="{label}"
                 bind:this={inputElement}
-                class="w-full outline-none border-2 border-white p-3 {disabled ? '' : 'focus:border-2 focus:border-purple-600 focus:outline-none bg-purple-50 rounded-lg'}"
+                class="w-full outline-none border-2 border-white p-3 {disabled ? '' : 'focus:border-2 focus:border-violet-600 focus:outline-none bg-violet-50 rounded-lg'}"
                 type="text"
         >
         {#if showDropdown}
