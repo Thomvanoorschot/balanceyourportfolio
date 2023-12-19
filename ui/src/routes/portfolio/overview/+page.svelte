@@ -19,7 +19,7 @@
         {#each portfolios.entries as portfolio}
             <Portfolio portfolio="{portfolio}"></Portfolio>
         {/each}
-        <Portfolio portfolio="{{entries:[], name: '', id: ''}}"></Portfolio>
+        <Portfolio portfolio="{{entries:[{name:'',id:'', fundId: '', amount: 0}], name: `Portfolio ${portfolios.entries.length + 1}`, id: ''}}"></Portfolio>
     </div>
 {:else}
     <h1>{error}</h1>

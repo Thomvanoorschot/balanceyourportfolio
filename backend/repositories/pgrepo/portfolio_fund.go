@@ -205,15 +205,37 @@ func (r *Repository) GetPortfolioFunds(ctx context.Context, portfolioId uuid.UUI
 	}
 	return fi, nil
 }
+
 func (r *Repository) GetPortfolioFundHoldings(ctx context.Context,
 	portfolioId uuid.UUID,
 	searchTerm string,
-	sector string,
+	selectedSectors []string,
 	limit int64,
 	offset int64,
 ) (portfolio.FundHoldings, error) {
-	sql, args := RawStatement(
-		`WITH ratio_cte AS (
+	selectedSectorsArgs := "''"
+	rawArgs := RawArgs{
+		":portfolioId": portfolioId,
+		":searchTerm":  fmt.Sprintf("%%%s%%", searchTerm),
+		":limit":       limit,
+		":offset":      offset,
+		":noSector":    false,
+	}
+	if len(selectedSectors) > 0 {
+		for _, sector := range selectedSectors {
+			rawArgs[fmt.Sprintf(":%s", sector)] = sector
+			if selectedSectorsArgs == "''" {
+				selectedSectorsArgs = fmt.Sprintf(":%s", sector)
+			} else {
+				selectedSectorsArgs = selectedSectorsArgs + fmt.Sprintf(", :%s", sector)
+			}
+		}
+	} else {
+		rawArgs[":noSector"] = true
+	}
+
+	sql := RawStatement(
+		fmt.Sprintf(`WITH ratio_cte AS (
      SELECT fund.id AS "fund.id",
           ((fund.price * portfolio_fund.amount) / SUM(fund.price * portfolio_fund.amount) OVER ()) AS "ratio"
      FROM public.portfolio_fund
@@ -229,6 +251,7 @@ func (r *Repository) GetPortfolioFundHoldings(ctx context.Context,
 			  INNER JOIN ratio_cte ON (ratio_cte."fund.id" = F.id)
 		 WHERE PF.portfolio_id = :portfolioId
 		 AND (H.name ILIKE :searchTerm OR h.ticker ILIKE :searchTerm)
+		 AND ((:noSector = true) OR h.sector IN (%s))
 	), limiting_cte as (
 		SELECT distinct("holdingId"), (SUM(ratiodPercentage) OVER(PARTITION BY ticker)) as cumulativePercentage 
 		from relative_weightings_cte 
@@ -237,15 +260,12 @@ func (r *Repository) GetPortfolioFundHoldings(ctx context.Context,
 		offset :offset
 	) SELECT *, (SUM(ratiodPercentage) OVER(PARTITION BY ticker)) as cumulativePercentage from relative_weightings_cte 
 	where "holdingId" in (select "holdingId" from limiting_cte)
-	order by cumulativePercentage desc`, RawArgs{
-			":portfolioId": portfolioId,
-			":searchTerm":  fmt.Sprintf("%%%s%%", searchTerm),
-			":limit":       limit,
-			":offset":      offset,
-		},
+	order by cumulativePercentage desc`, selectedSectorsArgs), rawArgs,
 	).
-		Sql()
+		DebugSql()
 
+	fmt.Println(sql)
+	var args []any
 	rows, err := r.ConnectionPool.Query(ctx, sql, args...)
 	if err != nil {
 		return nil, err

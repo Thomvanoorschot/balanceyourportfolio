@@ -53,7 +53,7 @@ message PortfolioFundSectorWeightingEntry {
 message FilterPortfolioHoldingsRequest {
   string portfolioId = 1;
   string searchTerm = 2;
-  string sectorName = 3;
+  repeated string selectedSectors = 3;
   int64 limit = 4;
   int64 offset = 5;
 }

@@ -62,6 +62,7 @@
                 }}
         action="?/upsertPortfolio"
 >
+    <input bind:value={portfolio.name} type="text" class="text-center">
     <Table>
         <TableHeaderRow slot="headerRow">
             <TableHeader>Ticker or name</TableHeader>

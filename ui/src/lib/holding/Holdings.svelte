@@ -42,13 +42,13 @@
         // observer.observe(root);
     })
 </script>
-<ul class="bg-gray-300 p-4">
+<div class="bg-gray-300 p-4">
     {#each holdings as {name, ticker, percentage, funds}, index}
         <!--{#if (holdings.length < 200 ? index === Math.round(holdings.length * 0.7) : index === Math.round(holdings.length * 0.95))}-->
         <!--    <div class="ABC" bind:this={root}></div>-->
         <!--{/if}-->
 
-        <li class="border-gray-400 flex flex-col mb-2">
+        <div class="border-gray-400 flex flex-col mb-2">
             <div class="cursor-pointer bg-gray-200 rounded-md items-center p-4  transition duration-500 ease-in-out transform hover:-translate-y-1 hover:shadow-lg">
                 <div class=" flex flex-1">
                     <div class="flex flex-col rounded-md w-10 h-10 bg-gray-300 justify-center items-center mr-4">
@@ -71,8 +71,8 @@
                     </div>
                 {/if}
             </div>
-        </li>
+        </div>
     {/each}
     <div class="ABC" bind:this={root}></div>
 
-</ul>
+</div>

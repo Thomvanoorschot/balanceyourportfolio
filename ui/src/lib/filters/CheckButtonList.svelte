@@ -9,7 +9,7 @@
     <ul class="flex flex-wrap">
         {#each list as item, index}
             <li class="p-0.5">
-                <CheckButton index="{index}" text="{item}"></CheckButton>
+                <CheckButton index="{index}" text="{item}" on:checkButtonClicked></CheckButton>
             </li>
         {/each}
     </ul>

@@ -68,13 +68,13 @@ export const actions = {
         const holdingsLength = Number(formData.get("holdingsLength") || 0)
         const portfolioId = String(params.id || "")
         const searchTerm = String(formData.get("searchTerm") || "")
-        const sectorName = String(formData.get("sectorName") || "")
+        const selectedSectors = JSON.parse(String(formData.get("selectedSectors")))
         const holdingsReq: FilterPortfolioHoldingsRequest__Output = {
             portfolioId: portfolioId,
             limit: 20,
             offset: holdingsLength,
             searchTerm: searchTerm,
-            sectorName: sectorName
+            selectedSectors: selectedSectors
         }
         const holdingsResp = await safe(
             new Promise<FilterPortfolioHoldingsResponse__Output>((resolve, reject) => {
