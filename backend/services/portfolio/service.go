@@ -128,7 +128,7 @@ func (s *Service) checkAndDeleteFunds(ctx context.Context, model Model, tx pgx.T
 	return nil
 }
 
-func (s *Service) FilterPortfolioHoldings(ctx context.Context, filter *proto.FilterPortfolioHoldingsRequest) (*proto.FilterPortfolioHoldingsResponse, error) {
+func (s *Service) FilterPortfolioHoldings(ctx context.Context, filter *proto.FilterPortfolioFundHoldingsRequest) (*proto.FilterPortfolioFundHoldingsResponse, error) {
 	fundHoldings, err := s.repo.GetPortfolioFundHoldings(ctx,
 		uuid.MustParse(filter.PortfolioId),
 		filter.SearchTerm,
@@ -139,5 +139,5 @@ func (s *Service) FilterPortfolioHoldings(ctx context.Context, filter *proto.Fil
 	if err != nil {
 		return nil, err
 	}
-	return &proto.FilterPortfolioHoldingsResponse{Entries: fundHoldings.ConvertToResponse()}, nil
+	return &proto.FilterPortfolioFundHoldingsResponse{Entries: fundHoldings.ConvertToResponse()}, nil
 }

@@ -50,14 +50,14 @@ message PortfolioFundSectorWeightingEntry {
   double percentage = 3;
 }
 
-message FilterPortfolioHoldingsRequest {
+message FilterPortfolioFundHoldingsRequest {
   string portfolioId = 1;
   string searchTerm = 2;
   repeated string selectedSectors = 3;
   int64 limit = 4;
   int64 offset = 5;
 }
-message FilterPortfolioHoldingsResponse {
+message FilterPortfolioFundHoldingsResponse {
   repeated PortfolioFundHolding entries = 1;
 }
 message PortfolioFundHolding {

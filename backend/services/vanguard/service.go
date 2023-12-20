@@ -70,7 +70,6 @@ func (s *Service) upsertFunds(ctx context.Context, ei []string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Println(fmt.Sprintf("Converted %s", f.Profile.FundFullName))
 	}
 	return nil
 }

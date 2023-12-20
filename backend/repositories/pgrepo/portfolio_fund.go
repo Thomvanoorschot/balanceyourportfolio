@@ -234,7 +234,7 @@ func (r *Repository) GetPortfolioFundHoldings(ctx context.Context,
 		rawArgs[":noSector"] = true
 	}
 
-	sql := RawStatement(
+	sql, args := RawStatement(
 		fmt.Sprintf(`WITH ratio_cte AS (
      SELECT fund.id AS "fund.id",
           ((fund.price * portfolio_fund.amount) / SUM(fund.price * portfolio_fund.amount) OVER ()) AS "ratio"
@@ -261,11 +261,8 @@ func (r *Repository) GetPortfolioFundHoldings(ctx context.Context,
 	) SELECT *, (SUM(ratiodPercentage) OVER(PARTITION BY ticker)) as cumulativePercentage from relative_weightings_cte 
 	where "holdingId" in (select "holdingId" from limiting_cte)
 	order by cumulativePercentage desc`, selectedSectorsArgs), rawArgs,
-	).
-		DebugSql()
+	).Sql()
 
-	fmt.Println(sql)
-	var args []any
 	rows, err := r.ConnectionPool.Query(ctx, sql, args...)
 	if err != nil {
 		return nil, err

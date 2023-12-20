@@ -13,7 +13,7 @@ import (
 type FundService interface {
 	GetDetails(ctx context.Context, fundID uuid.UUID) (*proto.FundDetailsResponse, error)
 	GetFundsWithTickers(ctx context.Context, searchTerm string) (*proto.SearchFundsResponse, error)
-	FilterHoldings(ctx context.Context, filter *proto.FilterHoldingsRequest) (*proto.HoldingsListResponse, error)
+	FilterHoldings(ctx context.Context, filter *proto.FilterFundHoldingsRequest) (*proto.FilterFundHoldingsResponse, error)
 }
 
 type FundHandler struct {
@@ -27,7 +27,7 @@ func NewFundHandler(fundService FundService) *FundHandler {
 	}
 }
 
-func (h *FundHandler) GetDetails(ctx context.Context, req *proto.GetFundDetailsRequest) (*proto.FundDetailsResponse, error) {
+func (h *FundHandler) GetDetails(ctx context.Context, req *proto.FundDetailsRequest) (*proto.FundDetailsResponse, error) {
 	fundID, err := uuid.Parse(req.FundId)
 	if err != nil {
 		return nil, status.Error(
@@ -52,7 +52,7 @@ func (h *FundHandler) SearchFunds(ctx context.Context, req *proto.SearchFundsReq
 	}
 	return resp, nil
 }
-func (h *FundHandler) FilterHoldings(ctx context.Context, req *proto.FilterHoldingsRequest) (*proto.HoldingsListResponse, error) {
+func (h *FundHandler) FilterHoldings(ctx context.Context, req *proto.FilterFundHoldingsRequest) (*proto.FilterFundHoldingsResponse, error) {
 	resp, err := h.fundService.FilterHoldings(ctx, req)
 	if err != nil {
 		return nil, status.Error(

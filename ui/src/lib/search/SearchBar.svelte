@@ -18,9 +18,9 @@
             hasFocus = false
     }
 </script>
-<div class="flex justify-center w-full flex-1 lg:mr-32">
+<div class="flex justify-center w-full flex-1">
     <div
-            class="relative w-full max-w-xl mr-6 focus-within:text-violet-500"
+            class="relative w-full max-w-xl focus-within:text-violet-500"
     >
         <div class="absolute inset-y-0 flex items-center pl-2">
             <svg

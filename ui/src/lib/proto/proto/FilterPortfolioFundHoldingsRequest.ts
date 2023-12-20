@@ -2,7 +2,7 @@
 
 import type { Long } from '@grpc/proto-loader';
 
-export interface FilterPortfolioHoldingsRequest {
+export interface FilterPortfolioFundHoldingsRequest {
   'portfolioId'?: (string);
   'searchTerm'?: (string);
   'selectedSectors'?: (string)[];
@@ -10,7 +10,7 @@ export interface FilterPortfolioHoldingsRequest {
   'offset'?: (number | string | Long);
 }
 
-export interface FilterPortfolioHoldingsRequest__Output {
+export interface FilterPortfolioFundHoldingsRequest__Output {
   'portfolioId': (string);
   'searchTerm': (string);
   'selectedSectors': (string)[];

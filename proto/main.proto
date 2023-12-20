@@ -7,13 +7,13 @@ package proto;
 option go_package = "./proto";
 
 service FundService {
-  rpc GetDetails(GetFundDetailsRequest) returns (FundDetailsResponse);
+  rpc GetDetails(FundDetailsRequest) returns (FundDetailsResponse);
   rpc SearchFunds(SearchFundsRequest) returns (SearchFundsResponse);
-  rpc FilterHoldings(FilterHoldingsRequest) returns (HoldingsListResponse);
+  rpc FilterHoldings(FilterFundHoldingsRequest) returns (FilterFundHoldingsResponse);
 }
 service PortfolioService {
   rpc GetPortfolios(PortfoliosRequest) returns (PortfoliosResponse);
   rpc UpsertPortfolio(UpsertPortfolioRequest) returns (UpsertPortfolioResponse);
   rpc GetPortfolioDetails(PortfolioDetailsRequest) returns (PortfolioDetailsResponse);
-  rpc FilterPortfolioHoldings(FilterPortfolioHoldingsRequest) returns (FilterPortfolioHoldingsResponse);
+  rpc FilterPortfolioHoldings(FilterPortfolioFundHoldingsRequest) returns (FilterPortfolioFundHoldingsResponse);
 }

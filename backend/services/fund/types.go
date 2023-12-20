@@ -4,13 +4,13 @@ import (
 	"time"
 
 	"etfinsight/generated/proto"
-	"etfinsight/utils/stringutils"
 
 	"github.com/google/uuid"
 )
 
 type Holdings []Holding
 type Holding struct {
+	Id                string        `db:"holding.id"`
 	Ticker            string        `db:"holding.ticker"`
 	Name              string        `db:"holding.name"`
 	Type              IssueTypeName `db:"holding.type"`
@@ -59,7 +59,6 @@ type SectorNames []SectorName
 type SectorName string
 
 const (
-	AnySector                   SectorName = "Any sector"
 	UnknownSector               SectorName = "Unknown"
 	TechnologySector            SectorName = "Technology"
 	HealthCareSector            SectorName = "HealthCare"
@@ -75,22 +74,13 @@ const (
 )
 
 type HoldingsFilter struct {
-	FundID     uuid.UUID
-	SearchTerm string
-	SectorName string
-	Limit      int64
-	Offset     int64
+	FundId          uuid.UUID
+	SearchTerm      string
+	SelectedSectors []string
+	Limit           int64
+	Offset          int64
 }
 
-func ConvertToHoldingsFilter(f *proto.FilterHoldingsRequest) HoldingsFilter {
-	return HoldingsFilter{
-		FundID:     stringutils.ConvertToUUID(f.FundId),
-		SearchTerm: f.SearchTerm,
-		SectorName: f.SectorName,
-		Limit:      f.Limit,
-		Offset:     f.Offset,
-	}
-}
 func (il InformationList) ConvertToResponse() []*proto.FundInformation {
 	fi := make([]*proto.FundInformation, len(il))
 	for i := range il {
@@ -121,24 +111,21 @@ func (f Fund) ConvertToResponse() *proto.SearchFundsEntry {
 		Tickers: f.Tickers,
 	}
 }
-func (h Holdings) ConvertToResponse() *proto.HoldingsListResponse {
-	resp := &proto.HoldingsListResponse{}
+func (h Holdings) ConvertToResponse() []*proto.FundHolding {
+	fh := make([]*proto.FundHolding, len(h))
 
 	for i := range h {
-		resp.Entries = append(resp.Entries, h[i].ConvertToResponse())
+		fh[i] = h[i].ConvertToResponse()
 	}
-	return resp
+	return fh
 }
 
-func (h Holding) ConvertToResponse() *proto.HoldingsResponse {
-	return &proto.HoldingsResponse{
-		Ticker:            h.Ticker,
-		Name:              h.Name,
-		Type:              string(h.Type),
-		Sector:            string(h.Sector),
-		Amount:            h.Amount,
-		PercentageOfTotal: h.PercentageOfTotal,
-		MarketValue:       h.MarketValue,
+func (h Holding) ConvertToResponse() *proto.FundHolding {
+	return &proto.FundHolding{
+		Ticker:               h.Ticker,
+		HoldingId:            h.Id,
+		HoldingName:          h.Name,
+		CumulativePercentage: h.PercentageOfTotal,
 	}
 }
 

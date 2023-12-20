@@ -2,18 +2,18 @@
 
 import type { Long } from '@grpc/proto-loader';
 
-export interface FilterHoldingsRequest {
+export interface FilterFundHoldingsRequest {
   'fundId'?: (string);
   'searchTerm'?: (string);
-  'sectorName'?: (string);
+  'selectedSectors'?: (string)[];
   'limit'?: (number | string | Long);
   'offset'?: (number | string | Long);
 }
 
-export interface FilterHoldingsRequest__Output {
+export interface FilterFundHoldingsRequest__Output {
   'fundId': (string);
   'searchTerm': (string);
-  'sectorName': (string);
+  'selectedSectors': (string)[];
   'limit': (number);
   'offset': (number);
 }

@@ -15,7 +15,7 @@ type PortfolioService interface {
 	GetPortfolios(ctx context.Context, userId uuid.UUID) (*proto.PortfoliosResponse, error)
 	UpsertPortfolio(ctx context.Context, userId uuid.UUID, req *proto.Portfolio) (*proto.UpsertPortfolioResponse, error)
 	GetPortfolioDetails(ctx context.Context, userId uuid.UUID, portfolioId uuid.UUID) (*proto.PortfolioDetailsResponse, error)
-	FilterPortfolioHoldings(ctx context.Context, req *proto.FilterPortfolioHoldingsRequest) (*proto.FilterPortfolioHoldingsResponse, error)
+	FilterPortfolioHoldings(ctx context.Context, req *proto.FilterPortfolioFundHoldingsRequest) (*proto.FilterPortfolioFundHoldingsResponse, error)
 }
 
 type PortfolioHandler struct {
@@ -63,7 +63,7 @@ func (h *PortfolioHandler) GetPortfolioDetails(ctx context.Context, req *proto.P
 	return resp, nil
 }
 
-func (h *PortfolioHandler) FilterPortfolioHoldings(ctx context.Context, req *proto.FilterPortfolioHoldingsRequest) (*proto.FilterPortfolioHoldingsResponse, error) {
+func (h *PortfolioHandler) FilterPortfolioHoldings(ctx context.Context, req *proto.FilterPortfolioFundHoldingsRequest) (*proto.FilterPortfolioFundHoldingsResponse, error) {
 	resp, err := h.portfolioService.FilterPortfolioHoldings(ctx, req)
 	if err != nil {
 		return nil, status.Error(

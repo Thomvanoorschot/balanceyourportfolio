@@ -2,10 +2,10 @@
 
 import type { PortfolioFundHolding as _proto_PortfolioFundHolding, PortfolioFundHolding__Output as _proto_PortfolioFundHolding__Output } from '../proto/PortfolioFundHolding';
 
-export interface FilterPortfolioHoldingsResponse {
+export interface FilterPortfolioFundHoldingsResponse {
   'entries'?: (_proto_PortfolioFundHolding)[];
 }
 
-export interface FilterPortfolioHoldingsResponse__Output {
+export interface FilterPortfolioFundHoldingsResponse__Output {
   'entries': (_proto_PortfolioFundHolding__Output)[];
 }

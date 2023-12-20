@@ -18,13 +18,14 @@ message SearchFundsEntry {
 }
 
 //Details
-message GetFundDetailsRequest {
+message FundDetailsRequest {
   string fundId = 1;
 }
 message FundDetailsResponse {
   FundInformation information = 1;
   repeated FundSectorWeighting sectorWeightings = 2;
   repeated string sectors = 3;
+  repeated FundHolding fundHoldings = 4;
 }
 message FundInformation{
   string id = 1;
@@ -38,22 +39,19 @@ message FundSectorWeighting {
 }
 
 //Holdings
-message FilterHoldingsRequest {
+message FilterFundHoldingsRequest {
   string fundId = 1;
   string searchTerm = 2;
-  string sectorName = 3;
+  repeated string selectedSectors = 3;
   int64 limit = 4;
   int64 offset = 5;
 }
-message HoldingsListResponse {
-  repeated HoldingsResponse entries = 1;
+message FilterFundHoldingsResponse {
+  repeated FundHolding entries = 1;
 }
-message HoldingsResponse {
+message FundHolding {
   string ticker = 1;
-  string name = 2;
-  string type = 3;
-  string sector = 4;
-  double amount = 5;
-  double percentageOfTotal = 6;
-  double marketValue = 7;
+  string holdingId = 2;
+  string holdingName = 3;
+  double cumulativePercentage = 4;
 }

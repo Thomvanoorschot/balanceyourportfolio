@@ -36,7 +36,7 @@ const updateFunds = () => {
     >
         <ul id="searchResults" class="absolute top-12 w-full">
             {#each funds || [] as fund}
-                <Result href="/fund-details?fundId={fund.id}" fund="{fund}"></Result>
+                <Result href="/fund/{fund.id}" fund="{fund}"></Result>
             {/each}
         </ul>
     </SearchBar>

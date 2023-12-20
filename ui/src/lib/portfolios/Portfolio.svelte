@@ -53,7 +53,7 @@
 		secondary: '#FFFAEE'
 	}}}"/>
 <form
-        class="flex relative flex-col m-20 w-[50vw] rounded-lg shadow-lg"
+        class="flex relative flex-col m-20 w-[50vw] rounded-lg shadow-2xl"
         bind:this={portfolioForm}
         method="POST"
         use:enhance={({formData}) => {
@@ -62,7 +62,7 @@
                 }}
         action="?/upsertPortfolio"
 >
-    <input bind:value={portfolio.name} type="text" class="text-center">
+    <input bind:value={portfolio.name} type="text" class="text-center rounded-t-lg">
     <Table>
         <TableHeaderRow slot="headerRow">
             <TableHeader>Ticker or name</TableHeader>
@@ -90,17 +90,15 @@
     <div class="flex">
         {#if portfolio.id}
             <div class="w-full p-2">
-                <PrimaryButton
-                        text="Details"
-                        on:buttonClicked={() => goto(`/portfolio/${portfolio.id}`)}
-                ></PrimaryButton>
+                <PrimaryButton on:buttonClicked={() => goto(`/portfolio/${portfolio.id}`)}>
+                    Details
+                </PrimaryButton>
             </div>
         {/if}
         <div class="w-full p-2">
-            <SecondaryButton
-                    text=" {portfolio.id ?  'Update portfolio' : 'Create portfolio' }"
-                    on:buttonClicked={() => portfolioForm.requestSubmit()}
-            ></SecondaryButton>
+            <SecondaryButton on:buttonClicked={() => portfolioForm.requestSubmit()} >
+                {portfolio.id ?  'Update portfolio' : 'Create portfolio' }
+            </SecondaryButton>
         </div>
     </div>
 </form>

@@ -1,7 +1,7 @@
 <script lang="ts">
 </script>
 
-<div class="w-full mb-8 rounded-lg shadow-xs">
+<div class="w-full mb-8 rounded-lg">
     <div class="w-full">
         <table class="w-full">
             <thead>

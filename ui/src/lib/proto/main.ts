@@ -10,16 +10,16 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 
 export interface ProtoGrpcType {
   proto: {
-    FilterHoldingsRequest: MessageTypeDefinition
-    FilterPortfolioHoldingsRequest: MessageTypeDefinition
-    FilterPortfolioHoldingsResponse: MessageTypeDefinition
+    FilterFundHoldingsRequest: MessageTypeDefinition
+    FilterFundHoldingsResponse: MessageTypeDefinition
+    FilterPortfolioFundHoldingsRequest: MessageTypeDefinition
+    FilterPortfolioFundHoldingsResponse: MessageTypeDefinition
+    FundDetailsRequest: MessageTypeDefinition
     FundDetailsResponse: MessageTypeDefinition
+    FundHolding: MessageTypeDefinition
     FundInformation: MessageTypeDefinition
     FundSectorWeighting: MessageTypeDefinition
     FundService: SubtypeConstructor<typeof grpc.Client, _proto_FundServiceClient> & { service: _proto_FundServiceDefinition }
-    GetFundDetailsRequest: MessageTypeDefinition
-    HoldingsListResponse: MessageTypeDefinition
-    HoldingsResponse: MessageTypeDefinition
     Portfolio: MessageTypeDefinition
     PortfolioDetailsRequest: MessageTypeDefinition
     PortfolioDetailsResponse: MessageTypeDefinition

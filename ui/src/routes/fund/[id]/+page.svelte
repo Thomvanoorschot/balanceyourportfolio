@@ -1,35 +1,31 @@
 <script lang="ts">
     import type {PageData} from './$types';
-    import type {PortfolioSectorWeighting} from "$lib/portfolio";
-    import FundColors from "$lib/portfolios/FundColors.svelte";
-    import type {FundInformation__Output} from "$lib/proto/proto/FundInformation";
-    import type {Holding} from "$lib/holding";
+    import type {Holding} from "$lib/holding.ts";
     import type {ActionResult} from "@sveltejs/kit";
     import {enhance} from '$app/forms';
     import SearchBar from "$lib/search/SearchBar.svelte";
     import CheckButtonList from "$lib/filters/CheckButtonList.svelte";
-    import {debounce} from "$lib/utils.ts";
+    import {colors, debounce} from "$lib/utils.ts";
     import List from "$lib/list/List.svelte";
     import ListItem from "$lib/list/ListItem.svelte";
     import HoldingLineItem from "$lib/list/HoldingLineItem.svelte";
-    import ColoredHoldingsBar from "$lib/portfolios/ColoredHoldingsBar.svelte";
+    import type {FundSectorWeighting__Output} from "$lib/proto/proto/FundSectorWeighting.ts";
     import ColoredBarChart from "$lib/chart/ColoredBarChart.svelte";
     import ColoredBar from "$lib/chart/ColoredBar.svelte";
     import ColoredBarEntry from "$lib/chart/ColoredBarEntry.svelte";
     import DetailMenu from "$lib/menu/DetailMenu.svelte";
+    import PrimaryButton from "$lib/shared/PrimaryButton.svelte";
 
     export let data: PageData;
-    let colorMap: Map<string, { fundName: string, color: string }> | undefined
     let error: string | undefined
     let sectors: string[] | undefined
-    let fundInformation: FundInformation__Output[] | undefined
-    let portfolioFundSectorWeightings: PortfolioSectorWeighting[] | undefined
+    let fundSectorWeightings: FundSectorWeighting__Output[] | undefined
     let holdings: Holding[] | undefined = []
     let fundsForm: HTMLFormElement;
     let searchTerm: string
     let resetSearch: boolean
     let selectedSectors: string[] = []
-    $: ({sectors, fundInformation, portfolioFundSectorWeightings, colorMap, holdings} = data);
+    $: ({sectors, fundInformation, fundSectorWeightings, holdings} = data);
 
     const updateNextPage = () => {
         return ({result}: { result: ActionResult }) => {
@@ -72,36 +68,30 @@
     }
 
 </script>
-{#if (!error && sectors && colorMap && portfolioFundSectorWeightings && holdings)}
+{#if (!error && sectors && fundSectorWeightings && holdings)}
     <div class="flex flex-grow items-start justify-between w-full">
-        <div class="sticky top-0">
-            <DetailMenu>
-                <SearchBar placeholder="Company name or ticker"
-                           on:inputChanged={filterHoldings}
-                           bind:value={searchTerm}
-                ></SearchBar>
-                <CheckButtonList
-                        title="Sectors"
-                        list="{sectors}"
-                        on:checkButtonClicked={updateSelectedSectors}
-                >
-                </CheckButtonList>
-                <FundColors colorMap="{colorMap}"></FundColors>
-            </DetailMenu>
-        </div>
+        <DetailMenu>
+            <PrimaryButton on:buttonClicked={() => {}}>Add to portfolio</PrimaryButton>
+            <SearchBar placeholder="Company name or ticker" on:inputChanged={filterHoldings}
+                       bind:value={searchTerm}></SearchBar>
+            <CheckButtonList
+                    title="Sectors"
+                    list="{sectors}"
+                    on:checkButtonClicked={updateSelectedSectors}
+            >
+            </CheckButtonList>
+        </DetailMenu>
         <div class="flex flex-col flex-grow">
             <div class="flex flex-col p-4">
                 <ColoredBarChart>
-                    {#each portfolioFundSectorWeightings as pfsw}
-                        <ColoredBar title="{pfsw.sectorName}" percentage="{pfsw.weighting.totalPercentage}">
-                            {#each pfsw.weighting.fundSectorWeighting as fsw, fswIndex}
-                                <ColoredBarEntry
-                                        roundedLeft="{fswIndex === 0}"
-                                        roundedRight="{fswIndex === pfsw.weighting.fundSectorWeighting.length - 1}"
-                                        color="{colorMap.get(fsw.fundId)?.color || ''}"
-                                        width="{Math.round(fsw.percentage / portfolioFundSectorWeightings[0].weighting.totalPercentage * 100)}"
-                                ></ColoredBarEntry>
-                            {/each}
+                    {#each fundSectorWeightings as fws, fswIndex}
+                        <ColoredBar title="{fws.sectorName}" percentage="{fws.percentage}">
+                            <ColoredBarEntry
+                                    roundedLeft="{true}"
+                                    roundedRight="{true}"
+                                    color="{colors[0]}"
+                                    width="{Math.round(fws.percentage / fundSectorWeightings[0].percentage * 100)}"
+                            ></ColoredBarEntry>
                         </ColoredBar>
                     {/each}
                 </ColoredBarChart>
@@ -119,7 +109,6 @@
                     {#each holdings as holding}
                         <ListItem>
                             <HoldingLineItem holding="{holding}"></HoldingLineItem>
-                            <ColoredHoldingsBar holding="{holding}" colorMap="{colorMap}"></ColoredHoldingsBar>
                         </ListItem>
                     {/each}
                 </List>

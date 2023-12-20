@@ -9,8 +9,9 @@
 </script>
 {#if (holding.funds?.length > 0)}
     <div class="flex w-full h-2 mt-3">
-        {#each holding.funds as fund}
-            <div class="h-full" style=" background-color: {colorMap?.get(fund.fundId)?.color}; width: { `${Math.round(fund.ratiodPercentage / holding.percentage * 100)}%`}"></div>
+        {#each holding.funds as fund, index}
+            <div class="h-full {index === 0 ? 'rounded-l-lg' : ''} {index === holding.funds.length - 1 ? 'rounded-r-lg' : ''}"
+                 style=" background-color: {colorMap?.get(fund.fundId)?.color}; width: { `${Math.round(fund.ratiodPercentage / holding.percentage * 100)}%`}"></div>
         {/each}
     </div>
 {/if}

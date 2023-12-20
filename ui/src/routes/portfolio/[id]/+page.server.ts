@@ -8,8 +8,10 @@ import {colors, stringToRandomInteger} from "$lib/utils";
 import type {PortfolioFundSectorWeighting__Output} from "$lib/proto/proto/PortfolioFundSectorWeighting";
 import type {PortfolioSectorWeighting} from "$lib/portfolio";
 import type {Holding} from "$lib/holding";
-import type {FilterPortfolioHoldingsRequest__Output} from "$lib/proto/proto/FilterPortfolioHoldingsRequest";
-import type {FilterPortfolioHoldingsResponse__Output} from "$lib/proto/proto/FilterPortfolioHoldingsResponse";
+import type {FilterPortfolioFundHoldingsRequest__Output} from "$lib/proto/proto/FilterPortfolioFundHoldingsRequest.ts";
+import type {
+    FilterPortfolioFundHoldingsResponse__Output
+} from "$lib/proto/proto/FilterPortfolioFundHoldingsResponse.ts";
 
 
 export const load = (async ({fetch, params, url, route}) => {
@@ -69,7 +71,7 @@ export const actions = {
         const portfolioId = String(params.id || "")
         const searchTerm = String(formData.get("searchTerm") || "")
         const selectedSectors = JSON.parse(String(formData.get("selectedSectors")))
-        const holdingsReq: FilterPortfolioHoldingsRequest__Output = {
+        const holdingsReq: FilterPortfolioFundHoldingsRequest__Output = {
             portfolioId: portfolioId,
             limit: 20,
             offset: holdingsLength,
@@ -77,7 +79,7 @@ export const actions = {
             selectedSectors: selectedSectors
         }
         const holdingsResp = await safe(
-            new Promise<FilterPortfolioHoldingsResponse__Output>((resolve, reject) => {
+            new Promise<FilterPortfolioFundHoldingsResponse__Output>((resolve, reject) => {
                 portfolioClient.filterPortfolioHoldings(holdingsReq, (err, response) => {
                     return err || !response ? reject(err) : resolve(response);
                 })

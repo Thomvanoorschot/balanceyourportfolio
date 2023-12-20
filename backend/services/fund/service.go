@@ -3,9 +3,9 @@ package fund
 import (
 	"context"
 
-	"etfinsight/api/contracts"
-	proto "etfinsight/generated/proto"
+	"etfinsight/generated/proto"
 	"etfinsight/utils/concurrencyutils"
+	"etfinsight/utils/stringutils"
 
 	"github.com/google/uuid"
 )
@@ -17,14 +17,7 @@ type Service struct {
 func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
-func (s *Service) GetFunds(ctx context.Context, searchTerm string) ([]contracts.Fund, error) {
-	//funds, err := s.repo.GetFunds(ctx, searchTerm)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//return funds.ConvertToResponse(), nil
-	return nil, nil
-}
+
 func (s *Service) GetFundsWithTickers(ctx context.Context, searchTerm string) (*proto.SearchFundsResponse, error) {
 	funds, err := s.repo.GetFundsWithTickers(ctx, searchTerm)
 	if err != nil {
@@ -33,40 +26,29 @@ func (s *Service) GetFundsWithTickers(ctx context.Context, searchTerm string) (*
 	return funds.ConvertToResponse(), nil
 }
 
-func (s *Service) GetEffectiveShares(ctx context.Context, fundId uuid.UUID) ([]EffectiveShare, error) {
-	//fundHoldings, err := s.repo.GetFundHoldings(ctx, fundId)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//var effectiveShares []EffectiveShare
-	//for _, fh := range fundHoldings {
-	//	totalInvestment := 2065 * fh.FundPrice
-	//	//if  hi.MarketValue == 0 {
-	//	//	continue
-	//	//}
-	//	itemTotalInvestment := totalInvestment * (fh.PercentageOfTotal / 100)
-	//	itemEffectiveShares := (itemTotalInvestment / fh.MarketValue) * fh.Amount
-	//	effectiveShares = append(effectiveShares, EffectiveShare{
-	//		Ticker: fh.Ticker,
-	//		Name:   fh.Name,
-	//		Amount: fmt.Sprintf("%.2f", itemEffectiveShares),
-	//	})
-	//}
-	return nil, nil
-}
-func (s *Service) GetDetails(ctx context.Context, fundID uuid.UUID) (*proto.FundDetailsResponse, error) {
+func (s *Service) GetDetails(ctx context.Context, fundId uuid.UUID) (*proto.FundDetailsResponse, error) {
 	fundSectorCh := concurrencyutils.Async2(func() (SectorNames, error) {
-		return s.repo.GetFundSectors(ctx, fundID)
+		return s.repo.GetFundSectors(ctx, fundId)
 	})
 	fundCh := concurrencyutils.Async2(func() (Information, error) {
-		return s.repo.GetFund(ctx, fundID)
+		return s.repo.GetFund(ctx, fundId)
 	})
 	sectorWeightingsCh := concurrencyutils.Async2(func() (SectorWeightings, error) {
-		return s.repo.GetFundSectorWeightings(ctx, fundID)
+		return s.repo.GetFundSectorWeightings(ctx, fundId)
+	})
+	fundHoldingsCh := concurrencyutils.Async2(func() (Holdings, error) {
+		return s.repo.FilterHoldings(ctx, HoldingsFilter{
+			FundId:          fundId,
+			SearchTerm:      "",
+			SelectedSectors: nil,
+			Limit:           20,
+			Offset:          0,
+		})
 	})
 	fundSectorResult := <-fundSectorCh
 	fundResult := <-fundCh
 	sectorWeightingsResult := <-sectorWeightingsCh
+	fundHoldingsResult := <-fundHoldingsCh
 	if fundSectorResult.Error != nil {
 		return nil, fundSectorResult.Error
 	}
@@ -76,22 +58,28 @@ func (s *Service) GetDetails(ctx context.Context, fundID uuid.UUID) (*proto.Fund
 	if sectorWeightingsResult.Error != nil {
 		return nil, sectorWeightingsResult.Error
 	}
-	fundSectorResult.Value = append([]SectorName{AnySector}, fundSectorResult.Value...)
+	if fundHoldingsResult.Error != nil {
+		return nil, fundHoldingsResult.Error
+	}
 
 	return &proto.FundDetailsResponse{
 		Sectors:          fundSectorResult.Value.ConvertToResponse(),
 		Information:      fundResult.Value.ConvertToResponse(),
 		SectorWeightings: sectorWeightingsResult.Value.ConvertToResponse(),
+		FundHoldings:     fundHoldingsResult.Value.ConvertToResponse(),
 	}, nil
 }
 
-func (s *Service) FilterHoldings(ctx context.Context, filter *proto.FilterHoldingsRequest) (*proto.HoldingsListResponse, error) {
-	if filter.SectorName == string(AnySector) {
-		filter.SectorName = ""
-	}
-	fundHoldings, err := s.repo.FilterHoldings(ctx, ConvertToHoldingsFilter(filter))
+func (s *Service) FilterHoldings(ctx context.Context, filter *proto.FilterFundHoldingsRequest) (*proto.FilterFundHoldingsResponse, error) {
+	fundHoldings, err := s.repo.FilterHoldings(ctx, HoldingsFilter{
+		FundId:          stringutils.ConvertToUUID(filter.FundId),
+		SearchTerm:      filter.SearchTerm,
+		SelectedSectors: filter.SelectedSectors,
+		Limit:           filter.Limit,
+		Offset:          filter.Offset,
+	})
 	if err != nil {
 		return nil, err
 	}
-	return fundHoldings.ConvertToResponse(), nil
+	return &proto.FilterFundHoldingsResponse{Entries: fundHoldings.ConvertToResponse()}, nil
 }

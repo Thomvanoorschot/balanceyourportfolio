@@ -23,16 +23,20 @@ func (r *Repository) GetFundHoldings(ctx context.Context, fundId uuid.UUID, limi
 }
 func (r *Repository) FilterHoldings(ctx context.Context, filter fund.HoldingsFilter) (fund.Holdings, error) {
 	var filterExp BoolExpression
-	if filter.FundID != uuid.Nil {
+	if filter.FundId != uuid.Nil {
 		if filterExp == nil {
-			filterExp = Fund.ID.EQ(UUID(filter.FundID))
+			filterExp = Fund.ID.EQ(UUID(filter.FundId))
 		}
 	}
-	if filter.SectorName != "" {
+	if len(filter.SelectedSectors) > 0 {
+		var sectorExpression []Expression
+		for _, selectedSector := range filter.SelectedSectors {
+			sectorExpression = append(sectorExpression, String(selectedSector))
+		}
 		if filterExp == nil {
-			filterExp = Holding.Sector.EQ(String(filter.SectorName))
+			filterExp = Holding.Sector.IN(sectorExpression...)
 		} else {
-			filterExp = filterExp.AND(Holding.Sector.EQ(String(filter.SectorName)))
+			filterExp = filterExp.AND(Holding.Sector.IN(sectorExpression...))
 		}
 	}
 	if filter.SearchTerm != "" {

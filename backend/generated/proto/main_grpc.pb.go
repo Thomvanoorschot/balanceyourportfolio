@@ -22,9 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FundServiceClient interface {
-	GetDetails(ctx context.Context, in *GetFundDetailsRequest, opts ...grpc.CallOption) (*FundDetailsResponse, error)
+	GetDetails(ctx context.Context, in *FundDetailsRequest, opts ...grpc.CallOption) (*FundDetailsResponse, error)
 	SearchFunds(ctx context.Context, in *SearchFundsRequest, opts ...grpc.CallOption) (*SearchFundsResponse, error)
-	FilterHoldings(ctx context.Context, in *FilterHoldingsRequest, opts ...grpc.CallOption) (*HoldingsListResponse, error)
+	FilterHoldings(ctx context.Context, in *FilterFundHoldingsRequest, opts ...grpc.CallOption) (*FilterFundHoldingsResponse, error)
 }
 
 type fundServiceClient struct {
@@ -35,7 +35,7 @@ func NewFundServiceClient(cc grpc.ClientConnInterface) FundServiceClient {
 	return &fundServiceClient{cc}
 }
 
-func (c *fundServiceClient) GetDetails(ctx context.Context, in *GetFundDetailsRequest, opts ...grpc.CallOption) (*FundDetailsResponse, error) {
+func (c *fundServiceClient) GetDetails(ctx context.Context, in *FundDetailsRequest, opts ...grpc.CallOption) (*FundDetailsResponse, error) {
 	out := new(FundDetailsResponse)
 	err := c.cc.Invoke(ctx, "/proto.FundService/GetDetails", in, out, opts...)
 	if err != nil {
@@ -53,8 +53,8 @@ func (c *fundServiceClient) SearchFunds(ctx context.Context, in *SearchFundsRequ
 	return out, nil
 }
 
-func (c *fundServiceClient) FilterHoldings(ctx context.Context, in *FilterHoldingsRequest, opts ...grpc.CallOption) (*HoldingsListResponse, error) {
-	out := new(HoldingsListResponse)
+func (c *fundServiceClient) FilterHoldings(ctx context.Context, in *FilterFundHoldingsRequest, opts ...grpc.CallOption) (*FilterFundHoldingsResponse, error) {
+	out := new(FilterFundHoldingsResponse)
 	err := c.cc.Invoke(ctx, "/proto.FundService/FilterHoldings", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -66,9 +66,9 @@ func (c *fundServiceClient) FilterHoldings(ctx context.Context, in *FilterHoldin
 // All implementations must embed UnimplementedFundServiceServer
 // for forward compatibility
 type FundServiceServer interface {
-	GetDetails(context.Context, *GetFundDetailsRequest) (*FundDetailsResponse, error)
+	GetDetails(context.Context, *FundDetailsRequest) (*FundDetailsResponse, error)
 	SearchFunds(context.Context, *SearchFundsRequest) (*SearchFundsResponse, error)
-	FilterHoldings(context.Context, *FilterHoldingsRequest) (*HoldingsListResponse, error)
+	FilterHoldings(context.Context, *FilterFundHoldingsRequest) (*FilterFundHoldingsResponse, error)
 	mustEmbedUnimplementedFundServiceServer()
 }
 
@@ -76,13 +76,13 @@ type FundServiceServer interface {
 type UnimplementedFundServiceServer struct {
 }
 
-func (UnimplementedFundServiceServer) GetDetails(context.Context, *GetFundDetailsRequest) (*FundDetailsResponse, error) {
+func (UnimplementedFundServiceServer) GetDetails(context.Context, *FundDetailsRequest) (*FundDetailsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDetails not implemented")
 }
 func (UnimplementedFundServiceServer) SearchFunds(context.Context, *SearchFundsRequest) (*SearchFundsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchFunds not implemented")
 }
-func (UnimplementedFundServiceServer) FilterHoldings(context.Context, *FilterHoldingsRequest) (*HoldingsListResponse, error) {
+func (UnimplementedFundServiceServer) FilterHoldings(context.Context, *FilterFundHoldingsRequest) (*FilterFundHoldingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FilterHoldings not implemented")
 }
 func (UnimplementedFundServiceServer) mustEmbedUnimplementedFundServiceServer() {}
@@ -99,7 +99,7 @@ func RegisterFundServiceServer(s grpc.ServiceRegistrar, srv FundServiceServer) {
 }
 
 func _FundService_GetDetails_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetFundDetailsRequest)
+	in := new(FundDetailsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func _FundService_GetDetails_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/proto.FundService/GetDetails",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FundServiceServer).GetDetails(ctx, req.(*GetFundDetailsRequest))
+		return srv.(FundServiceServer).GetDetails(ctx, req.(*FundDetailsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -135,7 +135,7 @@ func _FundService_SearchFunds_Handler(srv interface{}, ctx context.Context, dec 
 }
 
 func _FundService_FilterHoldings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FilterHoldingsRequest)
+	in := new(FilterFundHoldingsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -147,7 +147,7 @@ func _FundService_FilterHoldings_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/proto.FundService/FilterHoldings",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FundServiceServer).FilterHoldings(ctx, req.(*FilterHoldingsRequest))
+		return srv.(FundServiceServer).FilterHoldings(ctx, req.(*FilterFundHoldingsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -183,7 +183,7 @@ type PortfolioServiceClient interface {
 	GetPortfolios(ctx context.Context, in *PortfoliosRequest, opts ...grpc.CallOption) (*PortfoliosResponse, error)
 	UpsertPortfolio(ctx context.Context, in *UpsertPortfolioRequest, opts ...grpc.CallOption) (*UpsertPortfolioResponse, error)
 	GetPortfolioDetails(ctx context.Context, in *PortfolioDetailsRequest, opts ...grpc.CallOption) (*PortfolioDetailsResponse, error)
-	FilterPortfolioHoldings(ctx context.Context, in *FilterPortfolioHoldingsRequest, opts ...grpc.CallOption) (*FilterPortfolioHoldingsResponse, error)
+	FilterPortfolioHoldings(ctx context.Context, in *FilterPortfolioFundHoldingsRequest, opts ...grpc.CallOption) (*FilterPortfolioFundHoldingsResponse, error)
 }
 
 type portfolioServiceClient struct {
@@ -221,8 +221,8 @@ func (c *portfolioServiceClient) GetPortfolioDetails(ctx context.Context, in *Po
 	return out, nil
 }
 
-func (c *portfolioServiceClient) FilterPortfolioHoldings(ctx context.Context, in *FilterPortfolioHoldingsRequest, opts ...grpc.CallOption) (*FilterPortfolioHoldingsResponse, error) {
-	out := new(FilterPortfolioHoldingsResponse)
+func (c *portfolioServiceClient) FilterPortfolioHoldings(ctx context.Context, in *FilterPortfolioFundHoldingsRequest, opts ...grpc.CallOption) (*FilterPortfolioFundHoldingsResponse, error) {
+	out := new(FilterPortfolioFundHoldingsResponse)
 	err := c.cc.Invoke(ctx, "/proto.PortfolioService/FilterPortfolioHoldings", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -237,7 +237,7 @@ type PortfolioServiceServer interface {
 	GetPortfolios(context.Context, *PortfoliosRequest) (*PortfoliosResponse, error)
 	UpsertPortfolio(context.Context, *UpsertPortfolioRequest) (*UpsertPortfolioResponse, error)
 	GetPortfolioDetails(context.Context, *PortfolioDetailsRequest) (*PortfolioDetailsResponse, error)
-	FilterPortfolioHoldings(context.Context, *FilterPortfolioHoldingsRequest) (*FilterPortfolioHoldingsResponse, error)
+	FilterPortfolioHoldings(context.Context, *FilterPortfolioFundHoldingsRequest) (*FilterPortfolioFundHoldingsResponse, error)
 	mustEmbedUnimplementedPortfolioServiceServer()
 }
 
@@ -254,7 +254,7 @@ func (UnimplementedPortfolioServiceServer) UpsertPortfolio(context.Context, *Ups
 func (UnimplementedPortfolioServiceServer) GetPortfolioDetails(context.Context, *PortfolioDetailsRequest) (*PortfolioDetailsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPortfolioDetails not implemented")
 }
-func (UnimplementedPortfolioServiceServer) FilterPortfolioHoldings(context.Context, *FilterPortfolioHoldingsRequest) (*FilterPortfolioHoldingsResponse, error) {
+func (UnimplementedPortfolioServiceServer) FilterPortfolioHoldings(context.Context, *FilterPortfolioFundHoldingsRequest) (*FilterPortfolioFundHoldingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FilterPortfolioHoldings not implemented")
 }
 func (UnimplementedPortfolioServiceServer) mustEmbedUnimplementedPortfolioServiceServer() {}
@@ -325,7 +325,7 @@ func _PortfolioService_GetPortfolioDetails_Handler(srv interface{}, ctx context.
 }
 
 func _PortfolioService_FilterPortfolioHoldings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FilterPortfolioHoldingsRequest)
+	in := new(FilterPortfolioFundHoldingsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -337,7 +337,7 @@ func _PortfolioService_FilterPortfolioHoldings_Handler(srv interface{}, ctx cont
 		FullMethod: "/proto.PortfolioService/FilterPortfolioHoldings",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PortfolioServiceServer).FilterPortfolioHoldings(ctx, req.(*FilterPortfolioHoldingsRequest))
+		return srv.(PortfolioServiceServer).FilterPortfolioHoldings(ctx, req.(*FilterPortfolioFundHoldingsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
