@@ -6,7 +6,7 @@
 </script>
 <div class="flex">
     <button
-            class="rounded-md focus:outline-none focus:shadow-outline-violet"
+            class="rounded-xl focus:outline-none focus:shadow-outline-primary"
             aria-label="Toggle color mode"
             on:click|preventDefault={() => {
                                 toggleTheme(theme, $theme);

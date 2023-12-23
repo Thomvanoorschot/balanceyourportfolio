@@ -3,7 +3,7 @@
 </script>
 <div class="relative">
     <button
-            class="align-middle rounded-full focus:shadow-outline-violet focus:outline-none"
+            class="align-middle rounded-full focus:shadow-outline-primary focus:outline-none"
             aria-label="Account"
             aria-haspopup="true"
             on:click={() => isMenuOpen = !isMenuOpen}
@@ -17,12 +17,12 @@
     </button>
     {#if (isMenuOpen)}
         <ul
-                class="absolute right-0 w-56 p-2 mt-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700"
+                class="absolute right-0 w-56 p-2 mt-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-xl shadow-md dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700"
                 aria-label="submenu"
         >
             <li class="flex">
                 <a
-                        class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                        class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-xl hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
                         href="#"
                 >
                     <svg
@@ -44,7 +44,7 @@
             </li>
             <li class="flex">
                 <a
-                        class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                        class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-xl hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
                         href="#"
                 >
                     <svg
@@ -67,7 +67,7 @@
             </li>
             <li class="flex">
                 <a
-                        class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                        class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-xl hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
                         href="#"
                 >
                     <svg

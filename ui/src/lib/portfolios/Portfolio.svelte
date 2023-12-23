@@ -37,6 +37,8 @@
             if (result.type === "success" && result.data) {
                 portfolio = result.data.portfolio
                 toast.success(message);
+            } else{
+                toast.error("Encountered an error")
             }
         };
     };
@@ -48,7 +50,7 @@
 
 </script>
 
-<Toaster position="bottom-right" toastOptions="{{iconTheme: {
+<Toaster position="top-right" toastOptions="{{iconTheme: {
 		primary: '#9333ea',
 		secondary: '#FFFAEE'
 	}}}"/>

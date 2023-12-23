@@ -73,7 +73,7 @@
 
 </script>
 {#if (!error && sectors && colorMap && portfolioFundSectorWeightings && holdings)}
-    <div class="flex flex-grow items-start justify-between w-full">
+    <div class="flex flex-grow items-start justify-between w-full gap-5 p-5">
         <div class="sticky top-0">
             <DetailMenu>
                 <SearchBar placeholder="Company name or ticker"
@@ -89,23 +89,21 @@
                 <FundColors colorMap="{colorMap}"></FundColors>
             </DetailMenu>
         </div>
-        <div class="flex flex-col flex-grow">
-            <div class="flex flex-col p-4">
-                <ColoredBarChart>
-                    {#each portfolioFundSectorWeightings as pfsw}
-                        <ColoredBar title="{pfsw.sectorName}" percentage="{pfsw.weighting.totalPercentage}">
-                            {#each pfsw.weighting.fundSectorWeighting as fsw, fswIndex}
-                                <ColoredBarEntry
-                                        roundedLeft="{fswIndex === 0}"
-                                        roundedRight="{fswIndex === pfsw.weighting.fundSectorWeighting.length - 1}"
-                                        color="{colorMap.get(fsw.fundId)?.color || ''}"
-                                        width="{Math.round(fsw.percentage / portfolioFundSectorWeightings[0].weighting.totalPercentage * 100)}"
-                                ></ColoredBarEntry>
-                            {/each}
-                        </ColoredBar>
-                    {/each}
-                </ColoredBarChart>
-            </div>
+        <div class="flex flex-col flex-grow gap-5">
+            <ColoredBarChart>
+                {#each portfolioFundSectorWeightings as pfsw}
+                    <ColoredBar title="{pfsw.sectorName}" percentage="{pfsw.weighting.totalPercentage}">
+                        {#each pfsw.weighting.fundSectorWeighting as fsw, fswIndex}
+                            <ColoredBarEntry
+                                    roundedLeft="{fswIndex === 0}"
+                                    roundedRight="{fswIndex === pfsw.weighting.fundSectorWeighting.length - 1}"
+                                    color="{colorMap.get(fsw.fundId)?.color || ''}"
+                                    width="{Math.round(fsw.percentage / portfolioFundSectorWeightings[0].weighting.totalPercentage * 100)}"
+                            ></ColoredBarEntry>
+                        {/each}
+                    </ColoredBar>
+                {/each}
+            </ColoredBarChart>
             <form
                     method="POST"
                     action="?/filterHoldings"

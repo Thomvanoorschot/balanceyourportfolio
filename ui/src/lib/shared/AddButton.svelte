@@ -7,7 +7,7 @@
     }
 </script>
 <button
-        class="px-2 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-violet-600 border border-transparent rounded-full active:bg-violet-600 hover:bg-violet-700 focus:outline-none focus:shadow-outline-violet"
+        class="px-2 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-primary border border-transparent rounded-full active:bg-primary hover:bg-primary focus:outline-none focus:shadow-outline-violet"
         type="button"
         on:click={buttonClicked}
 >

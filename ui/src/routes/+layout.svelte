@@ -65,11 +65,11 @@
     <div class="flex flex-col flex-1 w-full">
         <header class="z-10 py-2 bg-white shadow-md dark:bg-gray-800">
             <div
-                    class="container flex items-center justify-between h-full px-6 mx-auto text-violet-600 dark:text-violet-300"
+                    class="container flex items-center justify-between h-full px-6 mx-auto text-primary dark:text-secondaryhighlighted"
             >
                 <!-- Mobile hamburger -->
                 <button
-                        class="p-1 mr-5 -ml-1 rounded-md md:hidden focus:outline-none focus:shadow-outline-violet"
+                        class="p-1 mr-5 -ml-1 rounded-xl md:hidden focus:outline-none focus:shadow-outline-primary"
                         aria-label="Menu"
                         on:click={() => isSideMenuOpen = !isSideMenuOpen}
                 >

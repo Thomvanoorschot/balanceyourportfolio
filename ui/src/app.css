@@ -12,6 +12,13 @@
     }
 }
 
+:root {
+    --primary: theme(colors.violet.600);
+    --primary-highlighted: theme(colors.violet.700);
+    --secondary: theme(colors.violet.100);
+    --secondary-highlighted: theme(colors.violet.200)
+}
+
 html {
     overflow: scroll;
     overflow-x: hidden;

@@ -24,7 +24,7 @@
         }
     });
 </script>
-<div class="p-4 m-3 gap-2 flex flex-col">
+<div class="gap-2 flex flex-col">
     <slot></slot>
     <div bind:this={root}></div>
 </div>

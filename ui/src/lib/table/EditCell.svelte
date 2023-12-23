@@ -15,7 +15,7 @@
 <td class="px-4 py-3">
     <div class="flex items-center space-x-4 text-sm">
         <button
-                class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-violet-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-primary rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
                 aria-label="Edit"
                 on:click={editClicked}
                 type="button"
@@ -32,7 +32,7 @@
             </svg>
         </button>
         <button
-                class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-violet-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-primary rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
                 aria-label="Delete"
                 type="button"
                 on:click={deleteClicked}

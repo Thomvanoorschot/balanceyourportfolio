@@ -15,11 +15,14 @@
     import ColoredBarEntry from "$lib/chart/ColoredBarEntry.svelte";
     import DetailMenu from "$lib/menu/DetailMenu.svelte";
     import PrimaryButton from "$lib/shared/PrimaryButton.svelte";
+    import Information from "$lib/fund-details/Information.svelte";
+    import type {FundInformation__Output} from "$lib/proto/proto/FundInformation.ts";
 
     export let data: PageData;
     let error: string | undefined
     let sectors: string[] | undefined
     let fundSectorWeightings: FundSectorWeighting__Output[] | undefined
+    let fundInformation: FundInformation__Output | null | undefined
     let holdings: Holding[] | undefined = []
     let fundsForm: HTMLFormElement;
     let searchTerm: string
@@ -68,8 +71,8 @@
     }
 
 </script>
-{#if (!error && sectors && fundSectorWeightings && holdings)}
-    <div class="flex flex-grow items-start justify-between w-full">
+{#if (!error && sectors && fundSectorWeightings && holdings && fundInformation)}
+    <div class="flex flex-grow items-start justify-between w-full gap-5 p-5">
         <DetailMenu>
             <PrimaryButton on:buttonClicked={() => {}}>Add to portfolio</PrimaryButton>
             <SearchBar placeholder="Company name or ticker" on:inputChanged={filterHoldings}
@@ -81,21 +84,20 @@
             >
             </CheckButtonList>
         </DetailMenu>
-        <div class="flex flex-col flex-grow">
-            <div class="flex flex-col p-4">
-                <ColoredBarChart>
-                    {#each fundSectorWeightings as fws, fswIndex}
-                        <ColoredBar title="{fws.sectorName}" percentage="{fws.percentage}">
-                            <ColoredBarEntry
-                                    roundedLeft="{true}"
-                                    roundedRight="{true}"
-                                    color="{colors[0]}"
-                                    width="{Math.round(fws.percentage / fundSectorWeightings[0].percentage * 100)}"
-                            ></ColoredBarEntry>
-                        </ColoredBar>
-                    {/each}
-                </ColoredBarChart>
-            </div>
+        <div class="flex flex-col flex-grow gap-5">
+            <Information fundInformation="{fundInformation}"></Information>
+            <ColoredBarChart>
+                {#each fundSectorWeightings as fws, fswIndex}
+                    <ColoredBar title="{fws.sectorName}" percentage="{fws.percentage}">
+                        <ColoredBarEntry
+                                roundedLeft="{true}"
+                                roundedRight="{true}"
+                                color="{colors[0]}"
+                                width="{Math.round(fws.percentage / fundSectorWeightings[0].percentage * 100)}"
+                        ></ColoredBarEntry>
+                    </ColoredBar>
+                {/each}
+            </ColoredBarChart>
             <form
                     method="POST"
                     action="?/filterHoldings"
