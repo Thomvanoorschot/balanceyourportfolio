@@ -75,8 +75,12 @@
     <div class="flex flex-grow items-start justify-between w-full gap-5 p-5">
         <DetailMenu>
             <PrimaryButton on:buttonClicked={() => {}}>Add to portfolio</PrimaryButton>
-            <SearchBar placeholder="Company name or ticker" on:inputChanged={filterHoldings}
-                       bind:value={searchTerm}></SearchBar>
+            <SearchBar
+                    placeholder="Company name or ticker"
+                    on:inputChanged={filterHoldings}
+                    bind:value={searchTerm}
+                    inPrimary="{false}"
+            ></SearchBar>
             <CheckButtonList
                     title="Sectors"
                     list="{sectors}"

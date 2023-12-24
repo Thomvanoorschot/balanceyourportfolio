@@ -3,6 +3,6 @@
 </script>
 
 
-<tr class="text-gray-700 dark:text-gray-400">
+<tr class="text-tertiary">
     <slot/>
 </tr>

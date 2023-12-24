@@ -3,11 +3,13 @@
 
     export let placeholder: string
     export let value: string | undefined = ""
+    export let inPrimary: boolean | undefined = true
     const dispatch = createEventDispatcher()
 
     function inputChanged() {
         dispatch('inputChanged')
     }
+
     let hasFocus: boolean
     onMount(() => {
         document.addEventListener('keydown', closeOnEscape);
@@ -20,13 +22,12 @@
 </script>
 <div class="flex justify-center w-full flex-1">
     <div
-            class="relative w-full max-w-xl focus-within:text-primary"
+            class="relative w-full max-w-xl focus-within:text-tertiary"
     >
         <div class="absolute inset-y-0 flex items-center pl-2">
             <svg
-                    class="w-4 h-4"
+                    class="w-4 h-4 fill-tertiary"
                     aria-hidden="true"
-                    fill="currentColor"
                     viewBox="0 0 20 20"
             >
                 <path
@@ -38,7 +39,12 @@
         </div>
         <input
                 name="searchTerm"
-                class="w-full pt-2 pb-2 pl-8 pr-2 text-sm text-gray-700 placeholder-gray-600 bg-gray-100 border-0 rounded-xl dark:placeholder-gray-500 dark:focus:shadow-outline-gray dark:focus:placeholder-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:placeholder-gray-500 focus:bg-white focus:border-primaryhighlighted focus:outline-none focus:shadow-outline-primary form-input"
+                class="w-full pt-2 pb-2 pl-8 pr-2 text-sm placeholder-gray-600
+                border-2 rounded-xl focus:outline-none form-input text-tertiary
+                {inPrimary ?
+                    'bg-secondary border-primary focus:border-quaternary' :
+                     'bg-primary border-secondary focus:border-quaternary'
+                }"
                 type="text"
                 placeholder={placeholder}
                 aria-label="Search"

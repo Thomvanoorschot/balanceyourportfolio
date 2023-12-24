@@ -4,10 +4,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "var(--primary)",
-        primaryhighlighted: "var(--primary-highlighted)",
-        secondary: "var(--secondary)",
-        secondaryhighlighted: "var(--secondary-highlighted)",
+        primary: "#f3d2c1",
+        secondary: "#fef6e4",
+        tertiary: "#001858",
+        quaternary: "#f582ae",
       }
     },
   },

@@ -22,15 +22,15 @@
 
 
 <div
-        class="flex h-screen bg-gray-50 dark:bg-gray-900 {isSideMenuOpen ? 'overflow-hidden' : ''}"
+        class="flex h-screen bg-primary {isSideMenuOpen ? 'overflow-hidden' : ''}"
 >
     <!-- Desktop sidebar -->
     <aside
-            class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0"
+            class="z-20 hidden w-64 overflow-y-auto md:block flex-shrink-0"
     >
-        <div class="py-4 text-gray-500 dark:text-gray-400">
+        <div class="py-4 text-gray-500">
             <a
-                    class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200"
+                    class="ml-6 text-lg font-bold text-gray-800"
                     href="/portfolio/overview"
             >
                 EtfInsight
@@ -45,11 +45,11 @@
     <!-- Mobile sidebar -->
     {#if (isSideMenuOpen)}
         <aside
-                class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto bg-white dark:bg-gray-800 md:hidden "
+                class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto md:hidden "
         >
-            <div class="py-4 text-gray-500 dark:text-gray-400">
+            <div class="py-4 text-gray-500">
                 <a
-                        class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200"
+                        class="ml-6 text-lg font-bold text-gray-800"
                         href="/search"
                 >
                     EtfInsight
@@ -63,20 +63,19 @@
         </aside>
     {/if}
     <div class="flex flex-col flex-1 w-full">
-        <header class="z-10 py-2 bg-white shadow-md dark:bg-gray-800">
+        <header class="z-10 py-2 bg-background-primary">
             <div
-                    class="container flex items-center justify-between h-full px-6 mx-auto text-primary dark:text-secondaryhighlighted"
+                    class="container flex items-center justify-between h-full px-6 mx-auto text-tertiary"
             >
                 <!-- Mobile hamburger -->
                 <button
-                        class="p-1 mr-5 -ml-1 rounded-xl md:hidden focus:outline-none focus:shadow-outline-primary"
+                        class="p-1 mr-5 -ml-1 rounded-xl md:hidden focus:outline-none"
                         aria-label="Menu"
                         on:click={() => isSideMenuOpen = !isSideMenuOpen}
                 >
                     <svg
-                            class="w-6 h-6"
+                            class="w-6 h-6 fill-tertiary"
                             aria-hidden="true"
-                            fill="currentColor"
                             viewBox="0 0 20 20"
                     >
                         <path
@@ -94,10 +93,10 @@
                 </div>
             </div>
         </header>
-        <main class="h-full overflow-y-auto">
+        <main class="h-full overflow-y-auto bg-secondary">
             <slot></slot>
         </main>
-        <footer class="bg-white text-center">
+        <footer class="bg-primary text-center">
             <div class="p-0.5 text-center text-neutral-800">
                 © 2023 Copyright:
                 <a class="text-neutral-800" href="https://tailwind-elements.com/">EtfInsight</a>

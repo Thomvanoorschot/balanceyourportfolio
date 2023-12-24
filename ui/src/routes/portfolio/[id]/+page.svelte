@@ -79,6 +79,7 @@
                 <SearchBar placeholder="Company name or ticker"
                            on:inputChanged={filterHoldings}
                            bind:value={searchTerm}
+                           inPrimary="{false}"
                 ></SearchBar>
                 <CheckButtonList
                         title="Sectors"

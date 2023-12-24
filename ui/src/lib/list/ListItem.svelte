@@ -1,3 +1,3 @@
-<div class="bg-secondary rounded-xl items-center p-4">
+<div class="bg-tertiary rounded-xl items-center p-4 text-primary">
     <slot></slot>
 </div>

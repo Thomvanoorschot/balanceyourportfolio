@@ -51,11 +51,11 @@
 </script>
 
 <Toaster position="top-right" toastOptions="{{iconTheme: {
-		primary: '#9333ea',
-		secondary: '#FFFAEE'
+		primary: '#f582ae',
+		secondary: '#001858',
 	}}}"/>
 <form
-        class="flex relative flex-col m-20 w-[50vw] rounded-lg shadow-2xl"
+        class="flex relative flex-col m-20 w-[50vw] rounded-lg bg-tertiary"
         bind:this={portfolioForm}
         method="POST"
         use:enhance={({formData}) => {
@@ -64,7 +64,7 @@
                 }}
         action="?/upsertPortfolio"
 >
-    <input bind:value={portfolio.name} type="text" class="text-center rounded-t-lg">
+    <input bind:value={portfolio.name} type="text" class="text-center rounded-t-lg bg-tertiary text-primary">
     <Table>
         <TableHeaderRow slot="headerRow">
             <TableHeader>Ticker or name</TableHeader>

@@ -1,7 +1,6 @@
 <svg
-        class="w-5 h-5"
+        class="w-5 h-5 fill-tertiary"
         aria-hidden="true"
-        fill="currentColor"
         viewBox="0 0 20 20"
 >
     <path
