@@ -12,10 +12,10 @@
            on:click={() => dispatch("checkButtonClicked", text)}/>
     <label
             for="check-button-{index}"
-            class="select-none cursor-pointer rounded-lg border-2 border-primary bg-primary
-            py-2 px-2.5 font-small text-xs text-gray-500 transition-colors duration-200
+            class="select-none cursor-pointer rounded-lg border-2 border-tertiary bg-tertiary
+            py-2 px-2.5 font-small text-xs text-primary transition-colors duration-200
             ease-in-out peer-checked:border-quaternary peer-hover:bg-quaternary
-             peer-hover:border-quaternary ">
+             peer-hover:border-quaternary peer-checked:bg-primary peer-checked:text-tertiary">
         {text}
     </label>
 </div>

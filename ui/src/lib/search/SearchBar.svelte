@@ -1,5 +1,6 @@
 <script lang="ts">
     import {createEventDispatcher, onMount} from "svelte";
+    import SearchIcon from "$lib/icons/SearchIcon.svelte";
 
     export let placeholder: string
     export let value: string | undefined = ""
@@ -25,25 +26,15 @@
             class="relative w-full max-w-xl focus-within:text-tertiary"
     >
         <div class="absolute inset-y-0 flex items-center pl-2">
-            <svg
-                    class="w-4 h-4 fill-tertiary"
-                    aria-hidden="true"
-                    viewBox="0 0 20 20"
-            >
-                <path
-                        fill-rule="evenodd"
-                        d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                        clip-rule="evenodd"
-                ></path>
-            </svg>
+            <SearchIcon inPrimary="{inPrimary}"></SearchIcon>
         </div>
         <input
                 name="searchTerm"
                 class="w-full pt-2 pb-2 pl-8 pr-2 text-sm placeholder-gray-600
-                border-2 rounded-xl focus:outline-none form-input text-tertiary
+                border-2 rounded-xl focus:outline-none form-input
                 {inPrimary ?
                     'bg-secondary border-primary focus:border-quaternary' :
-                     'bg-primary border-secondary focus:border-quaternary'
+                     'bg-tertiary border-secondary focus:border-quaternary placeholder-primary text-primary'
                 }"
                 type="text"
                 placeholder={placeholder}
