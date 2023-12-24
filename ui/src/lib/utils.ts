@@ -17,7 +17,14 @@ export const colors = [
     "#b65149",
     "#feecd6",
     "#a39fe1",
-    "#9bb8ed"
+    "#9bb8ed",
+    "#800020",
+    "#C3A456",
+    "#777F8C",
+    "#FC764A",
+    "#008080",
+    "#C6989F",
+    "#40E0D0"
 ];
 
 export function stringToRandomInteger(inputString: string, maxNumber: number) {
