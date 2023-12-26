@@ -831,6 +831,69 @@ func (x *PortfolioFundHoldingEntry) GetRatiodPercentage() float64 {
 	return 0
 }
 
+type UpdatePortfolioFundAmountRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	PortfolioId string `protobuf:"bytes,1,opt,name=portfolioId,proto3" json:"portfolioId,omitempty"`
+	FundId      string `protobuf:"bytes,2,opt,name=fundId,proto3" json:"fundId,omitempty"`
+	Amount      int64  `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
+}
+
+func (x *UpdatePortfolioFundAmountRequest) Reset() {
+	*x = UpdatePortfolioFundAmountRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_portfolio_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UpdatePortfolioFundAmountRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePortfolioFundAmountRequest) ProtoMessage() {}
+
+func (x *UpdatePortfolioFundAmountRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_portfolio_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePortfolioFundAmountRequest.ProtoReflect.Descriptor instead.
+func (*UpdatePortfolioFundAmountRequest) Descriptor() ([]byte, []int) {
+	return file_portfolio_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *UpdatePortfolioFundAmountRequest) GetPortfolioId() string {
+	if x != nil {
+		return x.PortfolioId
+	}
+	return ""
+}
+
+func (x *UpdatePortfolioFundAmountRequest) GetFundId() string {
+	if x != nil {
+		return x.FundId
+	}
+	return ""
+}
+
+func (x *UpdatePortfolioFundAmountRequest) GetAmount() int64 {
+	if x != nil {
+		return x.Amount
+	}
+	return 0
+}
+
 var File_portfolio_proto protoreflect.FileDescriptor
 
 var file_portfolio_proto_rawDesc = []byte{
@@ -952,8 +1015,15 @@ var file_portfolio_proto_rawDesc = []byte{
 	0x28, 0x09, 0x52, 0x06, 0x66, 0x75, 0x6e, 0x64, 0x49, 0x64, 0x12, 0x2a, 0x0a, 0x10, 0x72, 0x61,
 	0x74, 0x69, 0x6f, 0x64, 0x50, 0x65, 0x72, 0x63, 0x65, 0x6e, 0x74, 0x61, 0x67, 0x65, 0x18, 0x02,
 	0x20, 0x01, 0x28, 0x01, 0x52, 0x10, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x64, 0x50, 0x65, 0x72, 0x63,
-	0x65, 0x6e, 0x74, 0x61, 0x67, 0x65, 0x42, 0x09, 0x5a, 0x07, 0x2e, 0x2f, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x65, 0x6e, 0x74, 0x61, 0x67, 0x65, 0x22, 0x74, 0x0a, 0x20, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65,
+	0x50, 0x6f, 0x72, 0x74, 0x66, 0x6f, 0x6c, 0x69, 0x6f, 0x46, 0x75, 0x6e, 0x64, 0x41, 0x6d, 0x6f,
+	0x75, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x20, 0x0a, 0x0b, 0x70, 0x6f,
+	0x72, 0x74, 0x66, 0x6f, 0x6c, 0x69, 0x6f, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x0b, 0x70, 0x6f, 0x72, 0x74, 0x66, 0x6f, 0x6c, 0x69, 0x6f, 0x49, 0x64, 0x12, 0x16, 0x0a, 0x06,
+	0x66, 0x75, 0x6e, 0x64, 0x49, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x66, 0x75,
+	0x6e, 0x64, 0x49, 0x64, 0x12, 0x16, 0x0a, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x03,
+	0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x42, 0x09, 0x5a, 0x07,
+	0x2e, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -968,7 +1038,7 @@ func file_portfolio_proto_rawDescGZIP() []byte {
 	return file_portfolio_proto_rawDescData
 }
 
-var file_portfolio_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_portfolio_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_portfolio_proto_goTypes = []interface{}{
 	(*PortfoliosRequest)(nil),                   // 0: proto.PortfoliosRequest
 	(*PortfoliosResponse)(nil),                  // 1: proto.PortfoliosResponse
@@ -984,16 +1054,17 @@ var file_portfolio_proto_goTypes = []interface{}{
 	(*FilterPortfolioFundHoldingsResponse)(nil), // 11: proto.FilterPortfolioFundHoldingsResponse
 	(*PortfolioFundHolding)(nil),                // 12: proto.PortfolioFundHolding
 	(*PortfolioFundHoldingEntry)(nil),           // 13: proto.PortfolioFundHoldingEntry
-	nil,                                         // 14: proto.PortfolioDetailsResponse.PortfolioFundSectorWeightingsEntry
-	(*FundInformation)(nil),                     // 15: proto.FundInformation
+	(*UpdatePortfolioFundAmountRequest)(nil),    // 14: proto.UpdatePortfolioFundAmountRequest
+	nil,                                         // 15: proto.PortfolioDetailsResponse.PortfolioFundSectorWeightingsEntry
+	(*FundInformation)(nil),                     // 16: proto.FundInformation
 }
 var file_portfolio_proto_depIdxs = []int32{
 	2,  // 0: proto.PortfoliosResponse.entries:type_name -> proto.Portfolio
 	3,  // 1: proto.Portfolio.entries:type_name -> proto.PortfolioListItem
 	2,  // 2: proto.UpsertPortfolioRequest.portfolio:type_name -> proto.Portfolio
 	2,  // 3: proto.UpsertPortfolioResponse.portfolio:type_name -> proto.Portfolio
-	15, // 4: proto.PortfolioDetailsResponse.fundInformation:type_name -> proto.FundInformation
-	14, // 5: proto.PortfolioDetailsResponse.portfolioFundSectorWeightings:type_name -> proto.PortfolioDetailsResponse.PortfolioFundSectorWeightingsEntry
+	16, // 4: proto.PortfolioDetailsResponse.fundInformation:type_name -> proto.FundInformation
+	15, // 5: proto.PortfolioDetailsResponse.portfolioFundSectorWeightings:type_name -> proto.PortfolioDetailsResponse.PortfolioFundSectorWeightingsEntry
 	12, // 6: proto.PortfolioDetailsResponse.portfolioFundHoldings:type_name -> proto.PortfolioFundHolding
 	9,  // 7: proto.PortfolioFundSectorWeighting.fundSectorWeighting:type_name -> proto.PortfolioFundSectorWeightingEntry
 	12, // 8: proto.FilterPortfolioFundHoldingsResponse.entries:type_name -> proto.PortfolioFundHolding
@@ -1181,6 +1252,18 @@ func file_portfolio_proto_init() {
 				return nil
 			}
 		}
+		file_portfolio_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdatePortfolioFundAmountRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1188,7 +1271,7 @@ func file_portfolio_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_portfolio_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

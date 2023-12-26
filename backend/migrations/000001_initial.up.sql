@@ -56,5 +56,6 @@ CREATE TABLE portfolio_fund (
     id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
     portfolio_id uuid REFERENCES "portfolio" (id),
     fund_id uuid REFERENCES "fund" (id),
-    amount numeric
+    amount numeric,
+    CONSTRAINT unique_portfolio_fund UNIQUE (portfolio_id,fund_id)
 );

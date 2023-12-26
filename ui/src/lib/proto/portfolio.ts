@@ -30,6 +30,7 @@ export interface ProtoGrpcType {
     SearchFundsEntry: MessageTypeDefinition
     SearchFundsRequest: MessageTypeDefinition
     SearchFundsResponse: MessageTypeDefinition
+    UpdatePortfolioFundAmountRequest: MessageTypeDefinition
     UpsertPortfolioRequest: MessageTypeDefinition
     UpsertPortfolioResponse: MessageTypeDefinition
   }

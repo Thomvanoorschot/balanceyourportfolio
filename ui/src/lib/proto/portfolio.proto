@@ -72,3 +72,8 @@ message PortfolioFundHoldingEntry {
   double ratiodPercentage = 2;
 }
 
+message UpdatePortfolioFundAmountRequest {
+  string portfolioId = 1;
+  string fundId = 2;
+  int64 amount = 3;
+}

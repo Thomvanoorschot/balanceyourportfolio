@@ -4,12 +4,12 @@
     export let title: string
     export let list: string[]
 </script>
-<div>
+<div class="text-center">
     {title}
     <ul class="flex flex-wrap">
         {#each list as item, index}
             <li class="p-0.5">
-                <CheckButton index="{index}" text="{item}" on:checkButtonClicked></CheckButton>
+                <CheckButton index="{index}" text="{item}" checked="" on:checkButtonClicked></CheckButton>
             </li>
         {/each}
     </ul>

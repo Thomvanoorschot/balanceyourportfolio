@@ -8,6 +8,7 @@ import (
 	"etfinsight/generated/proto"
 	"etfinsight/services/fund"
 	"etfinsight/utils/concurrencyutils"
+	"etfinsight/utils/stringutils"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -140,4 +141,16 @@ func (s *Service) FilterPortfolioHoldings(ctx context.Context, filter *proto.Fil
 		return nil, err
 	}
 	return &proto.FilterPortfolioFundHoldingsResponse{Entries: fundHoldings.ConvertToResponse()}, nil
+}
+
+func (s *Service) UpdatePortfolioFundAmount(ctx context.Context, req *proto.UpdatePortfolioFundAmountRequest) (*proto.Empty, error) {
+	err := s.repo.UpdatePortfolioFundAmount(ctx,
+		stringutils.ConvertToUUID(req.PortfolioId),
+		stringutils.ConvertToUUID(req.FundId),
+		req.Amount,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &proto.Empty{}, nil
 }

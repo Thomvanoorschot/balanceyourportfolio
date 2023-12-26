@@ -182,6 +182,7 @@ var FundService_ServiceDesc = grpc.ServiceDesc{
 type PortfolioServiceClient interface {
 	GetPortfolios(ctx context.Context, in *PortfoliosRequest, opts ...grpc.CallOption) (*PortfoliosResponse, error)
 	UpsertPortfolio(ctx context.Context, in *UpsertPortfolioRequest, opts ...grpc.CallOption) (*UpsertPortfolioResponse, error)
+	UpdatePortfolioFundAmount(ctx context.Context, in *UpdatePortfolioFundAmountRequest, opts ...grpc.CallOption) (*Empty, error)
 	GetPortfolioDetails(ctx context.Context, in *PortfolioDetailsRequest, opts ...grpc.CallOption) (*PortfolioDetailsResponse, error)
 	FilterPortfolioHoldings(ctx context.Context, in *FilterPortfolioFundHoldingsRequest, opts ...grpc.CallOption) (*FilterPortfolioFundHoldingsResponse, error)
 }
@@ -212,6 +213,15 @@ func (c *portfolioServiceClient) UpsertPortfolio(ctx context.Context, in *Upsert
 	return out, nil
 }
 
+func (c *portfolioServiceClient) UpdatePortfolioFundAmount(ctx context.Context, in *UpdatePortfolioFundAmountRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/proto.PortfolioService/UpdatePortfolioFundAmount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *portfolioServiceClient) GetPortfolioDetails(ctx context.Context, in *PortfolioDetailsRequest, opts ...grpc.CallOption) (*PortfolioDetailsResponse, error) {
 	out := new(PortfolioDetailsResponse)
 	err := c.cc.Invoke(ctx, "/proto.PortfolioService/GetPortfolioDetails", in, out, opts...)
@@ -236,6 +246,7 @@ func (c *portfolioServiceClient) FilterPortfolioHoldings(ctx context.Context, in
 type PortfolioServiceServer interface {
 	GetPortfolios(context.Context, *PortfoliosRequest) (*PortfoliosResponse, error)
 	UpsertPortfolio(context.Context, *UpsertPortfolioRequest) (*UpsertPortfolioResponse, error)
+	UpdatePortfolioFundAmount(context.Context, *UpdatePortfolioFundAmountRequest) (*Empty, error)
 	GetPortfolioDetails(context.Context, *PortfolioDetailsRequest) (*PortfolioDetailsResponse, error)
 	FilterPortfolioHoldings(context.Context, *FilterPortfolioFundHoldingsRequest) (*FilterPortfolioFundHoldingsResponse, error)
 	mustEmbedUnimplementedPortfolioServiceServer()
@@ -250,6 +261,9 @@ func (UnimplementedPortfolioServiceServer) GetPortfolios(context.Context, *Portf
 }
 func (UnimplementedPortfolioServiceServer) UpsertPortfolio(context.Context, *UpsertPortfolioRequest) (*UpsertPortfolioResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertPortfolio not implemented")
+}
+func (UnimplementedPortfolioServiceServer) UpdatePortfolioFundAmount(context.Context, *UpdatePortfolioFundAmountRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePortfolioFundAmount not implemented")
 }
 func (UnimplementedPortfolioServiceServer) GetPortfolioDetails(context.Context, *PortfolioDetailsRequest) (*PortfolioDetailsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPortfolioDetails not implemented")
@@ -306,6 +320,24 @@ func _PortfolioService_UpsertPortfolio_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PortfolioService_UpdatePortfolioFundAmount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePortfolioFundAmountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PortfolioServiceServer).UpdatePortfolioFundAmount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.PortfolioService/UpdatePortfolioFundAmount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PortfolioServiceServer).UpdatePortfolioFundAmount(ctx, req.(*UpdatePortfolioFundAmountRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _PortfolioService_GetPortfolioDetails_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PortfolioDetailsRequest)
 	if err := dec(in); err != nil {
@@ -356,6 +388,10 @@ var PortfolioService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpsertPortfolio",
 			Handler:    _PortfolioService_UpsertPortfolio_Handler,
+		},
+		{
+			MethodName: "UpdatePortfolioFundAmount",
+			Handler:    _PortfolioService_UpdatePortfolioFundAmount_Handler,
 		},
 		{
 			MethodName: "GetPortfolioDetails",

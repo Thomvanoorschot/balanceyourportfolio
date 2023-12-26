@@ -29,7 +29,6 @@
             <SearchIcon inPrimary="{inPrimary}"></SearchIcon>
         </div>
         <input
-                name="searchTerm"
                 class="w-full pt-2 pb-2 pl-8 pr-2 text-sm placeholder-gray-600
                 border-2 rounded-xl focus:outline-none form-input
                 {inPrimary ?

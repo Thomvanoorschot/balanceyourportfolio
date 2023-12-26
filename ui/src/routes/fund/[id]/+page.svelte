@@ -5,7 +5,7 @@
     import {enhance} from '$app/forms';
     import SearchBar from "$lib/search/SearchBar.svelte";
     import CheckButtonList from "$lib/filters/CheckButtonList.svelte";
-    import {colors, debounce} from "$lib/utils.ts";
+    import {debounce} from "$lib/utils.ts";
     import List from "$lib/list/List.svelte";
     import ListItem from "$lib/list/ListItem.svelte";
     import HoldingLineItem from "$lib/list/HoldingLineItem.svelte";
@@ -14,9 +14,11 @@
     import ColoredBar from "$lib/chart/ColoredBar.svelte";
     import ColoredBarEntry from "$lib/chart/ColoredBarEntry.svelte";
     import DetailMenu from "$lib/menu/DetailMenu.svelte";
-    import PrimaryButton from "$lib/shared/PrimaryButton.svelte";
     import Information from "$lib/fund-details/Information.svelte";
     import type {FundInformation__Output} from "$lib/proto/proto/FundInformation.ts";
+    import TertiaryButton from "$lib/shared/TertiaryButton.svelte";
+    import Modal from "$lib/shared/Modal.svelte";
+    import AddToPortfolioPopup from "$lib/portfolios/AddToPortfolioPopup.svelte";
 
     export let data: PageData;
     let error: string | undefined
@@ -28,10 +30,13 @@
     let searchTerm: string
     let resetSearch: boolean
     let selectedSectors: string[] = []
+    let showModal = false
     $: ({sectors, fundInformation, fundSectorWeightings, holdings} = data);
 
     const updateNextPage = () => {
-        return ({result}: { result: ActionResult }) => {
+        return ({result}: {
+            result: ActionResult
+        }) => {
             if (result.type === "success" && result?.data?.holdings && holdings) {
                 if (resetSearch) {
                     holdings = [...result?.data?.holdings]
@@ -58,7 +63,7 @@
         formData.set("selectedSectors", JSON.stringify(selectedSectors));
         formData.set("searchTerm", searchTerm);
     }
-    const updateSelectedSectors = (clickEvent: CustomEvent<string>) => {
+    const updateSelectedSectorsFromEvent = (clickEvent: CustomEvent<string>) => {
         if (selectedSectors.some(x => x === clickEvent.detail)) {
             selectedSectors = selectedSectors.filter(x => x !== clickEvent.detail)
             resetSearch = true
@@ -69,12 +74,16 @@
         resetSearch = true
         fundsForm.requestSubmit()
     }
-
 </script>
+{#if (showModal)}
+    <Modal bind:showModal>
+        <AddToPortfolioPopup bind:showModal></AddToPortfolioPopup>
+    </Modal>
+{/if}
 {#if (!error && sectors && fundSectorWeightings && holdings && fundInformation)}
     <div class="flex flex-grow items-start justify-between w-full gap-5 p-5">
         <DetailMenu>
-            <PrimaryButton on:buttonClicked={() => {}}>Add to portfolio</PrimaryButton>
+            <TertiaryButton on:buttonClicked={() => showModal = !showModal}>Add to portfolio</TertiaryButton>
             <SearchBar
                     placeholder="Company name or ticker"
                     on:inputChanged={filterHoldings}
@@ -84,7 +93,7 @@
             <CheckButtonList
                     title="Sectors"
                     list="{sectors}"
-                    on:checkButtonClicked={updateSelectedSectors}
+                    on:checkButtonClicked={updateSelectedSectorsFromEvent}
             >
             </CheckButtonList>
         </DetailMenu>
@@ -92,11 +101,13 @@
             <Information fundInformation="{fundInformation}"></Information>
             <ColoredBarChart>
                 {#each fundSectorWeightings as fws, fswIndex}
-                    <ColoredBar title="{fws.sectorName}" percentage="{fws.percentage}">
+                    <ColoredBar
+                            title="{fws.sectorName}" percentage="{fws.percentage}"
+                    >
                         <ColoredBarEntry
                                 roundedLeft="{true}"
                                 roundedRight="{true}"
-                                color="{colors[0]}"
+                                color="#f582ae"
                                 width="{Math.round(fws.percentage / fundSectorWeightings[0].percentage * 100)}"
                         ></ColoredBarEntry>
                     </ColoredBar>

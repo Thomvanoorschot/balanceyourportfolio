@@ -10,6 +10,7 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 
 export interface ProtoGrpcType {
   proto: {
+    Empty: MessageTypeDefinition
     FilterFundHoldingsRequest: MessageTypeDefinition
     FilterFundHoldingsResponse: MessageTypeDefinition
     FilterPortfolioFundHoldingsRequest: MessageTypeDefinition
@@ -34,6 +35,7 @@ export interface ProtoGrpcType {
     SearchFundsEntry: MessageTypeDefinition
     SearchFundsRequest: MessageTypeDefinition
     SearchFundsResponse: MessageTypeDefinition
+    UpdatePortfolioFundAmountRequest: MessageTypeDefinition
     UpsertPortfolioRequest: MessageTypeDefinition
     UpsertPortfolioResponse: MessageTypeDefinition
   }

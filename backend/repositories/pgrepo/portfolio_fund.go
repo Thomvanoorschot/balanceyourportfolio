@@ -17,13 +17,13 @@ import (
 )
 
 func (r *Repository) GetListItems(ctx context.Context,
-	portfolioID uuid.UUID,
+	portfolioId uuid.UUID,
 ) (portfolio.ListItems, error) {
 	sql, args := SELECT(PortfolioFund.ID, PortfolioFund.Amount, Fund.ID, Fund.Name).
 		FROM(PortfolioFund.
 			INNER_JOIN(Fund, Fund.ID.EQ(PortfolioFund.FundID)),
 		).
-		WHERE(PortfolioFund.PortfolioID.EQ(UUID(portfolioID))).
+		WHERE(PortfolioFund.PortfolioID.EQ(UUID(portfolioId))).
 		Sql()
 
 	var li portfolio.ListItems
@@ -310,4 +310,21 @@ func (r *Repository) GetPortfolioFundHoldings(ctx context.Context,
 		})
 	}
 	return fh, nil
+}
+
+func (r *Repository) UpdatePortfolioFundAmount(ctx context.Context, portfolioId uuid.UUID, fundId uuid.UUID, amount int64) error {
+	sql, args := PortfolioFund.
+		INSERT(PortfolioFund.PortfolioID, PortfolioFund.FundID, PortfolioFund.Amount).
+		VALUES(UUID(portfolioId), UUID(fundId), Float(float64(amount))).
+		ON_CONFLICT(PortfolioFund.PortfolioID, PortfolioFund.FundID).
+		DO_UPDATE(
+			SET(
+				PortfolioFund.PortfolioID.SET(PortfolioFund.EXCLUDED.PortfolioID),
+				PortfolioFund.FundID.SET(PortfolioFund.EXCLUDED.FundID),
+				PortfolioFund.Amount.SET(PortfolioFund.EXCLUDED.Amount),
+			),
+		).Sql()
+
+	_, err := r.ConnectionPool.Exec(ctx, sql, args...)
+	return err
 }

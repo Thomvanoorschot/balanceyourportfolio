@@ -3,7 +3,7 @@
     const dispatch = createEventDispatcher()
 </script>
 <button
-        class="w-full px-10 py-4 font-medium text-tertiary transition-colors duration-150 bg-primary border border-transparent rounded-lg hover:bg-quaternary focus:outline-none"
+        class="w-full px-10 py-4 font-medium text-primary transition-colors duration-150 bg-tertiary border border-transparent rounded-lg hover:bg-quaternary focus:outline-none"
         on:click={() => dispatch('buttonClicked')}
         type="button"
 >

@@ -50,10 +50,6 @@
 
 </script>
 
-<Toaster position="top-right" toastOptions="{{iconTheme: {
-		primary: '#f582ae',
-		secondary: '#001858',
-	}}}"/>
 <form
         class="flex relative flex-col m-20 w-[50vw] rounded-lg bg-tertiary"
         bind:this={portfolioForm}
@@ -64,7 +60,7 @@
                 }}
         action="?/upsertPortfolio"
 >
-    <input bind:value={portfolio.name} type="text" class="text-center rounded-t-lg bg-tertiary text-primary">
+    <input bind:value={portfolio.name} type="text" class="text-center rounded-t-lg bg-tertiary text-primary outline-none">
     <Table>
         <TableHeaderRow slot="headerRow">
             <TableHeader>Ticker or name</TableHeader>

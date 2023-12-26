@@ -7,6 +7,7 @@
     import ThemeSelector from "$lib/theme/ThemeSelector.svelte";
     import TopMenu from "$lib/menu/TopMenu.svelte";
     import FundSearchBar from "$lib/search/FundSearchBar.svelte";
+    import {Toaster} from "svelte-french-toast";
 
     onMount(() => {
         // We load the in the <script> tag in load, but then also here onMount to setup stores
@@ -21,6 +22,10 @@
 </script>
 
 
+<Toaster position="top-right" toastOptions="{{iconTheme: {
+		primary: '#f582ae',
+		secondary: '#001858',
+	}}}"/>
 <div
         class="flex h-screen bg-primary {isSideMenuOpen ? 'overflow-hidden' : ''}"
 >
