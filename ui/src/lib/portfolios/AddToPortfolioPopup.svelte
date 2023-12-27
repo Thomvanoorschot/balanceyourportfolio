@@ -6,6 +6,8 @@
     import TertiaryButton from "$lib/shared/TertiaryButton.svelte";
     import toast from "svelte-french-toast";
     import type {PatchValueRequest} from "../../routes/api/portfolio/+server.ts";
+    import Dropdown from "$lib/dropdown/Dropdown.svelte";
+    import Input from "$lib/input/Input.svelte";
 
     export let showModal: boolean
 
@@ -19,9 +21,6 @@
             })
             if (resp.ok) {
                 portfolios = await resp.json() as Portfolio__Output[]
-                if (portfolios.length > 0) {
-                    setValues(portfolios[0])
-                }
             } else if (!resp.ok) {
                 // error = result.data?.error
             }
@@ -31,7 +30,6 @@
         if (!portfolio) {
             return
         }
-        selectedPortfolioId = portfolio.id
         if (portfolio.entries.some((x: PortfolioListItem__Output) => x.fundId === $page.params.id)) {
             existingPortfolioFund = portfolio.entries.find((x: PortfolioListItem__Output) => x.fundId === $page.params.id)
         } else {
@@ -62,34 +60,36 @@
 
 
 {#if portfolios}
-    <div class="flex flex-col p-10 bg-primary gap-4 rounded-xl">
-        <div>
-            <label for="portfolios">Portfolio:</label>
-            <select name="portfolios" id="portfolios"
-                    bind:value={selectedPortfolioId}
-                    on:change={portfolioChanged}
-            >
-                {#each portfolios as portfolio}
-                    <option value="{portfolio.id}"> {portfolio.name}</option>
-                {/each}
-            </select>
-        </div>
+    <div class="flex flex-col p-8 w-128 bg-primary gap-4 rounded-xl">
+        <Dropdown
+                bind:value={selectedPortfolioId}
+                entries="{portfolios.map(x => ({label: x.name, value: x.id}))}"
+                on:optionChanged={portfolioChanged}
+        ></Dropdown>
         {#if (existingPortfolioFund)}
-            <div>
-                <label for="portfolios">Amount:</label>
-                <input name="amount" id="amount" type="number"
-                       bind:value={existingPortfolioFund.amount}
-                >
-            </div>
-            <TertiaryButton on:buttonClicked={updateAmount}>Update amount</TertiaryButton>
+            <Input
+                    placeholder="Amount"
+                    bind:value={existingPortfolioFund.amount}
+                    type="number"
+            ></Input>
+            <TertiaryButton
+                    disabled="{!selectedPortfolioId}"
+                    on:buttonClicked={updateAmount}
+            >
+                Update amount
+            </TertiaryButton>
         {:else}
-            <div>
-                <label for="portfolios">Amount:</label>
-                <input name="amount" id="amount" type="number"
-                       bind:value={newPortfolioFundAmount}
-                >
-            </div>
-            <TertiaryButton on:buttonClicked={updateAmount}>Add to portfolio</TertiaryButton>
+            <Input
+                    placeholder="Amount"
+                    bind:value={newPortfolioFundAmount}
+                    type="number"
+            ></Input>
+            <TertiaryButton
+                    disabled="{!selectedPortfolioId}"
+                    on:buttonClicked={updateAmount}
+            >
+                Add to portfolio
+            </TertiaryButton>
         {/if}
     </div>
 {/if}

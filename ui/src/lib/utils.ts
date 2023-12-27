@@ -7,6 +7,11 @@ export const debounce = (callback: Function, wait = 300) => {
     };
 };
 
+export interface LabelValue {
+    label: string
+    value: any
+}
+
 export const EMPTY_UUID = "00000000-0000-0000-0000-000000000000"
 
 export const colors = [
