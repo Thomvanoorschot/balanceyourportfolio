@@ -3,8 +3,10 @@
 
 export interface PortfolioDetailsRequest {
   'portfolioId'?: (string);
+  'userId'?: (string);
 }
 
 export interface PortfolioDetailsRequest__Output {
   'portfolioId': (string);
+  'userId': (string);
 }

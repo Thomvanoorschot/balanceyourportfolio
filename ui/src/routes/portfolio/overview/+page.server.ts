@@ -8,11 +8,23 @@ import type {UpsertPortfolioRequest__Output} from "$lib/proto/proto/UpsertPortfo
 import type {SearchFundsRequest__Output} from "$lib/proto/proto/SearchFundsRequest";
 import type {SearchFundsResponse__Output} from "$lib/proto/proto/SearchFundsResponse";
 import type {Portfolio__Output} from "$lib/proto/proto/Portfolio";
+import {kindeAuthClient, type SessionManager} from "@kinde-oss/kinde-auth-sveltekit";
 
-export const load = (async ({}) => {
+export const load = (async ({request}) => {
+    const isAuthenticated = await kindeAuthClient.isAuthenticated(
+        request as unknown as SessionManager
+    );
+    if(!isAuthenticated){
+        return {
+            portfolios: {entries:[]}
+        }
+    }
+    const user = await kindeAuthClient.getUser(
+        request as unknown as SessionManager
+    );
     const portfoliosResp = await safe(
         new Promise<PortfoliosResponse__Output>((resolve, reject) => {
-            portfolioClient.GetPortfolios({}, (err, response) => {
+            portfolioClient.GetPortfolios({userId: user.id}, (err, response) => {
                 return err || !response ? reject(err) : resolve(response);
             })
         }),
@@ -28,11 +40,21 @@ export const load = (async ({}) => {
 
 export const actions = {
     upsertPortfolio: async ({request, url,}) => {
+        const isAuthenticated = await kindeAuthClient.isAuthenticated(
+            request as unknown as SessionManager
+        );
+        if(!isAuthenticated){
+            return fail(500, {error: "can't create a portfolio without being logged in"});
+        }
+        const user = await kindeAuthClient.getUser(
+            request as unknown as SessionManager
+        );
         const formData = await request.formData()
         const portfolio: Portfolio__Output = JSON.parse(String(formData.get("portfolio")))
         portfolio.entries = portfolio.entries.filter(x => x.amount > 0)
         const req: UpsertPortfolioRequest__Output = {
             portfolio: portfolio,
+            userId: user.id
         }
         const portfolioResp = await safe(
             new Promise<UpsertPortfolioResponse__Output>((resolve, reject) => {

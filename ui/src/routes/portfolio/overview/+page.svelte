@@ -10,7 +10,6 @@
         portfolios = data?.portfolios
         error = ""
     }
-
 </script>
 {#if (!error && portfolios)}
     <div id="portfolios" class="flex flex-grow flex-col w-full items-center justify-start">

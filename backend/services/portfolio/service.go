@@ -2,6 +2,7 @@ package portfolio
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"etfinsight/generated/jet_gen/postgres/public/model"
@@ -22,7 +23,11 @@ func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) GetPortfolioDetails(ctx context.Context, userId uuid.UUID, portfolioId uuid.UUID) (*proto.PortfolioDetailsResponse, error) {
+func (s *Service) GetPortfolioDetails(ctx context.Context, req *proto.PortfolioDetailsRequest) (*proto.PortfolioDetailsResponse, error) {
+	portfolioId := stringutils.ConvertToUUID(req.PortfolioId)
+	ownerCh := concurrencyutils.Async2(func() (string, error) {
+		return s.repo.GetPortfolioOwner(ctx, portfolioId)
+	})
 	ratioCh := concurrencyutils.Async2(func() (map[uuid.UUID]float64, error) {
 		return s.repo.GetRatio(ctx, portfolioId)
 	})
@@ -43,7 +48,29 @@ func (s *Service) GetPortfolioDetails(ctx context.Context, userId uuid.UUID, por
 	informationResult := <-informationCh
 	relativeWeightingsResult := <-relativeWeightingsCh
 	portfolioFundHoldingsResult := <-portfolioFundHoldingsCh
-
+	ownerResult := <-ownerCh
+	if ratioResult.Error != nil {
+		return nil, ratioResult.Error
+	}
+	if portfolioSectorResult.Error != nil {
+		return nil, portfolioSectorResult.Error
+	}
+	if informationResult.Error != nil {
+		return nil, informationResult.Error
+	}
+	if relativeWeightingsResult.Error != nil {
+		return nil, relativeWeightingsResult.Error
+	}
+	if portfolioFundHoldingsResult.Error != nil {
+		return nil, portfolioFundHoldingsResult.Error
+	}
+	if ownerResult.Error != nil {
+		return nil, ownerResult.Error
+	}
+	if ownerResult.Value != req.UserId {
+		// TODO Return GRPC unauthenticated
+		return nil, errors.New("unauthorized")
+	}
 	return &proto.PortfolioDetailsResponse{
 		FundInformation:               informationResult.Value.ConvertToResponse(),
 		Sectors:                       portfolioSectorResult.Value.ConvertToResponse(),
@@ -51,26 +78,27 @@ func (s *Service) GetPortfolioDetails(ctx context.Context, userId uuid.UUID, por
 		PortfolioFundHoldings:         portfolioFundHoldingsResult.Value.ConvertToResponse(),
 	}, nil
 }
-func (s *Service) GetPortfolios(ctx context.Context, userId uuid.UUID) (*proto.PortfoliosResponse, error) {
-	p, err := s.repo.GetPortfolios(ctx, userId)
+func (s *Service) GetPortfolios(ctx context.Context, req *proto.PortfoliosRequest) (*proto.PortfoliosResponse, error) {
+	p, err := s.repo.GetPortfolios(ctx, req.UserId)
 	if err != nil {
 		return nil, err
 	}
 	return p.ConvertToResponse(), nil
 }
-func (s *Service) UpsertPortfolio(ctx context.Context,
-	userID uuid.UUID,
-	req *proto.Portfolio) (resp *proto.UpsertPortfolioResponse, err error) {
+func (s *Service) UpsertPortfolio(
+	ctx context.Context,
+	req *proto.UpsertPortfolioRequest,
+) (resp *proto.UpsertPortfolioResponse, err error) {
 	tx, err := s.repo.NewTransaction(ctx)
 	if err != nil {
 		return resp, err
 	}
 	defer s.repo.RollBack(tx, ctx)
 
-	p := ConvertToModel(req)
+	p := ConvertToModel(req.Portfolio)
 	portfolioModel := model.Portfolio{
 		ID:     p.Id,
-		UserID: &userID,
+		UserID: &req.UserId,
 		Name:   &p.Name,
 	}
 	if p.Id == uuid.Nil {

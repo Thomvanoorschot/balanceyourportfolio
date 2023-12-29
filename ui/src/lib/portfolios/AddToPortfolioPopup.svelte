@@ -13,7 +13,7 @@
 
     let selectedPortfolioId: string
     let existingPortfolioFund: PortfolioListItem__Output | undefined
-    let newPortfolioFundAmount: number | undefined = 0
+    let newPortfolioFundAmount: number | undefined
     let portfolios: Portfolio__Output[] | undefined = []
     onMount(async () => {
             const resp = await fetch("/api/portfolio", {
@@ -73,7 +73,7 @@
                     type="number"
             ></Input>
             <TertiaryButton
-                    disabled="{!selectedPortfolioId}"
+                    disabled="{!selectedPortfolioId || !existingPortfolioFund.amount}"
                     on:buttonClicked={updateAmount}
             >
                 Update amount
@@ -85,7 +85,7 @@
                     type="number"
             ></Input>
             <TertiaryButton
-                    disabled="{!selectedPortfolioId}"
+                    disabled="{!selectedPortfolioId || !newPortfolioFundAmount}"
                     on:buttonClicked={updateAmount}
             >
                 Add to portfolio

@@ -7,6 +7,7 @@ option go_package = "./proto";
 
 //Overview
 message PortfoliosRequest {
+  string userId = 1;
 }
 message PortfoliosResponse {
   repeated Portfolio entries = 1;
@@ -24,6 +25,7 @@ message PortfolioListItem {
 }
 message UpsertPortfolioRequest{
   Portfolio portfolio = 1;
+  string userId = 2;
 }
 message UpsertPortfolioResponse {
   Portfolio portfolio = 1;
@@ -32,6 +34,7 @@ message UpsertPortfolioResponse {
 //Details
 message PortfolioDetailsRequest {
   string portfolioId = 1;
+  string userId = 2;
 }
 message PortfolioDetailsResponse {
   repeated string sectors = 1;

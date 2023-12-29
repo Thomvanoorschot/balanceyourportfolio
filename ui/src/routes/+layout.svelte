@@ -8,7 +8,10 @@
     import TopMenu from "$lib/menu/TopMenu.svelte";
     import FundSearchBar from "$lib/search/FundSearchBar.svelte";
     import {Toaster} from "svelte-french-toast";
+    import type {LayoutData} from "../../.svelte-kit/types/src/routes/$types";
 
+    export let data: LayoutData;
+    let {profilePictureURL} = data
     onMount(() => {
         // We load the in the <script> tag in load, but then also here onMount to setup stores
         if (!('theme' in localStorage)) {
@@ -70,8 +73,10 @@
     <div class="flex flex-col flex-1 w-full">
         <header class="z-10 py-2 bg-background-primary">
             <div
-                    class="container flex items-center justify-between h-full px-6 mx-auto text-tertiary"
+                    class="flex items-center justify-between h-full text-tertiary"
             >
+                <div class="flex-1">
+
                 <!-- Mobile hamburger -->
                 <button
                         class="p-1 mr-5 -ml-1 rounded-xl md:hidden focus:outline-none"
@@ -92,9 +97,10 @@
                 </button>
                 <!-- Search input -->
                 <FundSearchBar></FundSearchBar>
-                <div class="flex items-center flex-shrink-0 space-x-6">
+                </div>
+                <div class="flex gap-5 justify-end pr-5">
                     <ThemeSelector></ThemeSelector>
-                    <TopMenu></TopMenu>
+                    <TopMenu profilePictureURL="{profilePictureURL}"></TopMenu>
                 </div>
             </div>
         </header>

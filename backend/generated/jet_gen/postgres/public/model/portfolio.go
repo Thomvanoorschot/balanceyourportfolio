@@ -14,9 +14,9 @@ import (
 
 type Portfolio struct {
 	ID        uuid.UUID `sql:"primary_key"`
-	UserID    *uuid.UUID
+	UserID    *string
 	Name      *string
 	CreatedAt *time.Time
-	DeletedAt *time.Time
 	UpdatedAt *time.Time
+	DeletedAt *time.Time
 }

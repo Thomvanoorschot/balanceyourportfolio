@@ -96,11 +96,10 @@
                     <ColoredBar title="{pfsw.sectorName}" percentage="{pfsw.weighting.totalPercentage}">
                         {#each pfsw.weighting.fundSectorWeighting as fsw, fswIndex}
                             <ColoredBarEntry
-                                    roundedLeft="{fswIndex === 0 ||
-                                     Math.round(pfsw.weighting.fundSectorWeighting[fswIndex-1].percentage / portfolioFundSectorWeightings[0].weighting.totalPercentage * 100) === 0}"
+                                    roundedLeft="{fswIndex === 0}"
                                     roundedRight="{fswIndex === pfsw.weighting.fundSectorWeighting.length - 1}"
                                     color="{colorMap.get(fsw.fundId)?.color || ''}"
-                                    width="{Math.round(fsw.percentage / portfolioFundSectorWeightings[0].weighting.totalPercentage * 100)}"
+                                    width="{Math.max(Math.round(fsw.percentage / portfolioFundSectorWeightings[0].weighting.totalPercentage * 100), 0.01)}"
                             ></ColoredBarEntry>
                         {/each}
                     </ColoredBar>

@@ -16,5 +16,4 @@ func UseSchema(schema string) {
 	Holding = Holding.FromSchema(schema)
 	Portfolio = Portfolio.FromSchema(schema)
 	PortfolioFund = PortfolioFund.FromSchema(schema)
-	User = User.FromSchema(schema)
 }

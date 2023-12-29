@@ -39,13 +39,9 @@ CREATE TABLE fund_listing (
     ticker            varchar(255) UNIQUE
 );
 
-CREATE TABLE "user" (
-    id uuid DEFAULT uuid_generate_v4() PRIMARY KEY
-);
-
 CREATE TABLE "portfolio" (
     id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
-    user_id uuid REFERENCES "user" (id),
+    user_id varchar,
     name  varchar(255),
     created_at timestamp,
     updated_at timestamp,

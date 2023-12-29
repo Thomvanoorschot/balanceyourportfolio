@@ -1,4 +1,4 @@
-import {fundClient, portfolioClient} from "$lib/server/grpc";
+import {portfolioClient} from "$lib/server/grpc";
 import {safe} from "$lib/server/safe";
 import {fail} from "@sveltejs/kit";
 import type {Actions, PageServerLoad} from './$types';
@@ -12,11 +12,24 @@ import type {FilterPortfolioFundHoldingsRequest__Output} from "$lib/proto/proto/
 import type {
     FilterPortfolioFundHoldingsResponse__Output
 } from "$lib/proto/proto/FilterPortfolioFundHoldingsResponse.ts";
+import {kindeAuthClient, type SessionManager} from "@kinde-oss/kinde-auth-sveltekit";
 
 
-export const load = (async ({fetch, params, url, route}) => {
+export const load = (async ({request, params, url, route}) => {
     const portfolioId = params.id
-    const detailsReq: PortfolioDetailsRequest__Output = {portfolioId: String(portfolioId)}
+    const isAuthenticated = await kindeAuthClient.isAuthenticated(
+        request as unknown as SessionManager
+    );
+    if(!isAuthenticated){
+        return {}
+    }
+    const user = await kindeAuthClient.getUser(
+        request as unknown as SessionManager
+    );
+    const detailsReq: PortfolioDetailsRequest__Output = {
+        portfolioId: String(portfolioId),
+        userId: user.id
+    }
     const detailsResp = await safe(
         new Promise<PortfolioDetailsResponse__Output>((resolve, reject) => {
             portfolioClient.getPortfolioDetails(detailsReq, (err, response) => {
@@ -28,7 +41,7 @@ export const load = (async ({fetch, params, url, route}) => {
         return fail(500, {error: "could not get portfolio details"});
     }
     let colorsCopy = [...colors]
-    const colorMap = new Map<string, {fundName: string, color: string}>
+    const colorMap = new Map<string, { fundName: string, color: string }>
     let sectorWeightings: PortfolioSectorWeighting[] = []
     Object.keys(detailsResp.data?.portfolioFundSectorWeightings).forEach((key) => {
         const value: PortfolioFundSectorWeighting__Output = detailsResp.data?.portfolioFundSectorWeightings[key];
@@ -50,7 +63,7 @@ export const load = (async ({fetch, params, url, route}) => {
             ticker: x.ticker,
             percentage: x.cumulativePercentage,
             funds: x.funds.map(f => ({fundId: f.fundId, ratiodPercentage: f.ratiodPercentage}))
-                .sort((a,b,) => a.fundId.localeCompare(b.fundId))
+                .sort((a, b,) => a.fundId.localeCompare(b.fundId))
         }
     ))
     return {
@@ -95,7 +108,7 @@ export const actions = {
                 ticker: x.ticker,
                 percentage: x.cumulativePercentage,
                 funds: x.funds.map(f => ({fundId: f.fundId, ratiodPercentage: f.ratiodPercentage}))
-                    .sort((a,b,) => a.fundId.localeCompare(b.fundId))
+                    .sort((a, b,) => a.fundId.localeCompare(b.fundId))
             }
         ))
         return {

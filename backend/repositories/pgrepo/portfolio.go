@@ -14,7 +14,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (r *Repository) GetPortfolios(ctx context.Context, userID uuid.UUID) (portfolio.Models, error) {
+func (r *Repository) GetPortfolios(ctx context.Context, userId string) (portfolio.Models, error) {
 	sql, args := SELECT(
 		Portfolio.ID,
 		Portfolio.Name,
@@ -28,7 +28,7 @@ func (r *Repository) GetPortfolios(ctx context.Context, userID uuid.UUID) (portf
 			INNER_JOIN(Fund, Fund.ID.EQ(PortfolioFund.FundID)),
 		).
 		ORDER_BY(Portfolio.CreatedAt.ASC()).
-		WHERE(Portfolio.UserID.EQ(UUID(userID))).
+		WHERE(Portfolio.UserID.EQ(String(userId))).
 		Sql()
 
 	var models portfolio.Models
@@ -40,16 +40,16 @@ func (r *Repository) GetPortfolios(ctx context.Context, userID uuid.UUID) (portf
 
 	for rows.Next() {
 		var (
-			portfolioID         uuid.UUID
+			portfolioId         uuid.UUID
 			portfolioName       string
-			portfolioFundID     uuid.UUID
+			portfolioFundId     uuid.UUID
 			portfolioFundAmount float64
 			fundID              uuid.UUID
 			fundName            string
 		)
-		err := rows.Scan(&portfolioID,
+		err := rows.Scan(&portfolioId,
 			&portfolioName,
-			&portfolioFundID,
+			&portfolioFundId,
 			&portfolioFundAmount,
 			&fundID,
 			&fundName,
@@ -57,12 +57,12 @@ func (r *Repository) GetPortfolios(ctx context.Context, userID uuid.UUID) (portf
 		if err != nil {
 			return nil, err
 		}
-		if len(models) == 0 || models[len(models)-1].Id != portfolioID {
+		if len(models) == 0 || models[len(models)-1].Id != portfolioId {
 			models = append(models, portfolio.Model{
-				Id:   portfolioID,
+				Id:   portfolioId,
 				Name: portfolioName,
 				Items: []portfolio.ListItem{{
-					Id:     portfolioFundID,
+					Id:     portfolioFundId,
 					Amount: portfolioFundAmount,
 					FundID: fundID,
 					Name:   fundName,
@@ -71,7 +71,7 @@ func (r *Repository) GetPortfolios(ctx context.Context, userID uuid.UUID) (portf
 			continue
 		}
 		models[len(models)-1].Items = append(models[len(models)-1].Items, portfolio.ListItem{
-			Id:     portfolioFundID,
+			Id:     portfolioFundId,
 			Amount: portfolioFundAmount,
 			FundID: fundID,
 			Name:   fundName,
@@ -99,4 +99,19 @@ func (r *Repository) UpsertPortfolio(ctx context.Context,
 
 	_, err := tx.Exec(ctx, sql, args...)
 	return err
+}
+func (r *Repository) GetPortfolioOwner(ctx context.Context, portfolioId uuid.UUID) (string, error) {
+	sql, args :=
+		SELECT(Portfolio.UserID).
+			FROM(Portfolio).
+			WHERE(Portfolio.ID.EQ(UUID(portfolioId))).
+			Sql()
+
+	var userId string
+	row := r.ConnectionPool.QueryRow(ctx, sql, args...)
+	err := row.Scan(&userId)
+	if err != nil {
+		return "", err
+	}
+	return userId, nil
 }
