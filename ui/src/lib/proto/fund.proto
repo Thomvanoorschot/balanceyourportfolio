@@ -9,12 +9,7 @@ message SearchFundsRequest {
   string searchTerm = 1;
 }
 message SearchFundsResponse {
-  repeated SearchFundsEntry entries = 1;
-}
-message SearchFundsEntry {
-  string id = 1;
-  string name = 2;
-  repeated string tickers = 3;
+  repeated FilterFundsResponseEntry entries = 1;
 }
 
 //Details
@@ -54,4 +49,22 @@ message FundHolding {
   string holdingId = 2;
   string holdingName = 3;
   double cumulativePercentage = 4;
+}
+
+//Filter
+message FilterFundsRequest {
+  string searchTerm = 1;
+  string provider = 2;
+  int64 limit = 3;
+  int64 offset = 4;
+}
+message FilterFundsResponse {
+  repeated FilterFundsResponseEntry entries = 1;
+}
+message FilterFundsResponseEntry {
+  string id = 1;
+  string name = 2;
+  repeated string tickers = 3;
+  double marketCap = 4;
+  string currency = 5;
 }

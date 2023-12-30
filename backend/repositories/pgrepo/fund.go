@@ -13,38 +13,18 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func (r *Repository) GetFunds(ctx context.Context, searchTerm string) (fund.Funds, error) {
-	sql, args := SELECT(Fund.ID, Fund.Name).
-		FROM(Fund.
-			INNER_JOIN(FundListing, FundListing.FundID.EQ(Fund.ID)),
-		).
-		WHERE(ILike(Fund.Name, searchTerm).
-			OR(ILike(FundListing.Ticker, searchTerm)),
-		).
-		DISTINCT(Fund.ID).
-		LIMIT(int64(10)).
-		Sql()
-
-	var f []fund.Fund
-	err := pgxscan.Select(ctx, r.ConnectionPool, &f, sql, args...)
-	if err != nil {
-		return nil, err
-	}
-	return f, nil
-}
-
-func (r *Repository) GetFundsWithTickers(ctx context.Context, searchTerm string) (fund.Funds, error) {
+func (r *Repository) FilterFunds(ctx context.Context, filter fund.FundsFilter) (fund.Funds, error) {
 	queryCte := CTE("queryCte")
-	queryStmt := SELECT(Fund.ID, Fund.Name, FundListing.Ticker).
+	queryStmt := SELECT(Fund.ID, Fund.Name, Fund.Currency, FundListing.Ticker, Fund.Price.MUL(Fund.OutstandingShares)).
 		FROM(Fund.
 			INNER_JOIN(FundListing, FundListing.FundID.EQ(Fund.ID)),
 		).
-		WHERE(ILike(Fund.Name, searchTerm).
-			OR(ILike(FundListing.Ticker, searchTerm)),
-		)
+		WHERE(ILike(Fund.Name, filter.SearchTerm).
+			OR(ILike(FundListing.Ticker, filter.SearchTerm)),
+		).ORDER_BY(Fund.Price.MUL(Fund.OutstandingShares).DESC())
 
 	limitCte := CTE("limitCte")
-	limitStmt := SELECT(DISTINCT(StringColumn("fund.id"))).FROM(queryCte).LIMIT(5)
+	limitStmt := SELECT(DISTINCT(StringColumn("fund.id"))).FROM(queryCte).LIMIT(filter.Limit).OFFSET(filter.Offset)
 
 	withStmt := WITH(
 		queryCte.AS(
@@ -65,21 +45,27 @@ func (r *Repository) GetFundsWithTickers(ctx context.Context, searchTerm string)
 	}
 	for rows.Next() {
 		var (
-			fundId     uuid.UUID
-			fundName   string
-			fundTicker string
+			fundId        uuid.UUID
+			fundName      string
+			fundCurrency  string
+			fundTicker    string
+			fundMarketCap float64
 		)
 		err := rows.Scan(&fundId,
 			&fundName,
+			&fundCurrency,
 			&fundTicker,
+			&fundMarketCap,
 		)
 		if err != nil {
 			return nil, err
 		}
 		if len(funds) == 0 || funds[len(funds)-1].ID != fundId {
 			newFund := fund.Fund{
-				ID:   fundId,
-				Name: fundName,
+				ID:        fundId,
+				Name:      fundName,
+				Currency:  fundCurrency,
+				MarketCap: fundMarketCap,
 			}
 			newFund.Tickers = append(newFund.Tickers, fundTicker)
 			funds = append(funds, newFund)
@@ -90,6 +76,7 @@ func (r *Repository) GetFundsWithTickers(ctx context.Context, searchTerm string)
 	}
 	return funds, nil
 }
+
 func (r *Repository) GetFund(ctx context.Context, fundId uuid.UUID) (fund.Information, error) {
 	sql, args := SELECT(
 		Fund.ID,
@@ -167,3 +154,14 @@ func (r *Repository) GetFundSectorWeightings(ctx context.Context, fundId uuid.UU
 	}
 	return sw, nil
 }
+
+// Get highest ranking sector for fund
+//WITH R as (
+//select FH.fund_id, H.sector, RANK() over (partition by FH.fund_id order by SUM(FH.percentage_of_total) desc)
+//FROM holding H
+//INNER JOIN fund_holding FH on FH.holding_id = H.id
+//group by H.sector, FH.fund_id
+//order by FH.fund_id
+//)
+//SELECT F."name", R.sector from fund F
+//INNER JOIN R on R.fund_id = F.id AND R.RANK = 1;

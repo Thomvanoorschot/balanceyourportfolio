@@ -19,11 +19,28 @@ func NewService(repo Repository) *Service {
 }
 
 func (s *Service) GetFundsWithTickers(ctx context.Context, searchTerm string) (*proto.SearchFundsResponse, error) {
-	funds, err := s.repo.GetFundsWithTickers(ctx, searchTerm)
+	funds, err := s.repo.FilterFunds(ctx, FundsFilter{
+		SearchTerm: searchTerm,
+		Limit:      5,
+		Offset:     0,
+	})
 	if err != nil {
 		return nil, err
 	}
-	return funds.ConvertToResponse(), nil
+	return &proto.SearchFundsResponse{Entries: funds.ConvertToResponse()}, nil
+}
+
+func (s *Service) FilterFunds(ctx context.Context, filter *proto.FilterFundsRequest) (*proto.FilterFundsResponse, error) {
+	funds, err := s.repo.FilterFunds(ctx, FundsFilter{
+		SearchTerm: filter.SearchTerm,
+		Provider:   filter.Provider,
+		Limit:      filter.Limit,
+		Offset:     filter.Offset,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &proto.FilterFundsResponse{Entries: funds.ConvertToResponse()}, nil
 }
 
 func (s *Service) GetDetails(ctx context.Context, fundId uuid.UUID) (*proto.FundDetailsResponse, error) {

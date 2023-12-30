@@ -2,9 +2,9 @@
     import Result from "$lib/search/Result.svelte";
     import SearchBar from "$lib/search/SearchBar.svelte";
     import {debounce} from "$lib/utils.ts";
-    import type {SearchFundsEntry__Output} from "$lib/proto/proto/SearchFundsEntry.ts";
+    import type {FilterFundsResponseEntry__Output} from "$lib/proto/proto/FilterFundsResponseEntry.ts";
 
-    let funds: SearchFundsEntry__Output[] = []
+    let funds: FilterFundsResponseEntry__Output[] = []
 
     let searchForm: HTMLFormElement;
     export let value: string | undefined = ""
@@ -17,7 +17,7 @@
             })
         })
         if (resp.ok) {
-            funds = await resp.json() as SearchFundsEntry__Output[]
+            funds = await resp.json() as FilterFundsResponseEntry__Output[]
         } else if (!resp.ok) {
             // error = result.data?.error
         }

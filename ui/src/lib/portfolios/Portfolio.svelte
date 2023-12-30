@@ -13,12 +13,15 @@
     import TableHeaderRow from "$lib/table/TableHeaderRow.svelte";
     import TableHeader from "$lib/table/TableHeader.svelte";
     import AddButton from "$lib/shared/AddButton.svelte";
-    import toast, {Toaster} from "svelte-french-toast";
+    import toast from "svelte-french-toast";
+    import Modal from "$lib/shared/Modal.svelte";
+    import LoginOrRegister from "$lib/authentication/LoginOrRegister.svelte";
 
-    let portfolioForm: HTMLFormElement;
+    export let isAuthenticated: boolean = false
     export let portfolio: Portfolio__Output;
-
+    let portfolioForm: HTMLFormElement;
     let disabledList: boolean[] = new Array(portfolio.entries.length).fill(true);
+    let showModal: boolean = false
 
     const addNewRow = () => {
         portfolio.entries.push({
@@ -37,7 +40,7 @@
             if (result.type === "success" && result.data) {
                 portfolio = result.data.portfolio
                 toast.success(message);
-            } else{
+            } else {
                 toast.error("Encountered an error")
             }
         };
@@ -48,8 +51,19 @@
         portfolio = portfolio;
     }
 
+    const handleButtonClicked = () => {
+        if (isAuthenticated) {
+            portfolioForm.requestSubmit()
+            return
+        }
+        showModal = true
+    }
+
 </script>
 
+<Modal bind:showModal={showModal}>
+    <LoginOrRegister></LoginOrRegister>
+</Modal>
 <form
         class="flex relative flex-col m-20 w-[50vw] rounded-lg bg-tertiary"
         bind:this={portfolioForm}
@@ -60,7 +74,8 @@
                 }}
         action="?/upsertPortfolio"
 >
-    <input bind:value={portfolio.name} type="text" class="text-center rounded-t-lg bg-tertiary text-primary outline-none">
+    <input bind:value={portfolio.name} type="text"
+           class="text-center rounded-t-lg bg-tertiary text-primary outline-none">
     <Table>
         <TableHeaderRow slot="headerRow">
             <TableHeader>Ticker or name</TableHeader>
@@ -94,8 +109,8 @@
             </div>
         {/if}
         <div class="w-full p-2">
-            <SecondaryButton on:buttonClicked={() => portfolioForm.requestSubmit()} >
-                {portfolio.id ?  'Update portfolio' : 'Create portfolio' }
+            <SecondaryButton on:buttonClicked={handleButtonClicked}>
+                {portfolio.id ? 'Update portfolio' : 'Create portfolio' }
             </SecondaryButton>
         </div>
     </div>

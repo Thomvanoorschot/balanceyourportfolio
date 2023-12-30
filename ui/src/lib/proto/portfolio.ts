@@ -10,6 +10,9 @@ export interface ProtoGrpcType {
   proto: {
     FilterFundHoldingsRequest: MessageTypeDefinition
     FilterFundHoldingsResponse: MessageTypeDefinition
+    FilterFundsRequest: MessageTypeDefinition
+    FilterFundsResponse: MessageTypeDefinition
+    FilterFundsResponseEntry: MessageTypeDefinition
     FilterPortfolioFundHoldingsRequest: MessageTypeDefinition
     FilterPortfolioFundHoldingsResponse: MessageTypeDefinition
     FundDetailsRequest: MessageTypeDefinition
@@ -27,7 +30,6 @@ export interface ProtoGrpcType {
     PortfolioListItem: MessageTypeDefinition
     PortfoliosRequest: MessageTypeDefinition
     PortfoliosResponse: MessageTypeDefinition
-    SearchFundsEntry: MessageTypeDefinition
     SearchFundsRequest: MessageTypeDefinition
     SearchFundsResponse: MessageTypeDefinition
     UpdatePortfolioFundAmountRequest: MessageTypeDefinition

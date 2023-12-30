@@ -12,6 +12,7 @@ service FundService {
   rpc GetDetails(FundDetailsRequest) returns (FundDetailsResponse);
   rpc SearchFunds(SearchFundsRequest) returns (SearchFundsResponse);
   rpc FilterHoldings(FilterFundHoldingsRequest) returns (FilterFundHoldingsResponse);
+  rpc FilterFunds(FilterFundsRequest) returns (FilterFundsResponse);
 }
 service PortfolioService {
   rpc GetPortfolios(PortfoliosRequest) returns (PortfoliosResponse);

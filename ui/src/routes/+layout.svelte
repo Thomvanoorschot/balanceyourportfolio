@@ -9,6 +9,7 @@
     import FundSearchBar from "$lib/search/FundSearchBar.svelte";
     import {Toaster} from "svelte-french-toast";
     import type {LayoutData} from "../../.svelte-kit/types/src/routes/$types";
+    import FundIcon from "$lib/icons/FundIcon.svelte";
 
     export let data: LayoutData;
     let {profilePictureURL} = data
@@ -38,13 +39,16 @@
     >
         <div class="py-4 text-gray-500">
             <a
-                    class="ml-6 text-lg font-bold text-gray-800"
+                    class="ml-6 text-lg font-bold text-tertiary"
                     href="/portfolio/overview"
             >
-                EtfInsight
+                ETF Insight
             </a>
             <ul class="mt-6">
-                <SidebarElement text="Portfolio">
+                <SidebarElement href="/fund/overview" text="Funds">
+                    <FundIcon></FundIcon>
+                </SidebarElement>
+                <SidebarElement href="/portfolio/overview" text="Portfolio">
                     <PortfolioIcon></PortfolioIcon>
                 </SidebarElement>
             </ul>
@@ -60,10 +64,13 @@
                         class="ml-6 text-lg font-bold text-gray-800"
                         href="/search"
                 >
-                    EtfInsight
+                    ETF Insight
                 </a>
                 <ul class="mt-6">
-                    <SidebarElement text="Portfolio">
+                    <SidebarElement href="/fund/overview" text="Funds">
+                        <FundIcon></FundIcon>
+                    </SidebarElement>
+                    <SidebarElement href="/portfolio/overview" text="Portfolio">
                         <PortfolioIcon></PortfolioIcon>
                     </SidebarElement>
                 </ul>

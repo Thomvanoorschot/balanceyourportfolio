@@ -22,9 +22,11 @@ type Holding struct {
 
 type Funds []Fund
 type Fund struct {
-	ID      uuid.UUID `db:"fund.id"`
-	Name    string    `db:"fund.name"`
-	Tickers []string
+	ID        uuid.UUID `db:"fund.id"`
+	Name      string    `db:"fund.name"`
+	Currency  string
+	MarketCap float64
+	Tickers   []string
 }
 
 type InformationList []Information
@@ -73,6 +75,12 @@ const (
 	TelecommunicationSector     SectorName = "Telecommunication"
 )
 
+type FundsFilter struct {
+	SearchTerm string
+	Provider   string
+	Limit      int64
+	Offset     int64
+}
 type HoldingsFilter struct {
 	FundId          uuid.UUID
 	SearchTerm      string
@@ -96,19 +104,21 @@ func (i Information) ConvertToResponse() *proto.FundInformation {
 		EffectiveDate:     i.EffectiveDate.String(),
 	}
 }
-func (f Funds) ConvertToResponse() *proto.SearchFundsResponse {
-	resp := &proto.SearchFundsResponse{}
+func (f Funds) ConvertToResponse() []*proto.FilterFundsResponseEntry {
+	var resp []*proto.FilterFundsResponseEntry
 
 	for i := range f {
-		resp.Entries = append(resp.Entries, f[i].ConvertToResponse())
+		resp = append(resp, f[i].ConvertToResponse())
 	}
 	return resp
 }
-func (f Fund) ConvertToResponse() *proto.SearchFundsEntry {
-	return &proto.SearchFundsEntry{
-		Id:      f.ID.String(),
-		Name:    f.Name,
-		Tickers: f.Tickers,
+func (f Fund) ConvertToResponse() *proto.FilterFundsResponseEntry {
+	return &proto.FilterFundsResponseEntry{
+		Id:        f.ID.String(),
+		Name:      f.Name,
+		Tickers:   f.Tickers,
+		Currency:  f.Currency,
+		MarketCap: f.MarketCap,
 	}
 }
 func (h Holdings) ConvertToResponse() []*proto.FundHolding {

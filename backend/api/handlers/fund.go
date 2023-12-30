@@ -14,6 +14,7 @@ type FundService interface {
 	GetDetails(ctx context.Context, fundID uuid.UUID) (*proto.FundDetailsResponse, error)
 	GetFundsWithTickers(ctx context.Context, searchTerm string) (*proto.SearchFundsResponse, error)
 	FilterHoldings(ctx context.Context, filter *proto.FilterFundHoldingsRequest) (*proto.FilterFundHoldingsResponse, error)
+	FilterFunds(ctx context.Context, filter *proto.FilterFundsRequest) (*proto.FilterFundsResponse, error)
 }
 
 type FundHandler struct {
@@ -54,6 +55,16 @@ func (h *FundHandler) SearchFunds(ctx context.Context, req *proto.SearchFundsReq
 }
 func (h *FundHandler) FilterHoldings(ctx context.Context, req *proto.FilterFundHoldingsRequest) (*proto.FilterFundHoldingsResponse, error) {
 	resp, err := h.fundService.FilterHoldings(ctx, req)
+	if err != nil {
+		return nil, status.Error(
+			codes.Unknown, err.Error(),
+		)
+	}
+
+	return resp, nil
+}
+func (h *FundHandler) FilterFunds(ctx context.Context, req *proto.FilterFundsRequest) (*proto.FilterFundsResponse, error) {
+	resp, err := h.fundService.FilterFunds(ctx, req)
 	if err != nil {
 		return nil, status.Error(
 			codes.Unknown, err.Error(),

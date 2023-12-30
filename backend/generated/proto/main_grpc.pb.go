@@ -25,6 +25,7 @@ type FundServiceClient interface {
 	GetDetails(ctx context.Context, in *FundDetailsRequest, opts ...grpc.CallOption) (*FundDetailsResponse, error)
 	SearchFunds(ctx context.Context, in *SearchFundsRequest, opts ...grpc.CallOption) (*SearchFundsResponse, error)
 	FilterHoldings(ctx context.Context, in *FilterFundHoldingsRequest, opts ...grpc.CallOption) (*FilterFundHoldingsResponse, error)
+	FilterFunds(ctx context.Context, in *FilterFundsRequest, opts ...grpc.CallOption) (*FilterFundsResponse, error)
 }
 
 type fundServiceClient struct {
@@ -62,6 +63,15 @@ func (c *fundServiceClient) FilterHoldings(ctx context.Context, in *FilterFundHo
 	return out, nil
 }
 
+func (c *fundServiceClient) FilterFunds(ctx context.Context, in *FilterFundsRequest, opts ...grpc.CallOption) (*FilterFundsResponse, error) {
+	out := new(FilterFundsResponse)
+	err := c.cc.Invoke(ctx, "/proto.FundService/FilterFunds", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FundServiceServer is the server API for FundService service.
 // All implementations must embed UnimplementedFundServiceServer
 // for forward compatibility
@@ -69,6 +79,7 @@ type FundServiceServer interface {
 	GetDetails(context.Context, *FundDetailsRequest) (*FundDetailsResponse, error)
 	SearchFunds(context.Context, *SearchFundsRequest) (*SearchFundsResponse, error)
 	FilterHoldings(context.Context, *FilterFundHoldingsRequest) (*FilterFundHoldingsResponse, error)
+	FilterFunds(context.Context, *FilterFundsRequest) (*FilterFundsResponse, error)
 	mustEmbedUnimplementedFundServiceServer()
 }
 
@@ -84,6 +95,9 @@ func (UnimplementedFundServiceServer) SearchFunds(context.Context, *SearchFundsR
 }
 func (UnimplementedFundServiceServer) FilterHoldings(context.Context, *FilterFundHoldingsRequest) (*FilterFundHoldingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FilterHoldings not implemented")
+}
+func (UnimplementedFundServiceServer) FilterFunds(context.Context, *FilterFundsRequest) (*FilterFundsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FilterFunds not implemented")
 }
 func (UnimplementedFundServiceServer) mustEmbedUnimplementedFundServiceServer() {}
 
@@ -152,6 +166,24 @@ func _FundService_FilterHoldings_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FundService_FilterFunds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FilterFundsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FundServiceServer).FilterFunds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.FundService/FilterFunds",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FundServiceServer).FilterFunds(ctx, req.(*FilterFundsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FundService_ServiceDesc is the grpc.ServiceDesc for FundService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -170,6 +202,10 @@ var FundService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FilterHoldings",
 			Handler:    _FundService_FilterHoldings_Handler,
+		},
+		{
+			MethodName: "FilterFunds",
+			Handler:    _FundService_FilterFunds_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

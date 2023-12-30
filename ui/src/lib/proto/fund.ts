@@ -10,12 +10,14 @@ export interface ProtoGrpcType {
   proto: {
     FilterFundHoldingsRequest: MessageTypeDefinition
     FilterFundHoldingsResponse: MessageTypeDefinition
+    FilterFundsRequest: MessageTypeDefinition
+    FilterFundsResponse: MessageTypeDefinition
+    FilterFundsResponseEntry: MessageTypeDefinition
     FundDetailsRequest: MessageTypeDefinition
     FundDetailsResponse: MessageTypeDefinition
     FundHolding: MessageTypeDefinition
     FundInformation: MessageTypeDefinition
     FundSectorWeighting: MessageTypeDefinition
-    SearchFundsEntry: MessageTypeDefinition
     SearchFundsRequest: MessageTypeDefinition
     SearchFundsResponse: MessageTypeDefinition
   }

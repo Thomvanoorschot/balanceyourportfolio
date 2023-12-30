@@ -19,6 +19,7 @@
     import TertiaryButton from "$lib/shared/TertiaryButton.svelte";
     import Modal from "$lib/shared/Modal.svelte";
     import AddToPortfolioPopup from "$lib/portfolios/AddToPortfolioPopup.svelte";
+    import LoginOrRegister from "$lib/authentication/LoginOrRegister.svelte";
 
     export let data: PageData;
     let error: string | undefined
@@ -30,8 +31,10 @@
     let searchTerm: string
     let resetSearch: boolean
     let selectedSectors: string[] = []
-    let showModal = false
-    $: ({sectors, fundInformation, fundSectorWeightings, holdings} = data);
+    let showAddToPortfolioModal: boolean = false
+    let showLoginOrRegisterModal: boolean = false
+    let isAuthenticated: boolean = false;
+    $: ({sectors, fundInformation, fundSectorWeightings, holdings, isAuthenticated} = data);
 
     const updateNextPage = () => {
         return ({result}: {
@@ -74,16 +77,26 @@
         resetSearch = true
         fundsForm.requestSubmit()
     }
+    const handleAddToPortfolioClicked = () => {
+        if (isAuthenticated) {
+            showAddToPortfolioModal = true
+            return
+        }
+        showLoginOrRegisterModal = true
+    }
 </script>
-{#if (showModal)}
-    <Modal bind:showModal>
-        <AddToPortfolioPopup bind:showModal></AddToPortfolioPopup>
+{#if (showAddToPortfolioModal)}
+    <Modal bind:showModal={showAddToPortfolioModal}>
+        <AddToPortfolioPopup bind:showModal={showAddToPortfolioModal}></AddToPortfolioPopup>
     </Modal>
 {/if}
+<Modal bind:showModal={showLoginOrRegisterModal}>
+    <LoginOrRegister></LoginOrRegister>
+</Modal>
 {#if (!error && sectors && fundSectorWeightings && holdings && fundInformation)}
     <div class="flex flex-grow items-start justify-between w-full gap-5 p-5">
         <DetailMenu>
-            <TertiaryButton on:buttonClicked={() => showModal = !showModal}>Add to portfolio</TertiaryButton>
+            <TertiaryButton on:buttonClicked={handleAddToPortfolioClicked}>Add to portfolio</TertiaryButton>
             <SearchBar
                     placeholder="Company name or ticker"
                     on:inputChanged={filterHoldings}

@@ -1,8 +1,7 @@
 <script lang="ts">
+    import type {FilterFundsResponseEntry__Output} from "$lib/proto/proto/FilterFundsResponseEntry.ts";
 
-    import type {SearchFundsEntry} from "$lib/proto/proto/SearchFundsEntry";
-
-    export let fund: SearchFundsEntry;
+    export let fund: FilterFundsResponseEntry__Output;
     export let href: string;
 </script>
 <li>

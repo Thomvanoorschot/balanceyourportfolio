@@ -30,6 +30,26 @@ export const colors = [
     "#40E0D0"
 ];
 
+interface Map {
+    [key: string]: string | undefined
+}
+
+export const currencySignMap:Map = {
+    "EUR": "€",
+    "USD": "$",
+    "YEN": "¥",
+    "GBP": "£",
+    "CHF": "₣",
+    "MXN": "$",
+    "AUD": "$",
+}
+
+export const formatNumber = (n: number): string => {
+    return new Intl.NumberFormat('en-US', {
+        notation: "compact"
+    }).format(n)
+}
+
 export function stringToRandomInteger(inputString: string, maxNumber: number) {
     let hash = 0;
     for (let i = 0; i < inputString.length; i++) {

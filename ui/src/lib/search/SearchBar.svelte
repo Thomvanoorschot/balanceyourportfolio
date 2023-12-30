@@ -21,7 +21,7 @@
             hasFocus = false
     }
 </script>
-<div class="flex justify-center">
+<div class="flex justify-center w-full">
     <div
             class="relative w-full max-w-xl focus-within:text-tertiary"
     >
