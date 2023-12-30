@@ -18,5 +18,5 @@
             {/each}
         </div>
     </div>
-    <div class="w-20">{currencySignMap[fund.currency] || fund.currency} {formatNumber(fund.marketCap)}</div>
+    <div class="w-18">{currencySignMap[fund.currency] || fund.currency} {formatNumber(fund.marketCap)}</div>
 </div>

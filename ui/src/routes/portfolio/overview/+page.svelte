@@ -14,7 +14,7 @@
     }
 </script>
 {#if (!error && portfolios)}
-    <div id="portfolios" class="flex flex-grow flex-col w-full items-center justify-start">
+    <div id="page" class="flex flex-grow flex-col w-full items-center justify-start">
         {#each portfolios.entries as portfolio}
             <Portfolio isAuthenticated="{isAuthenticated}" portfolio="{portfolio}"></Portfolio>
         {/each}

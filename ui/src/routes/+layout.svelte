@@ -10,6 +10,7 @@
     import {Toaster} from "svelte-french-toast";
     import type {LayoutData} from "../../.svelte-kit/types/src/routes/$types";
     import FundIcon from "$lib/icons/FundIcon.svelte";
+    import {afterNavigate} from "$app/navigation";
 
     export let data: LayoutData;
     let {profilePictureURL} = data
@@ -23,6 +24,10 @@
         }
     });
     let isSideMenuOpen: boolean
+
+    afterNavigate(() => {
+        document.getElementById('page')?.scroll(0, 0);
+    });
 </script>
 
 

@@ -73,7 +73,7 @@
 
 </script>
 {#if (!error && sectors && colorMap && portfolioFundSectorWeightings && holdings)}
-    <div class="flex flex-grow items-start justify-between w-full gap-5 p-5">
+    <div id="page" class="flex flex-grow items-start justify-between w-full gap-5 p-5">
         <div class="sticky top-0">
             <DetailMenu>
                 <SearchBar placeholder="Company name or ticker"

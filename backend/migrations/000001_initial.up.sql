@@ -55,3 +55,8 @@ CREATE TABLE portfolio_fund (
     amount numeric,
     CONSTRAINT unique_portfolio_fund UNIQUE (portfolio_id,fund_id)
 );
+
+CREATE TABLE currency (
+    code VARCHAR(10) PRIMARY KEY,
+    exchange_rate numeric,
+)

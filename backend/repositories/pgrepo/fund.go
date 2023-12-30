@@ -15,16 +15,29 @@ import (
 
 func (r *Repository) FilterFunds(ctx context.Context, filter fund.FundsFilter) (fund.Funds, error) {
 	queryCte := CTE("queryCte")
-	queryStmt := SELECT(Fund.ID, Fund.Name, Fund.Currency, FundListing.Ticker, Fund.Price.MUL(Fund.OutstandingShares)).
+	queryStmt := SELECT(Fund.ID,
+		Fund.Name,
+		Fund.Currency,
+		FundListing.Ticker,
+		Fund.Price.MUL(Fund.OutstandingShares).AS("marketCap"),
+		Fund.Price.MUL(Fund.OutstandingShares).MUL(Currency.ExchangeRate).AS("relativeMarketCap"),
+	).
 		FROM(Fund.
-			INNER_JOIN(FundListing, FundListing.FundID.EQ(Fund.ID)),
+			INNER_JOIN(Currency, Currency.Code.EQ(Fund.Currency)).
+			LEFT_JOIN(FundListing, FundListing.FundID.EQ(Fund.ID)),
 		).
-		WHERE(ILike(Fund.Name, filter.SearchTerm).
-			OR(ILike(FundListing.Ticker, filter.SearchTerm)),
-		).ORDER_BY(Fund.Price.MUL(Fund.OutstandingShares).DESC())
+		WHERE(
+			ILike(Fund.Name, filter.SearchTerm).
+				OR(ILike(FundListing.Ticker, filter.SearchTerm).
+					OR(Fund.Isin.EQ(String(filter.SearchTerm)))),
+		).ORDER_BY(Raw(`"relativeMarketCap"`).DESC())
 
 	limitCte := CTE("limitCte")
-	limitStmt := SELECT(DISTINCT(StringColumn("fund.id"))).FROM(queryCte).LIMIT(filter.Limit).OFFSET(filter.Offset)
+	limitStmt := SELECT(DISTINCT(StringColumn("fund.id")), Raw(`"relativeMarketCap"`)).
+		FROM(queryCte).
+		ORDER_BY(Raw(`"relativeMarketCap"`).DESC()).
+		LIMIT(filter.Limit).
+		OFFSET(filter.Offset)
 
 	withStmt := WITH(
 		queryCte.AS(
@@ -45,17 +58,19 @@ func (r *Repository) FilterFunds(ctx context.Context, filter fund.FundsFilter) (
 	}
 	for rows.Next() {
 		var (
-			fundId        uuid.UUID
-			fundName      string
-			fundCurrency  string
-			fundTicker    string
-			fundMarketCap float64
+			fundId            uuid.UUID
+			fundName          string
+			fundCurrency      string
+			fundTicker        *string
+			fundMarketCap     float64
+			relativeMarketCap float64
 		)
 		err := rows.Scan(&fundId,
 			&fundName,
 			&fundCurrency,
 			&fundTicker,
 			&fundMarketCap,
+			&relativeMarketCap,
 		)
 		if err != nil {
 			return nil, err
@@ -67,12 +82,16 @@ func (r *Repository) FilterFunds(ctx context.Context, filter fund.FundsFilter) (
 				Currency:  fundCurrency,
 				MarketCap: fundMarketCap,
 			}
-			newFund.Tickers = append(newFund.Tickers, fundTicker)
+			if fundTicker != nil {
+				newFund.Tickers = append(newFund.Tickers, *fundTicker)
+			}
 			funds = append(funds, newFund)
 			continue
 		}
 		f := &funds[len(funds)-1]
-		f.Tickers = append(f.Tickers, fundTicker)
+		if fundTicker != nil {
+			f.Tickers = append(f.Tickers, *fundTicker)
+		}
 	}
 	return funds, nil
 }

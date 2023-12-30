@@ -21,6 +21,7 @@
             })
             if (resp.ok) {
                 portfolios = await resp.json() as Portfolio__Output[]
+                console.log(portfolios)
             } else if (!resp.ok) {
                 // error = result.data?.error
             }
@@ -50,7 +51,7 @@
             body: JSON.stringify(req)
         })
         if (resp.ok) {
-            toast.success("Test");
+            toast.success("Updated portfolio");
         } else if (!resp.ok) {
             toast.error(resp.statusText);
         }

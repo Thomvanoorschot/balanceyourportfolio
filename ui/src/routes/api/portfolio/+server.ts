@@ -6,9 +6,21 @@ import type {PortfoliosResponse__Output} from "$lib/proto/proto/PortfoliosRespon
 import type {PortfoliosRequest__Output} from "$lib/proto/proto/PortfoliosRequest.ts";
 import type {UpdatePortfolioFundAmountRequest__Output} from "$lib/proto/proto/UpdatePortfolioFundAmountRequest.ts";
 import type {Empty__Output} from "$lib/proto/proto/Empty.ts";
+import {kindeAuthClient, type SessionManager} from "@kinde-oss/kinde-auth-sveltekit";
 
-export const GET: RequestHandler = async ({ }: RequestEvent) => {
-    const req: PortfoliosRequest__Output = {}
+export const GET: RequestHandler = async ({ request }: RequestEvent) => {
+    const isAuthenticated = await kindeAuthClient.isAuthenticated(
+        request as unknown as SessionManager
+    );
+    if(!isAuthenticated){
+        return json("")
+    }
+    const user = await kindeAuthClient.getUser(
+        request as unknown as SessionManager
+    );
+    const req: PortfoliosRequest__Output = {
+        userId: user.id
+    }
     const resp = await safe(
         new Promise<PortfoliosResponse__Output>((resolve, reject) => {
             portfolioClient.getPortfolios(req, (err, response) => {

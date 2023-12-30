@@ -94,7 +94,7 @@
     <LoginOrRegister></LoginOrRegister>
 </Modal>
 {#if (!error && sectors && fundSectorWeightings && holdings && fundInformation)}
-    <div class="flex flex-grow items-start justify-between w-full gap-5 p-5">
+    <div id="page" class="flex flex-grow items-start justify-between w-full gap-5 p-5">
         <DetailMenu>
             <TertiaryButton on:buttonClicked={handleAddToPortfolioClicked}>Add to portfolio</TertiaryButton>
             <SearchBar

@@ -37,7 +37,7 @@ interface Map {
 export const currencySignMap:Map = {
     "EUR": "€",
     "USD": "$",
-    "YEN": "¥",
+    "JPY": "¥",
     "GBP": "£",
     "CHF": "₣",
     "MXN": "$",
