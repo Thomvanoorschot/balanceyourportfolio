@@ -73,6 +73,9 @@ const (
 	UtilitiesSector             SectorName = "Utilities"
 	ConsumerStaplesSector       SectorName = "Consumer Staples"
 	TelecommunicationSector     SectorName = "Telecommunication"
+	BondsSector                 SectorName = "Bonds"
+	NotesSector                 SectorName = "Notes"
+	CashSector                  SectorName = "Cash"
 )
 
 type FundsFilter struct {

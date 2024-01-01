@@ -40,7 +40,7 @@ func (s *Service) UpsertFunds(ctx context.Context) error {
 	}
 	batches = append(batches, ei)
 	for _, batch := range batches {
-		return func() error {
+		err := func() error {
 			defer func() {
 				a := recover()
 
@@ -50,6 +50,9 @@ func (s *Service) UpsertFunds(ctx context.Context) error {
 			}()
 			return s.upsertFunds(ctx, batch)
 		}()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -167,6 +170,7 @@ func (s *Service) convertFund(ctx context.Context, fund Fund, polarisHistory Pol
 	if err != nil {
 		return err
 	}
+	fmt.Printf("Converted fund %s\n", fund.Profile.FundFullName)
 	return tx.Commit(ctx)
 }
 
@@ -201,9 +205,50 @@ func convertToHoldings(HoldingItems []HoldingsItem) ([]model.Holding, map[string
 				ISIN = &result
 			}
 		}
+		sector, ok := sectorMap[hi.SectorName]
+		if !ok {
+			sector = fund.UnknownSector
+		}
 		if hi.IssueTypename == fund.Currency {
 			hi.Ticker = hi.Name
+			sector = fund.CashSector
 		}
+
+		switch hi.IssueTypename {
+		case "Government Bond":
+			sector = fund.BondsSector
+		case "Corporate Bond":
+			{
+				sector = fund.BondsSector
+				if hi.Ticker != "" {
+					hi.Ticker = fmt.Sprintf("%s - Bond", hi.Ticker)
+				}
+			}
+		case "Installment Bonds":
+			{
+				sector = fund.BondsSector
+				if hi.Ticker != "" {
+					hi.Ticker = fmt.Sprintf("%s - Bond", hi.Ticker)
+				}
+			}
+		case "Treasury Bond":
+			{
+				sector = fund.BondsSector
+				if hi.Ticker != "" {
+					hi.Ticker = fmt.Sprintf("%s - Bond", hi.Ticker)
+				}
+			}
+		case "Bonds":
+			{
+				sector = fund.BondsSector
+				if hi.Ticker != "" {
+					hi.Ticker = fmt.Sprintf("%s - Bond", hi.Ticker)
+				}
+			}
+		case "Treasury Note":
+			sector = fund.NotesSector
+		}
+
 		if hi.Ticker == "" {
 			str := ""
 			hi.Ticker = "UNKNOWN"
@@ -211,16 +256,14 @@ func convertToHoldings(HoldingItems []HoldingsItem) ([]model.Holding, map[string
 			hi.SEDOL = &str
 			hi.CUSIP = &str
 			hi.IssueTypename = fund.Unknown
+			sector = fund.UnknownSector
 		}
 
 		ticker := hi.Ticker
 		name := hi.Name
 		SEDOL := hi.SEDOL
 		CUSIP := hi.CUSIP
-		sector, ok := sectorMap[hi.SectorName]
-		if !ok {
-			sector = fund.UnknownSector
-		}
+
 		sectorString := string(sector)
 		issueTypeName := string(hi.IssueTypename)
 		holding := model.Holding{

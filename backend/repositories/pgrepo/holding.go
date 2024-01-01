@@ -62,7 +62,16 @@ func (r *Repository) UpsertHoldings(ctx context.Context, holdings []model.Holdin
 		INSERT(Holding.MutableColumns).
 		MODELS(holdings).
 		ON_CONFLICT(Holding.Ticker).
-		DO_NOTHING().
+		DO_UPDATE(
+			SET(
+				Holding.Type.SET(Holding.EXCLUDED.Type),
+				Holding.Name.SET(Holding.EXCLUDED.Name),
+				Holding.Isin.SET(Holding.EXCLUDED.Isin),
+				Holding.Sedol.SET(Holding.EXCLUDED.Sedol),
+				Holding.Cusip.SET(Holding.EXCLUDED.Cusip),
+				Holding.Sector.SET(Holding.EXCLUDED.Sector),
+			),
+		).
 		RETURNING(Holding.ID, Holding.Ticker)
 	withStmt := WITH(
 		insertCte.AS(

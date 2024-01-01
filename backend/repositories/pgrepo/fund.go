@@ -124,6 +124,10 @@ func (r *Repository) UpsertFund(ctx context.Context, f model.Fund, tx pgx.Tx) (u
 			SET(
 				Fund.TotalHoldings.SET(Fund.EXCLUDED.TotalHoldings),
 				Fund.Price.SET(Fund.EXCLUDED.Price),
+				Fund.OutstandingShares.SET(Fund.EXCLUDED.OutstandingShares),
+				Fund.EffectiveDate.SET(Fund.EXCLUDED.EffectiveDate),
+				Fund.Name.SET(Fund.EXCLUDED.Name),
+				Fund.Currency.SET(Fund.EXCLUDED.Currency),
 			),
 		).
 		ON_CONFLICT(Fund.ExternalIdentifier).
@@ -131,6 +135,10 @@ func (r *Repository) UpsertFund(ctx context.Context, f model.Fund, tx pgx.Tx) (u
 			SET(
 				Fund.TotalHoldings.SET(Fund.EXCLUDED.TotalHoldings),
 				Fund.Price.SET(Fund.EXCLUDED.Price),
+				Fund.OutstandingShares.SET(Fund.EXCLUDED.OutstandingShares),
+				Fund.EffectiveDate.SET(Fund.EXCLUDED.EffectiveDate),
+				Fund.Name.SET(Fund.EXCLUDED.Name),
+				Fund.Currency.SET(Fund.EXCLUDED.Currency),
 			),
 		).
 		RETURNING(Fund.ID).
