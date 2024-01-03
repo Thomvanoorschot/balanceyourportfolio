@@ -6,17 +6,17 @@
 
 </script>
 
-<div class="flex flex-1" aria-hidden="true">
-    <div class="flex flex-col rounded-xl w-10 h-10 bg-gray-300 justify-center items-center mr-4">
+<div class="flex items-center gap-2" aria-hidden="true">
+    <div class="flex flex-col rounded-xl w-10 h-10 bg-gray-300">
         <img class="scale-75" src="/provider-logos/vanguard.png" alt="">
     </div>
-    <div class="flex-1 pl-1 mr-16">
-        <div class="font-medium">{fund.name}</div>
-        <div class="flex gap-5">
+    <div class="flex-1">
+        <div class="font-medium text-sm lg:text-lg">{fund.name}</div>
+        <div class="flex-wrap hidden lg:flex lg:visible">
             {#each fund.tickers || [] as ticker}
-                <div class="text-sm">{ticker}</div>
+                <div class="pr-3 text-xs lg:text-sm">{ticker}</div>
             {/each}
         </div>
     </div>
-    <div class="w-18">{currencySignMap[fund.currency] || fund.currency} {formatNumber(fund.marketCap)}</div>
+    <div>{currencySignMap[fund.currency] || fund.currency} {formatNumber(fund.marketCap)}</div>
 </div>

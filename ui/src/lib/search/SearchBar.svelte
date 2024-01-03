@@ -23,7 +23,7 @@
 </script>
 <div class="flex justify-center w-full">
     <div
-            class="relative w-full max-w-xl focus-within:text-tertiary"
+            class="relative w-full focus-within:text-tertiary"
     >
         <div class="absolute inset-y-0 flex items-center pl-2">
             <SearchIcon inPrimary="{inPrimary}"></SearchIcon>
@@ -43,8 +43,8 @@
                 on:click={() => hasFocus = true}
                 on:blur={() => setTimeout(() => {hasFocus = false}, 200)}
         />
-        {#if (hasFocus)}
-            <slot></slot>
-        {/if}
     </div>
+    {#if (hasFocus)}
+        <slot></slot>
+    {/if}
 </div>

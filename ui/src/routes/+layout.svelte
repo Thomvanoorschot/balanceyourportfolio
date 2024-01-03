@@ -62,7 +62,7 @@
     <!-- Mobile sidebar -->
     {#if (isSideMenuOpen)}
         <aside
-                class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto md:hidden "
+                class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto md:hidden"
         >
             <div class="py-4 text-gray-500">
                 <a
@@ -85,13 +85,12 @@
     <div class="flex flex-col flex-1 w-full">
         <header class="z-10 py-2 bg-background-primary">
             <div
-                    class="flex items-center justify-between h-full text-tertiary"
+                    class="flex items-center gap-2"
             >
-                <div class="flex-1">
 
                 <!-- Mobile hamburger -->
                 <button
-                        class="p-1 mr-5 -ml-1 rounded-xl md:hidden focus:outline-none"
+                        class="pl-2 rounded-xl md:hidden focus:outline-none"
                         aria-label="Menu"
                         on:click={() => isSideMenuOpen = !isSideMenuOpen}
                 >
@@ -109,21 +108,14 @@
                 </button>
                 <!-- Search input -->
                 <FundSearchBar></FundSearchBar>
-                </div>
                 <div class="flex gap-5 justify-end pr-5">
                     <ThemeSelector></ThemeSelector>
                     <TopMenu profilePictureURL="{profilePictureURL}"></TopMenu>
                 </div>
             </div>
         </header>
-        <main class="h-full overflow-y-auto bg-secondary">
+        <main class="h-full w-full overflow-x-hidden bg-secondary">
             <slot></slot>
         </main>
-        <footer class="bg-primary text-center">
-            <div class="p-0.5 text-center text-neutral-800">
-                © 2023 Copyright:
-                <a class="text-neutral-800" href="https://tailwind-elements.com/">EtfInsight</a>
-            </div>
-        </footer>
     </div>
 </div>
