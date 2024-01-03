@@ -94,24 +94,9 @@
     <LoginOrRegister></LoginOrRegister>
 </Modal>
 {#if (!error && sectors && fundSectorWeightings && holdings && fundInformation)}
-    <div id="page" class="flex flex-grow items-start justify-between w-full gap-5 p-5">
-        <DetailMenu>
-            <TertiaryButton on:buttonClicked={handleAddToPortfolioClicked}>Add to portfolio</TertiaryButton>
-            <SearchBar
-                    placeholder="Company name or ticker"
-                    on:inputChanged={filterHoldings}
-                    bind:value={searchTerm}
-                    inPrimary="{false}"
-            ></SearchBar>
-            <CheckButtonList
-                    title="Sectors"
-                    list="{sectors}"
-                    on:checkButtonClicked={updateSelectedSectorsFromEvent}
-            >
-            </CheckButtonList>
-        </DetailMenu>
-        <div class="flex flex-col flex-grow gap-5">
+    <div class="flex flex-col gap-2 p-2">
             <Information fundInformation="{fundInformation}"></Information>
+            <TertiaryButton on:buttonClicked={handleAddToPortfolioClicked}>Add to portfolio</TertiaryButton>
             <ColoredBarChart>
                 {#each fundSectorWeightings as fws, fswIndex}
                     <ColoredBar
@@ -126,6 +111,21 @@
                     </ColoredBar>
                 {/each}
             </ColoredBarChart>
+<!--        <DetailMenu>-->
+            <SearchBar
+                    placeholder="Company name or ticker"
+                    on:inputChanged={filterHoldings}
+                    bind:value={searchTerm}
+                    inPrimary="{false}"
+            ></SearchBar>
+            <CheckButtonList
+                    title="Sectors"
+                    list="{sectors}"
+                    on:checkButtonClicked={updateSelectedSectorsFromEvent}
+            >
+            </CheckButtonList>
+<!--        </DetailMenu>-->
+        <div class="flex flex-col flex-grow gap-5">
             <form
                     method="POST"
                     action="?/filterHoldings"

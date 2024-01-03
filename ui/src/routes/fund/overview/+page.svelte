@@ -46,7 +46,7 @@
 </script>
 
 {#if (!error && funds)}
-    <div class="flex flex-col lg:flex-row w-full gap-5 p-5">
+    <div class="flex flex-col lg:flex-row w-full gap-5 p-2">
         <DetailMenu>
             <SearchBar
                     placeholder="Fund name or ticker"

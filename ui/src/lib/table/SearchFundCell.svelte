@@ -2,10 +2,10 @@
     import {clickOutside} from "$lib/custom-svelte-typings";
     import Result from "$lib/search/Result.svelte";
     import {debounce} from "$lib/utils.ts";
-    import type {SearchFundsEntry__Output} from "$lib/proto/proto/SearchFundsEntry.ts";
     import {onMount, tick} from "svelte";
     import {enhance} from '$app/forms';
     import type {ActionResult} from "@sveltejs/kit";
+    import type {FilterFundsResponseEntry__Output} from "$lib/proto/proto/FilterFundsResponseEntry.ts";
 
     export let label: string
     export let value: string
@@ -19,7 +19,7 @@
     }
     let searchForm: HTMLFormElement;
     let showDropdown = false;
-    let funds: SearchFundsEntry__Output[] = []
+    let funds: FilterFundsResponseEntry__Output[] = []
 
 
     onMount(() => {
@@ -41,7 +41,7 @@
         }
         searchForm.requestSubmit()
     }, 500)
-    const handleFundClicked = (f: SearchFundsEntry__Output) => {
+    const handleFundClicked = (f: FilterFundsResponseEntry__Output) => {
         showDropdown = false;
         label = f.name;
         value = f.id;

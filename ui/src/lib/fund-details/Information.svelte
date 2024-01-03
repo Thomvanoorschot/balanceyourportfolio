@@ -4,8 +4,6 @@
     export let fundInformation: FundInformation__Output;
 
 </script>
-<div class="p-10 shadow-md rounded-xl bg-tertiary text-primary">
-    <h1 class="text-3xl ">{fundInformation.name}</h1>
-    <div>Outstanding shares: {fundInformation.outstandingShares}</div>
-    <div>Effective date: {fundInformation.effectiveDate}</div>
+<div class="p-2 text-center shadow-md rounded-xl bg-tertiary text-primary">
+    <h1 class="text-xl ">{fundInformation.name}</h1>
 </div>

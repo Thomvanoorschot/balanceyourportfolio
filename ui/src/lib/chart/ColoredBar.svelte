@@ -14,8 +14,10 @@
 </script>
 {#key count}
     <div class="flex justify-start items-center text-primary">
-        <div class="w-1/4 text-xs">{title}</div>
-        <div class="text-xs w-16">{Math.round(percentage * 100) / 100}%</div>
+        <div class="flex w-2/4 items-center lg:w-1/4">
+            <div class="text-[0.5rem] lg:text-xs grow">{title}</div>
+            <div class="text-[0.5rem] lg:text-xs pr-2">{Math.round(percentage * 100) / 100}%</div>
+        </div>
         <div class="w-full flex">
             <div aria-hidden="true" class="flex resizableElement hover:opacity-80 transition-opacity"
                  on:click={() => dispatch("onBarClicked", title)}>

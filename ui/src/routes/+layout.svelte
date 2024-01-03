@@ -26,7 +26,7 @@
     let isSideMenuOpen: boolean
 
     afterNavigate(() => {
-        document.getElementById('page')?.scroll(0, 0);
+        isSideMenuOpen = false
     });
 </script>
 
@@ -62,16 +62,10 @@
     <!-- Mobile sidebar -->
     {#if (isSideMenuOpen)}
         <aside
-                class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto md:hidden"
+                class="absolute h-max inset-y-0 z-20 flex-shrink-0 w-64 mt-14 overflow-y-auto md:hidden bg-primary"
         >
             <div class="py-4 text-gray-500">
-                <a
-                        class="ml-6 text-lg font-bold text-gray-800"
-                        href="/search"
-                >
-                    ETF Insight
-                </a>
-                <ul class="mt-6">
+                <ul>
                     <SidebarElement href="/fund/overview" text="Funds">
                         <FundIcon></FundIcon>
                     </SidebarElement>
@@ -83,7 +77,7 @@
         </aside>
     {/if}
     <div class="flex flex-col flex-1 w-full">
-        <header class="z-10 py-2 bg-background-primary">
+        <header class="py-2 bg-background-primary">
             <div
                     class="flex items-center gap-2"
             >

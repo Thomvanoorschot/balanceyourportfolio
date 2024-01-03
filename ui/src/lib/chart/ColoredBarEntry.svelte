@@ -5,4 +5,4 @@
     export let roundedRight: boolean | undefined = false
 </script>
 
-<div class="h-4 {roundedLeft ? 'rounded-l-md' : ''} {roundedRight ? 'rounded-r-md' : ''}" style=" background-color: {color}; width: { `${width}%`}"></div>
+<div class="h-3 lg:h-4 {roundedLeft ? 'rounded-l-md' : ''} {roundedRight ? 'rounded-r-md' : ''}" style=" background-color: {color}; width: { `${width}%`}"></div>
