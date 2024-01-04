@@ -61,7 +61,7 @@
 
 
 {#if portfolios}
-    <div class="flex flex-col p-8 w-128 bg-primary gap-4 rounded-xl">
+    <div class="flex flex-col p-8 w-full bg-primary gap-4 rounded-xl">
         <Dropdown
                 bind:value={selectedPortfolioId}
                 entries="{portfolios.map(x => ({label: x.name, value: x.id}))}"

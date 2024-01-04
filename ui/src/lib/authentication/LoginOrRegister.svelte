@@ -4,7 +4,7 @@
     import TertiaryButton from "$lib/shared/TertiaryButton.svelte";
     import {goto} from "$app/navigation";
 </script>
-<div class="flex flex-col p-8 w-128 bg-primary gap-4 rounded-xl">
+<div class="flex flex-col p-8 w-full bg-primary gap-4 rounded-xl">
     <div class="text-center text-tertiary ">
         You need an account to create portfolio's
     </div>
