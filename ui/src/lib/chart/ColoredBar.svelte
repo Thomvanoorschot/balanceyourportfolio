@@ -1,44 +1,48 @@
 <script lang="ts">
-    import {createEventDispatcher} from "svelte";
-    import {onNavigate} from "$app/navigation";
+	import { createEventDispatcher } from 'svelte';
+	import { onNavigate } from '$app/navigation';
 
-    export let title: string
-    export let percentage: number
+	export let title: string;
+	export let percentage: number;
 
-    let count = 0;
+	let count = 0;
 
-    onNavigate(() => {
-        count++
-    })
-    const dispatch = createEventDispatcher()
+	onNavigate(() => {
+		count++;
+	});
+	const dispatch = createEventDispatcher();
 </script>
+
 {#key count}
-    <div class="flex justify-start items-center text-primary">
-        <div class="flex w-2/4 items-center lg:w-1/4">
-            <div class="text-[0.5rem] lg:text-xs grow">{title}</div>
-            <div class="text-[0.5rem] lg:text-xs pr-2">{Math.round(percentage * 100) / 100}%</div>
-        </div>
-        <div class="w-full flex">
-            <div aria-hidden="true" class="flex resizableElement hover:opacity-80 transition-opacity"
-                 on:click={() => dispatch("onBarClicked", title)}>
-                <slot></slot>
-            </div>
-        </div>
-    </div>
+	<div class="flex justify-start items-center text-primary">
+		<div class="flex w-2/4 items-center lg:w-1/4">
+			<div class="text-[0.5rem] lg:text-xs grow">{title}</div>
+			<div class="text-[0.5rem] lg:text-xs pr-2">{Math.round(percentage * 100) / 100}%</div>
+		</div>
+		<div class="w-full flex">
+			<div
+				aria-hidden="true"
+				class="flex resizableElement hover:opacity-80 transition-opacity"
+				on:click={() => dispatch('onBarClicked', title)}
+			>
+				<slot />
+			</div>
+		</div>
+	</div>
 {/key}
 
 <style>
-    @keyframes changeWidth {
-        0% {
-            width: 0
-        }
-        100% {
-            width: 100%;
-        }
-    }
+	@keyframes changeWidth {
+		0% {
+			width: 0;
+		}
+		100% {
+			width: 100%;
+		}
+	}
 
-    .resizableElement {
-        will-change: transform;
-        animation: changeWidth 1s ease-in-out forwards;
-    }
+	.resizableElement {
+		will-change: transform;
+		animation: changeWidth 1s ease-in-out forwards;
+	}
 </style>

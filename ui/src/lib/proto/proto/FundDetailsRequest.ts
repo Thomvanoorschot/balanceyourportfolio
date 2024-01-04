@@ -1,10 +1,9 @@
 // Original file: proto/fund.proto
 
-
 export interface FundDetailsRequest {
-  'fundId'?: (string);
+	fundId?: string;
 }
 
 export interface FundDetailsRequest__Output {
-  'fundId': (string);
+	fundId: string;
 }

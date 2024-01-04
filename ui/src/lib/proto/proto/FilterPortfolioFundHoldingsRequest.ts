@@ -3,17 +3,17 @@
 import type { Long } from '@grpc/proto-loader';
 
 export interface FilterPortfolioFundHoldingsRequest {
-  'portfolioId'?: (string);
-  'searchTerm'?: (string);
-  'selectedSectors'?: (string)[];
-  'limit'?: (number | string | Long);
-  'offset'?: (number | string | Long);
+	portfolioId?: string;
+	searchTerm?: string;
+	selectedSectors?: string[];
+	limit?: number | string | Long;
+	offset?: number | string | Long;
 }
 
 export interface FilterPortfolioFundHoldingsRequest__Output {
-  'portfolioId': (string);
-  'searchTerm': (string);
-  'selectedSectors': (string)[];
-  'limit': (number);
-  'offset': (number);
+	portfolioId: string;
+	searchTerm: string;
+	selectedSectors: string[];
+	limit: number;
+	offset: number;
 }

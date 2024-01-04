@@ -3,30 +3,29 @@
 @tailwind utilities;
 
 @layer base {
-    input[type='number']::-webkit-outer-spin-button,
-    input[type='number']::-webkit-inner-spin-button,
-    input[type='number'] {
-        -webkit-appearance: none;
-        margin: 0;
-        -moz-appearance: textfield !important;
-    }
+	input[type='number']::-webkit-outer-spin-button,
+	input[type='number']::-webkit-inner-spin-button,
+	input[type='number'] {
+		-webkit-appearance: none;
+		margin: 0;
+		-moz-appearance: textfield !important;
+	}
 }
 
 html {
-    overflow: scroll;
-    overflow-x: hidden;
+	overflow: scroll;
+	overflow-x: hidden;
 }
 ::-webkit-scrollbar {
-    width: 0;  /* Remove scrollbar space */
-    background: transparent;  /* Optional: just make scrollbar invisible */
-    display: none;
-
+	width: 0; /* Remove scrollbar space */
+	background: transparent; /* Optional: just make scrollbar invisible */
+	display: none;
 }
 /* Optional: show position indicator in red */
 ::-webkit-scrollbar-thumb {
-    background: #FF0000;
+	background: #ff0000;
 }
 
 ::-webkit-scrollbar {
-    display: none;
+	display: none;
 }
