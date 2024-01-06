@@ -11,6 +11,7 @@
 	import type { LayoutData } from '../../.svelte-kit/types/src/routes/$types';
 	import FundIcon from '$lib/icons/FundIcon.svelte';
 	import { afterNavigate } from '$app/navigation';
+	import MenuIcon from '$lib/icons/MenuIcon.svelte';
 
 	export let data: LayoutData;
 	let { profilePictureURL } = data;
@@ -80,13 +81,7 @@
 					aria-label="Menu"
 					on:click={() => (isSideMenuOpen = !isSideMenuOpen)}
 				>
-					<svg class="w-6 h-6 fill-tertiary" aria-hidden="true" viewBox="0 0 20 20">
-						<path
-							fill-rule="evenodd"
-							d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-							clip-rule="evenodd"
-						/>
-					</svg>
+					<MenuIcon></MenuIcon>
 				</button>
 				<!-- Search input -->
 				<FundSearchBar />

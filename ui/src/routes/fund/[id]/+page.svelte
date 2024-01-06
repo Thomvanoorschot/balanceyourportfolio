@@ -13,13 +13,13 @@
 	import ColoredBarChart from '$lib/chart/ColoredBarChart.svelte';
 	import ColoredBar from '$lib/chart/ColoredBar.svelte';
 	import ColoredBarEntry from '$lib/chart/ColoredBarEntry.svelte';
-	import DetailMenu from '$lib/menu/DetailMenu.svelte';
-	import Information from '$lib/fund-details/Information.svelte';
 	import type { FundInformation__Output } from '$lib/proto/proto/FundInformation.ts';
-	import TertiaryButton from '$lib/shared/TertiaryButton.svelte';
 	import Modal from '$lib/shared/Modal.svelte';
 	import AddToPortfolioPopup from '$lib/portfolios/AddToPortfolioPopup.svelte';
 	import LoginOrRegister from '$lib/authentication/LoginOrRegister.svelte';
+	import TertiaryContainer from '$lib/shared/TertiaryContainer.svelte';
+	import MenuIcon from '$lib/icons/MenuIcon.svelte';
+	import PrimaryButton from '$lib/shared/PrimaryButton.svelte';
 
 	export let data: PageData;
 	let error: string | undefined;
@@ -55,7 +55,7 @@
 		fundsForm.requestSubmit();
 	}
 
-	const filterHoldings = debounce(async function () {
+	const filterHoldings = debounce(async function() {
 		resetSearch = true;
 		fundsForm.requestSubmit();
 	}, 200);
@@ -84,6 +84,7 @@
 		}
 		showLoginOrRegisterModal = true;
 	};
+	let expanded: boolean = false;
 </script>
 
 {#if showAddToPortfolioModal}
@@ -96,8 +97,6 @@
 </Modal>
 {#if !error && sectors && fundSectorWeightings && holdings && fundInformation}
 	<div class="flex flex-col gap-2 p-2">
-		<Information {fundInformation} />
-		<TertiaryButton on:buttonClicked={handleAddToPortfolioClicked}>Add to portfolio</TertiaryButton>
 		<ColoredBarChart>
 			{#each fundSectorWeightings as fws, fswIndex}
 				<ColoredBar title={fws.sectorName} percentage={fws.percentage}>
@@ -110,18 +109,40 @@
 				</ColoredBar>
 			{/each}
 		</ColoredBarChart>
+		<TertiaryContainer on:containerClicked={() => expanded = !expanded}>
+			<div>
+				<div>
+					<div class="flex items-center">
+						<MenuIcon fillColor="fill-primary"></MenuIcon>
+						<h1 class="text-l">{fundInformation.name}</h1>
+					</div>
+					<!--{#if (expanded)}-->
+					<div
+						class="{expanded ? 'h-96 pt-5' : 'h-0'} transition-all ease-in-out duration-1000">
+						<div class="{expanded ? '' : 'hidden'}">
+							<SearchBar
+								placeholder="Company name or ticker"
+								on:inputChanged={filterHoldings}
+								bind:value={searchTerm}
+								inPrimary={true}
+							/>
+							<CheckButtonList
+								title="Sectors"
+								list={sectors}
+								on:checkButtonClicked={updateSelectedSectorsFromEvent}
+							/>
+							<PrimaryButton on:buttonClicked={handleAddToPortfolioClicked}>Add to portfolio</PrimaryButton>
+						</div>
+					</div>
+					<!--{:else}-->
+					<!--						<div></div>-->
+					<!--					{/if}-->
+				</div>
+			</div>
+
+		</TertiaryContainer>
 		<!--        <DetailMenu>-->
-		<SearchBar
-			placeholder="Company name or ticker"
-			on:inputChanged={filterHoldings}
-			bind:value={searchTerm}
-			inPrimary={false}
-		/>
-		<CheckButtonList
-			title="Sectors"
-			list={sectors}
-			on:checkButtonClicked={updateSelectedSectorsFromEvent}
-		/>
+
 		<!--        </DetailMenu>-->
 		<div class="flex flex-col flex-grow gap-5">
 			<form
