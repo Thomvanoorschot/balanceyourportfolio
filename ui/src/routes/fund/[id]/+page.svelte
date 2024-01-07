@@ -85,6 +85,18 @@
 		showLoginOrRegisterModal = true;
 	};
 	let expanded: boolean = false;
+	let elem: HTMLDivElement;
+
+	function growDiv() {
+		if (expanded) {
+			elem.style.height = '0';
+			expanded = false;
+		} else {
+			const wrapper = document.querySelector('.measuringWrapper');
+			elem.style.height = wrapper?.clientHeight + 'px';
+			expanded = true;
+		}
+	}
 </script>
 
 {#if showAddToPortfolioModal}
@@ -109,24 +121,25 @@
 				</ColoredBar>
 			{/each}
 		</ColoredBarChart>
-		<TertiaryContainer on:containerClicked={() => expanded = !expanded}>
+		<TertiaryContainer on:containerClicked={() => growDiv()}>
 			<div>
 				<div>
 					<div class="flex items-center">
 						<MenuIcon fillColor="fill-primary"></MenuIcon>
 						<h1 class="text-l">{fundInformation.name}</h1>
 					</div>
-					<!--{#if (expanded)}-->
 					<div
-						class="{expanded ? 'h-96 pt-5' : 'h-0'} transition-all ease-in-out duration-1000">
-						<div class="{expanded ? '' : 'hidden'}">
+						bind:this={elem}
+						class="h-0 transition-all ease-in-out duration-1000 overflow-hidden">
+						<div class=" flex flex-col gap-5 measuringWrapper">
 							<SearchBar
 								placeholder="Company name or ticker"
 								on:inputChanged={filterHoldings}
 								bind:value={searchTerm}
-								inPrimary={true}
+								theme="primary"
 							/>
 							<CheckButtonList
+								theme="primary"
 								title="Sectors"
 								list={sectors}
 								on:checkButtonClicked={updateSelectedSectorsFromEvent}
@@ -134,16 +147,10 @@
 							<PrimaryButton on:buttonClicked={handleAddToPortfolioClicked}>Add to portfolio</PrimaryButton>
 						</div>
 					</div>
-					<!--{:else}-->
-					<!--						<div></div>-->
-					<!--					{/if}-->
 				</div>
 			</div>
 
 		</TertiaryContainer>
-		<!--        <DetailMenu>-->
-
-		<!--        </DetailMenu>-->
 		<div class="flex flex-col flex-grow gap-5">
 			<form
 				method="POST"

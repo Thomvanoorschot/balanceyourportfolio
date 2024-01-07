@@ -3,6 +3,9 @@ export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	theme: {
 		extend: {
+			transitionProperty: {
+				'max-height': 'max-height'
+			},
 			spacing: {
 				128: '32rem'
 			},

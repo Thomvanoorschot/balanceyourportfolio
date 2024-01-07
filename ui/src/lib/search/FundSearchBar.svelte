@@ -1,13 +1,14 @@
 <script lang="ts">
 	import Result from '$lib/search/Result.svelte';
 	import SearchBar from '$lib/search/SearchBar.svelte';
-	import { debounce } from '$lib/utils.ts';
+	import { debounce, type themeType } from '$lib/utils.ts';
 	import type { FilterFundsResponseEntry__Output } from '$lib/proto/proto/FilterFundsResponseEntry.ts';
 
 	let funds: FilterFundsResponseEntry__Output[] = [];
 
 	let searchForm: HTMLFormElement;
 	export let value: string | undefined = '';
+	export let theme: themeType | undefined = undefined
 
 	const search = debounce(async function () {
 		const resp = await fetch('/api/search-funds', {
@@ -24,7 +25,7 @@
 	}, 200);
 </script>
 
-<SearchBar placeholder="Search for funds" on:inputChanged={search} bind:value>
+<SearchBar theme="{theme}" placeholder="Search for funds" on:inputChanged={search} bind:value>
 	<ul id="searchResults" class="absolute top-12 left-0 right-0 w-full">
 		{#each funds || [] as fund}
 			<Result href="/fund/{fund.id}" {fund} />

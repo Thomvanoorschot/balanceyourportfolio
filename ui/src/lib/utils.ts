@@ -60,3 +60,5 @@ export function stringToRandomInteger(inputString: string, maxNumber: number) {
 	// Map the hash to a random integer between 1 and 100
 	return (Math.abs(hash) % maxNumber) - 1 + 1;
 }
+
+export type themeType = 'primary' | 'secondary' | 'tertiary' | 'quaternary'

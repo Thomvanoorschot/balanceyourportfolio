@@ -6,14 +6,14 @@
 
 <div class="relative">
 	<button
-		class="align-middle rounded-full focus:shadow-outline-primary focus:outline-none"
+		class="w-8 h-8 align-middle rounded-full focus:shadow-outline-primary focus:outline-none "
 		aria-label="Account"
 		aria-haspopup="true"
 		on:click={() => (isMenuOpen = !isMenuOpen)}
 	>
 		{#if profilePictureURL}
 			<img
-				class="h-8 w-8 rounded-full"
+				class="w-8 h-8 rounded-full "
 				src={profilePictureURL}
 				alt=""
 				referrerpolicy="no-referrer"
