@@ -1,6 +1,6 @@
 <script lang="ts">
-	import CheckButton from '$lib/filters/CheckButton.svelte';
 	import type { themeType } from '$lib/utils.ts';
+	import CheckButton from '$lib/filters/CheckButton.svelte';
 
 	export let title: string;
 	export let list: string[];

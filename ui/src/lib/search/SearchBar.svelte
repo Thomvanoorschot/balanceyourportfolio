@@ -25,28 +25,26 @@
 		if (e.key === 'Escape' && hasFocus) hasFocus = false;
 	};
 
-	let bgColor: themeType;
-	let borderColor: themeType;
-	let focusBorderColor: themeType;
-	let focusBgColor: themeType;
-	let placeholderColor: themeType;
-	let textColor: themeType;
-
+	let inputElem: HTMLInputElement;
 	onMount(() => {
 		if (theme === 'primary') {
-			borderColor = 'tertiary';
-			focusBorderColor = 'quaternary';
-			bgColor = 'primary';
-			focusBgColor = 'secondary';
-			textColor = 'tertiary';
-			placeholderColor = 'tertiary';
+			inputElem.classList.add(
+				'bg-primary',
+				'border-tertiary',
+				'focus:border-quaternary',
+				'focus:bg-secondary',
+				'placeholder-tertiary',
+				'text-tertiary'
+			);
 		} else if (theme === 'secondary') {
-			borderColor = 'primary';
-			focusBorderColor = 'quaternary';
-			bgColor = 'secondary';
-			focusBgColor = 'secondary';
-			textColor = 'quaternary';
-			placeholderColor = 'quaternary';
+			inputElem.classList.add(
+				'bg-secondary',
+				'border-primary',
+				'focus:border-quaternary',
+				'focus:bg-secondary',
+				'placeholder-tertiary',
+				'text-tertiary'
+			);
 		}
 	});
 </script>
@@ -61,8 +59,8 @@
 	<!--			<SearchIcon inPrimary="{inPrimary}"></SearchIcon>-->
 	<!--		</div>-->
 	<input
-		class="w-full pt-2 pb-2 pl-8 pr-2 text-sm placeholder-gray-600 border-2 rounded-xl focus:outline-none
-                bg-{bgColor} border-{borderColor} focus:border-{focusBorderColor} focus:bg-{focusBgColor} placeholder-{placeholderColor} text-{textColor}"
+		bind:this={inputElem}
+		class="w-full pt-2 pb-2 pl-8 pr-2 text-sm placeholder-gray-600 border-2 rounded-xl focus:outline-none "
 		type="text"
 		{placeholder}
 		aria-label="Search"

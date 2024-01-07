@@ -131,7 +131,7 @@
 					<div
 						bind:this={elem}
 						class="h-0 transition-all ease-in-out duration-1000 overflow-hidden">
-						<div class=" flex flex-col gap-5 measuringWrapper">
+						<div class="flex flex-col gap-5 measuringWrapper">
 							<SearchBar
 								placeholder="Company name or ticker"
 								on:inputChanged={filterHoldings}

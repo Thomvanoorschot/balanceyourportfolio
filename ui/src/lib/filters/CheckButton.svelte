@@ -7,31 +7,31 @@
 	export let text: string;
 	export let checked: boolean | undefined = false;
 
-	let borderColor: themeType;
-	let bgColor: themeType;
-	let hoverColor: themeType;
-	let borderCheckedColor: themeType;
-	let textColor: themeType;
-	let textCheckedColor: themeType;
-	let bgCheckedColor: themeType;
 
+	let labelElem: HTMLLabelElement
 	onMount(() => {
 		if (theme === 'primary') {
-			borderColor = 'tertiary';
-			bgColor = 'primary';
-			bgCheckedColor = 'secondary';
-			hoverColor = 'quaternary';
-			borderCheckedColor = 'quaternary';
-			textColor = 'tertiary';
-			textCheckedColor = 'tertiary';
+			labelElem.classList.add(
+				'border-tertiary',
+				'bg-primary',
+				'text-tertiary',
+				'peer-checked:bg-secondary',
+				'peer-checked:border-quaternary',
+				'peer-hover:bg-quaternary',
+				'peer-hover:border-quaternary',
+				'peer-checked:text-tertiary',
+			)
 		} else if (theme === 'tertiary') {
-			borderColor = 'tertiary';
-			bgColor = 'tertiary';
-			bgCheckedColor = 'primary';
-			hoverColor = 'quaternary';
-			borderCheckedColor = 'quaternary';
-			textColor = 'primary';
-			textCheckedColor = 'tertiary';
+			labelElem.classList.add(
+				'border-tertiary',
+				'bg-tertiary',
+				'text-primary',
+				'peer-checked:bg-primary',
+				'peer-checked:border-quaternary',
+				'peer-hover:bg-quaternary',
+				'peer-hover:border-quaternary',
+				'peer-checked:text-tertiary',
+			)
 		}
 	});
 	const dispatch = createEventDispatcher();
@@ -46,11 +46,10 @@
 		on:click={() => dispatch('checkButtonClicked', text)}
 	/>
 	<label
+		bind:this={labelElem}
 		for="check-button-{index}"
 		class="select-none cursor-pointer rounded-lg border-2
-            py-2 px-2.5 font-small text-xs  transition-colors duration-200 ease-in-out
-            border-{borderColor} bg-{bgColor} text-{textColor}  peer-checked:bg-{bgCheckedColor} peer-checked:border-{borderCheckedColor} peer-hover:bg-{hoverColor}
-             peer-hover:border-{hoverColor}  peer-checked:text-{textCheckedColor}"
+            py-2 px-2.5 font-small text-xs  transition-colors duration-200 ease-in-out"
 	>
 		{text}
 	</label>
