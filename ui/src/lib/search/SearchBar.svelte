@@ -2,6 +2,8 @@
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { clickOutside } from '$lib/custom-svelte-typings';
 	import type { themeType } from '$lib/utils.ts';
+	import SearchIcon from '$lib/icons/SearchIcon.svelte';
+	import CrossIcon from '$lib/icons/CrossIcon.svelte';
 
 	export let placeholder: string;
 	export let value: string | undefined = '';
@@ -51,13 +53,14 @@
 
 <div
 	use:clickOutside
-	on:click_outside={() => (hasFocus = false)}
-	class="flex justify-center w-full"
+	on:click_outside={() => {
+		setTimeout(() => hasFocus = false, 500)
+	}}
+	class="flex justify-center w-full relative"
 >
-	<!--	<div class="w-full relative">-->
-	<!--		<div class="absolute inset-y-0 flex items-center pl-2">-->
-	<!--			<SearchIcon inPrimary="{inPrimary}"></SearchIcon>-->
-	<!--		</div>-->
+	<div class="absolute top-3 left-0 flex items-center pl-2">
+		<SearchIcon inPrimary="{true}"></SearchIcon>
+	</div>
 	<input
 		bind:this={inputElem}
 		class="w-full pt-2 pb-2 pl-8 pr-2 text-sm placeholder-gray-600 border-2 rounded-xl focus:outline-none "
@@ -76,9 +79,20 @@
 				hasFocus = false;
 			}, 200)}
 	/>
-
-	<!--	</div>-->
-	{#if hasFocus}
-		<slot />
+	{#if (value)}
+		<div aria-hidden="true" class="absolute top-3.5 right-3 flex items-center pl-2"
+				 on:click={(e) => {
+					 hasFocus = false;
+					 value = ''
+					 inputChanged()
+					 e.stopImmediatePropagation();
+			     e.preventDefault();
+				  }}
+		>
+			<CrossIcon></CrossIcon>
+		</div>
 	{/if}
 </div>
+{#if hasFocus}
+	<slot />
+{/if}

@@ -62,7 +62,7 @@
 	<LoginOrRegister />
 </Modal>
 <form
-	class="flex relative flex-col m-20 w-[50vw] rounded-lg bg-tertiary"
+	class="flex w-full relative flex-col rounded-lg bg-tertiary lg:m-20 lg:w-[50vw]"
 	bind:this={portfolioForm}
 	method="POST"
 	use:enhance={({ formData }) => {

@@ -38,7 +38,7 @@
 			return;
 		}
 		searchForm.requestSubmit();
-	}, 500);
+	}, 200);
 	const handleFundClicked = (f: FilterFundsResponseEntry__Output) => {
 		showDropdown = false;
 		label = f.name;
@@ -69,21 +69,27 @@
 		<input bind:value class="hidden" type="text" />
 		<input
 			{disabled}
-			on:input={search}
+			on:input={() => {
+				if(!showDropdown){
+					showDropdown = true
+				}
+				search()
+			}}
 			on:focus={() => (showDropdown = true)}
 			on:click={() => (showDropdown = true)}
 			bind:value={label}
 			bind:this={inputElement}
-			class="w-full rounded-lg outline-none border-2 border-white p-3 bg-primary {disabled
+			class="overflow-ellipsis w-full rounded-lg outline-none border-2 border-white p-3 bg-primary {disabled
 				? ''
 				: 'focus:border-2 focus:border-quaternary focus:outline-none bg-secondary'}"
 			type="text"
 		/>
+	</form>
 		{#if showDropdown}
 			<ul
 				use:clickOutside
 				on:click_outside={handleClickOutside}
-				class="absolute top-12 w-full z-10"
+				class="absolute top-15 left-0 right-0 w-screen z-10 lg:w-full"
 			>
 				{#each funds as fund}
 					<div
@@ -98,5 +104,4 @@
 				{/each}
 			</ul>
 		{/if}
-	</form>
 </td>

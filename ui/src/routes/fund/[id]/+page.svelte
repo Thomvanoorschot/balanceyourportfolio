@@ -20,6 +20,7 @@
 	import TertiaryContainer from '$lib/shared/TertiaryContainer.svelte';
 	import MenuIcon from '$lib/icons/MenuIcon.svelte';
 	import PrimaryButton from '$lib/shared/PrimaryButton.svelte';
+	import DetailMenu from '$lib/menu/DetailMenu.svelte';
 
 	export let data: PageData;
 	let error: string | undefined;
@@ -108,7 +109,8 @@
 	<LoginOrRegister />
 </Modal>
 {#if !error && sectors && fundSectorWeightings && holdings && fundInformation}
-	<div class="flex flex-col gap-2 p-2">
+	<!-- Mobile -->
+	<div class="lg:hidden flex flex-col gap-2 p-2">
 		<ColoredBarChart>
 			{#each fundSectorWeightings as fws, fswIndex}
 				<ColoredBar title={fws.sectorName} percentage={fws.percentage}>
@@ -149,9 +151,59 @@
 					</div>
 				</div>
 			</div>
-
 		</TertiaryContainer>
 		<div class="flex flex-col flex-grow gap-5">
+			<form
+				method="POST"
+				action="?/filterHoldings"
+				bind:this={fundsForm}
+				use:enhance={({ formData }) => {
+					setFilterForm(formData);
+					return updateNextPage();
+				}}
+			>
+				<List on:endOfPageReached={submitNextPage}>
+					{#each holdings as holding}
+						<ListItem>
+							<HoldingLineItem {holding} />
+						</ListItem>
+					{/each}
+				</List>
+			</form>
+		</div>
+	</div>
+
+	<!-- PC -->
+	<div class="hidden items-start w-full gap-2 lg:flex lg:visible">
+		<div class="sticky top-0 p-5">
+			<DetailMenu>
+				<SearchBar
+					placeholder="Company name or ticker"
+					on:inputChanged={filterHoldings}
+					bind:value={searchTerm}
+					theme="primary"
+				/>
+				<CheckButtonList
+					theme="primary"
+					title="Sectors"
+					list={sectors}
+					on:checkButtonClicked={updateSelectedSectorsFromEvent}
+				/>
+			</DetailMenu>
+		</div>
+		<div class="flex flex-col flex-grow gap-5 p-5">
+			<ColoredBarChart>
+				{#each fundSectorWeightings as fws, fswIndex}
+					<ColoredBar title={fws.sectorName} percentage={fws.percentage}>
+						<ColoredBarEntry
+							roundedLeft={true}
+							roundedRight={true}
+							color="#f582ae"
+							width={Math.round((fws.percentage / fundSectorWeightings[0].percentage) * 100)}
+						/>
+					</ColoredBar>
+				{/each}
+			</ColoredBarChart>
 			<form
 				method="POST"
 				action="?/filterHoldings"

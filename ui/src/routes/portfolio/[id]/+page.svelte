@@ -82,7 +82,7 @@
 					placeholder="Company name or ticker"
 					on:inputChanged={filterHoldings}
 					bind:value={searchTerm}
-					inPrimary={false}
+					theme="primary"
 				/>
 				<CheckButtonList
 					title="Sectors"
