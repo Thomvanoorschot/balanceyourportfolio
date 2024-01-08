@@ -6,7 +6,7 @@
 	export let index: number;
 	export let text: string;
 	export let checked: boolean | undefined = false;
-
+	export let identifier: string
 
 	let labelElem: HTMLLabelElement
 	onMount(() => {
@@ -40,14 +40,14 @@
 <div class="flex">
 	<input
 		type="checkbox"
-		id="check-button-{index}"
+		id="check-button-{index}-{identifier}"
 		class="peer hidden"
 		bind:checked
 		on:click={() => dispatch('checkButtonClicked', text)}
 	/>
 	<label
 		bind:this={labelElem}
-		for="check-button-{index}"
+		for="check-button-{index}-{identifier}"
 		class="select-none cursor-pointer rounded-lg border-2
             py-2 px-2.5 font-small text-xs  transition-colors duration-200 ease-in-out"
 	>

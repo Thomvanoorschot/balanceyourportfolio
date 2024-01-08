@@ -26,7 +26,7 @@
 </script>
 
 <SearchBar theme="{theme}" placeholder="Search for funds" on:inputChanged={search} bind:value>
-	<ul id="searchResults" class="absolute top-12 left-0 right-0 w-full">
+	<ul class="absolute top-12 left-0 right-0 w-full">
 		{#each funds || [] as fund}
 			<Result href="/fund/{fund.id}" {fund} />
 		{/each}

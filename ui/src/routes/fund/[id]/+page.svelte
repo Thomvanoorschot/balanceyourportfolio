@@ -35,7 +35,8 @@
 	let showAddToPortfolioModal: boolean = false;
 	let showLoginOrRegisterModal: boolean = false;
 	let isAuthenticated: boolean = false;
-	$: ({ sectors, fundInformation, fundSectorWeightings, holdings, isAuthenticated } = data);
+	let isMobile: boolean = false;
+	$: ({ sectors, fundInformation, fundSectorWeightings, holdings, isAuthenticated, isMobile } = data);
 
 	const updateNextPage = () => {
 		return ({ result }: { result: ActionResult }) => {
@@ -98,6 +99,7 @@
 			expanded = true;
 		}
 	}
+
 </script>
 
 {#if showAddToPortfolioModal}
@@ -172,7 +174,6 @@
 			</form>
 		</div>
 	</div>
-
 	<!-- PC -->
 	<div class="hidden items-start w-full gap-2 lg:flex lg:visible">
 		<div class="sticky top-0 p-5">
@@ -224,3 +225,4 @@
 		</div>
 	</div>
 {/if}
+
