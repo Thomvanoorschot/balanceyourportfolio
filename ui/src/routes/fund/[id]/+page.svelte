@@ -115,10 +115,12 @@
 	<div class="lg:hidden flex flex-col gap-2 p-2">
 		<ColoredBarChart>
 			{#each fundSectorWeightings as fws, fswIndex}
-				<ColoredBar title={fws.sectorName} percentage={fws.percentage}>
+				<ColoredBar
+					width="{Math.round((fws.percentage / fundSectorWeightings[0].percentage) * 100)}"
+					title={fws.sectorName}
+					percentage={fws.percentage}
+				>
 					<ColoredBarEntry
-						roundedLeft={true}
-						roundedRight={true}
 						color="#f582ae"
 						width={Math.round((fws.percentage / fundSectorWeightings[0].percentage) * 100)}
 					/>
@@ -175,8 +177,8 @@
 		</div>
 	</div>
 	<!-- PC -->
-	<div class="hidden items-start w-full gap-2 lg:flex lg:visible">
-		<div class="sticky top-0 p-5">
+	<div class="hidden w-full gap-2 lg:flex lg:visible p-5">
+		<div class="sticky top-0">
 			<DetailMenu>
 				<SearchBar
 					placeholder="Company name or ticker"
@@ -192,13 +194,19 @@
 				/>
 			</DetailMenu>
 		</div>
-		<div class="flex flex-col flex-grow gap-5 p-5">
+		<div class="flex flex-col flex-grow gap-5">
+			<TertiaryContainer>
+				<h1 class="text-l">{fundInformation.name}</h1>
+			</TertiaryContainer>
+
 			<ColoredBarChart>
 				{#each fundSectorWeightings as fws, fswIndex}
-					<ColoredBar title={fws.sectorName} percentage={fws.percentage}>
+					<ColoredBar
+						width="{Math.round((fws.percentage / fundSectorWeightings[0].percentage) * 100)}"
+						title={fws.sectorName}
+						percentage={fws.percentage}
+					>
 						<ColoredBarEntry
-							roundedLeft={true}
-							roundedRight={true}
 							color="#f582ae"
 							width={Math.round((fws.percentage / fundSectorWeightings[0].percentage) * 100)}
 						/>

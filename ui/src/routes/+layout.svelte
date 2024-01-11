@@ -86,7 +86,7 @@
 				<!-- Search input -->
 				<FundSearchBar theme="secondary" />
 				<div class="flex gap-5 justify-end pr-5">
-					<ThemeSelector />
+<!--					<ThemeSelector />-->
 					<TopMenu {profilePictureURL} />
 				</div>
 			</div>

@@ -4,7 +4,7 @@
 
 	export let title: string;
 	export let percentage: number;
-
+	export let width: number;
 	let count = 0;
 
 	onNavigate(() => {
@@ -22,27 +22,30 @@
 		<div class="w-full flex">
 			<div
 				aria-hidden="true"
-				class="flex resizableElement hover:opacity-80 transition-opacity"
+				class="flex w-full resizableElement hover:opacity-80 transition-opacity"
 				on:click={() => dispatch('onBarClicked', title)}
 			>
-				<slot />
+				<div class="flex h-full w-full rounded-md overflow-hidden" style=" width: {`${width}%`}">
+					<slot />
+				</div>
+				<div class="bg-none flex-grow"></div>
 			</div>
 		</div>
 	</div>
 {/key}
 
 <style>
-	@keyframes changeWidth {
-		0% {
-			width: 0;
-		}
-		100% {
-			width: 100%;
-		}
-	}
+    @keyframes changeWidth {
+        0% {
+            width: 0;
+        }
+        100% {
+            width: 100%;
+        }
+    }
 
-	.resizableElement {
-		will-change: transform;
-		animation: changeWidth 1s ease-in-out forwards;
-	}
+    .resizableElement {
+        will-change: transform;
+        animation: changeWidth 1s ease-in-out forwards;
+    }
 </style>

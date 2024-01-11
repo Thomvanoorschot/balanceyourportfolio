@@ -17,8 +17,8 @@
 				'text-tertiary',
 				'peer-checked:bg-secondary',
 				'peer-checked:border-quaternary',
-				'peer-hover:bg-quaternary',
-				'peer-hover:border-quaternary',
+				'lg:peer-hover:bg-quaternary',
+				'lg:peer-hover:border-quaternary',
 				'peer-checked:text-tertiary',
 			)
 		} else if (theme === 'tertiary') {

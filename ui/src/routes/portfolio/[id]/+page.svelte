@@ -2,7 +2,6 @@
 	import type { PageData } from './$types';
 	import type { PortfolioSectorWeighting } from '$lib/portfolio';
 	import FundColors from '$lib/portfolios/FundColors.svelte';
-	import type { FundInformation__Output } from '$lib/proto/proto/FundInformation';
 	import type { Holding } from '$lib/holding';
 	import type { ActionResult } from '@sveltejs/kit';
 	import { enhance } from '$app/forms';
@@ -17,19 +16,20 @@
 	import ColoredBar from '$lib/chart/ColoredBar.svelte';
 	import ColoredBarEntry from '$lib/chart/ColoredBarEntry.svelte';
 	import DetailMenu from '$lib/menu/DetailMenu.svelte';
+	import TertiaryContainer from '$lib/shared/TertiaryContainer.svelte';
+	import MenuIcon from '$lib/icons/MenuIcon.svelte';
 
 	export let data: PageData;
 	let colorMap: Map<string, { fundName: string; color: string }> | undefined;
 	let error: string | undefined;
 	let sectors: string[] | undefined;
-	let fundInformation: FundInformation__Output[] | undefined;
 	let portfolioFundSectorWeightings: PortfolioSectorWeighting[] | undefined;
 	let holdings: Holding[] | undefined = [];
 	let fundsForm: HTMLFormElement;
 	let searchTerm: string;
 	let resetSearch: boolean;
 	let selectedSectors: string[] = [];
-	$: ({ sectors, fundInformation, portfolioFundSectorWeightings, colorMap, holdings } = data);
+	$: ({ sectors, portfolioFundSectorWeightings, colorMap, holdings } = data);
 
 	const updateNextPage = () => {
 		return ({ result }: { result: ActionResult }) => {
@@ -50,7 +50,7 @@
 		fundsForm.requestSubmit();
 	}
 
-	const filterHoldings = debounce(async function () {
+	const filterHoldings = debounce(async function() {
 		resetSearch = true;
 		fundsForm.requestSubmit();
 	}, 200);
@@ -72,10 +72,97 @@
 		resetSearch = true;
 		fundsForm.requestSubmit();
 	};
+	let expanded: boolean = false;
+	let elem: HTMLDivElement;
+
+	function growDiv() {
+		if (expanded) {
+			elem.style.height = '0';
+			expanded = false;
+		} else {
+			const wrapper = document.querySelector('.measuringWrapper');
+			elem.style.height = wrapper?.clientHeight + 'px';
+			expanded = true;
+		}
+	}
 </script>
 
 {#if !error && sectors && colorMap && portfolioFundSectorWeightings && holdings}
-	<div class="flex flex-grow items-start justify-between w-full gap-5 p-5">
+	<!-- Mobile -->
+	<div class="lg:hidden flex flex-col gap-2 p-2">
+		<div class="sticky top-2 z-10">
+			<TertiaryContainer>
+				<FundColors {colorMap} />
+			</TertiaryContainer>
+		</div>
+		<ColoredBarChart>
+			{#each portfolioFundSectorWeightings as pfsw}
+				<ColoredBar title={pfsw.sectorName} percentage={pfsw.weighting.totalPercentage}>
+					{#each pfsw.weighting.fundSectorWeighting as fsw, fswIndex}
+						<ColoredBarEntry
+							color={colorMap.get(fsw.fundId)?.color || ''}
+							width={
+									Math.round(
+										(fsw.percentage / portfolioFundSectorWeightings[0].weighting.totalPercentage) *
+											100
+									)}
+						/>
+					{/each}
+				</ColoredBar>
+			{/each}
+		</ColoredBarChart>
+		<TertiaryContainer on:containerClicked={() => growDiv()}>
+			<div>
+				<div>
+					<div class="flex items-center">
+						<MenuIcon fillColor="fill-primary"></MenuIcon>
+						<h1 class="align-middle">Filters</h1>
+					</div>
+					<div
+						bind:this={elem}
+						class="h-0 transition-all ease-in-out duration-1000 overflow-hidden">
+						<div class="flex flex-col gap-5 measuringWrapper">
+							<SearchBar
+								placeholder="Company name or ticker"
+								on:inputChanged={filterHoldings}
+								bind:value={searchTerm}
+								theme="primary"
+							/>
+							<CheckButtonList
+								theme="primary"
+								title="Sectors"
+								list={sectors}
+								on:checkButtonClicked={updateSelectedSectors}
+							/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</TertiaryContainer>
+		<div class="flex flex-col flex-grow gap-5">
+			<form
+				method="POST"
+				action="?/filterHoldings"
+				bind:this={fundsForm}
+				use:enhance={({ formData }) => {
+					setFilterForm(formData);
+					return updateNextPage();
+				}}
+			>
+				<List on:endOfPageReached={submitNextPage}>
+					{#each holdings as holding}
+						<ListItem>
+							<HoldingLineItem {holding} />
+							<ColoredHoldingsBar {holding} {colorMap} />
+						</ListItem>
+					{/each}
+				</List>
+			</form>
+		</div>
+	</div>
+
+	<!-- PC -->
+	<div class="hidden w-full gap-2 lg:flex lg:visible p-5">
 		<div class="sticky top-0">
 			<DetailMenu>
 				<SearchBar
@@ -95,19 +182,21 @@
 		<div class="flex flex-col flex-grow gap-5">
 			<ColoredBarChart>
 				{#each portfolioFundSectorWeightings as pfsw}
-					<ColoredBar title={pfsw.sectorName} percentage={pfsw.weighting.totalPercentage}>
+					<ColoredBar
+						width="{Math.round((pfsw.weighting.totalPercentage / portfolioFundSectorWeightings[0].weighting.totalPercentage) * 100)}"
+
+						title={pfsw.sectorName}
+						percentage={pfsw.weighting.totalPercentage}
+					>
 						{#each pfsw.weighting.fundSectorWeighting as fsw, fswIndex}
 							<ColoredBarEntry
-								roundedLeft={fswIndex === 0}
-								roundedRight={fswIndex === pfsw.weighting.fundSectorWeighting.length - 1}
 								color={colorMap.get(fsw.fundId)?.color || ''}
-								width={Math.max(
+								width={
 									Math.round(
 										(fsw.percentage / portfolioFundSectorWeightings[0].weighting.totalPercentage) *
 											100
-									),
-									0.01
-								)}
+									)
+								}
 							/>
 						{/each}
 					</ColoredBar>

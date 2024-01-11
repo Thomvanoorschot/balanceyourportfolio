@@ -8,7 +8,7 @@
 <li>
 	<a
 		{href}
-		class="z-10 relative bg-primary border-2 border-tertiary rounded-xl flex items-center m-0.5 p-2 hover:drop-shadow-md hover:bg-quaternary"
+		class="z-20 relative bg-primary border-2 border-tertiary rounded-xl flex items-center m-0.5 p-2 hover:drop-shadow-md hover:bg-quaternary"
 	>
 		<div>
 			<div class="font-medium text-sm text-tertiary">{fund.name}</div>

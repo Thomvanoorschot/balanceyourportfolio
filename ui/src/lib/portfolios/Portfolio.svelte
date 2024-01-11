@@ -99,7 +99,7 @@
 			</TableRow>
 		{/each}
 	</Table>
-	<div class="flex">
+	<div class="lg:flex">
 		{#if portfolio.id}
 			<div class="w-full p-2">
 				<PrimaryButton on:buttonClicked={() => goto(`/portfolio/${portfolio.id}`)}>

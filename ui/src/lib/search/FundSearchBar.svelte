@@ -8,9 +8,9 @@
 
 	let searchForm: HTMLFormElement;
 	export let value: string | undefined = '';
-	export let theme: themeType | undefined = undefined
+	export let theme: themeType | undefined = undefined;
 
-	const search = debounce(async function () {
+	const search = debounce(async function() {
 		const resp = await fetch('/api/search-funds', {
 			method: 'POST',
 			body: JSON.stringify({
@@ -25,10 +25,12 @@
 	}, 200);
 </script>
 
-<SearchBar theme="{theme}" placeholder="Search for funds" on:inputChanged={search} bind:value>
-	<ul class="absolute top-12 left-0 right-0 w-full">
-		{#each funds || [] as fund}
-			<Result href="/fund/{fund.id}" {fund} />
-		{/each}
-	</ul>
-</SearchBar>
+<div class="lg:relative w-full">
+	<SearchBar theme="{theme}" placeholder="Search for funds" on:inputChanged={search} bind:value>
+		<ul class="absolute top-12 left-0 right-0 w-full">
+			{#each funds || [] as fund}
+				<Result href="/fund/{fund.id}" {fund} />
+			{/each}
+		</ul>
+	</SearchBar>
+</div>

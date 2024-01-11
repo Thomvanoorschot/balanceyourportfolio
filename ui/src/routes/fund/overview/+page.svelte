@@ -52,7 +52,6 @@
 				placeholder="Fund name or ticker"
 				on:inputChanged={filterFunds}
 				bind:value={searchTerm}
-				inPrimary={false}
 			/>
 			<CheckButtonList title="Providers" list={providers} on:checkButtonClicked={() => {}} />
 		</DetailMenu>
