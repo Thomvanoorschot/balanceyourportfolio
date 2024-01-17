@@ -36,7 +36,8 @@
 	let showLoginOrRegisterModal: boolean = false;
 	let isAuthenticated: boolean = false;
 	let isMobile: boolean = false;
-	$: ({ sectors, fundInformation, fundSectorWeightings, holdings, isAuthenticated, isMobile } = data);
+	$: ({ sectors, fundInformation, fundSectorWeightings, holdings, isAuthenticated, isMobile } =
+		data);
 
 	const updateNextPage = () => {
 		return ({ result }: { result: ActionResult }) => {
@@ -57,7 +58,7 @@
 		fundsForm.requestSubmit();
 	}
 
-	const filterHoldings = debounce(async function() {
+	const filterHoldings = debounce(async function () {
 		resetSearch = true;
 		fundsForm.requestSubmit();
 	}, 200);
@@ -99,7 +100,6 @@
 			expanded = true;
 		}
 	}
-
 </script>
 
 {#if showAddToPortfolioModal}
@@ -116,14 +116,11 @@
 		<ColoredBarChart>
 			{#each fundSectorWeightings as fws, fswIndex}
 				<ColoredBar
-					width="{Math.round((fws.percentage / fundSectorWeightings[0].percentage) * 100)}"
+					width={Math.round((fws.percentage / fundSectorWeightings[0].percentage) * 100)}
 					title={fws.sectorName}
 					percentage={fws.percentage}
 				>
-					<ColoredBarEntry
-						color="#f582ae"
-						width={Math.round((fws.percentage / fundSectorWeightings[0].percentage) * 100)}
-					/>
+					<ColoredBarEntry color="#f582ae" width={100} />
 				</ColoredBar>
 			{/each}
 		</ColoredBarChart>
@@ -131,12 +128,13 @@
 			<div>
 				<div>
 					<div class="flex items-center">
-						<MenuIcon fillColor="fill-primary"></MenuIcon>
+						<MenuIcon fillColor="fill-primary" />
 						<h1 class="text-l">{fundInformation.name}</h1>
 					</div>
 					<div
 						bind:this={elem}
-						class="h-0 transition-all ease-in-out duration-1000 overflow-hidden">
+						class="h-0 transition-all ease-in-out duration-1000 overflow-hidden"
+					>
 						<div class="flex flex-col gap-5 measuringWrapper">
 							<SearchBar
 								placeholder="Company name or ticker"
@@ -150,7 +148,9 @@
 								list={sectors}
 								on:checkButtonClicked={updateSelectedSectorsFromEvent}
 							/>
-							<PrimaryButton on:buttonClicked={handleAddToPortfolioClicked}>Add to portfolio</PrimaryButton>
+							<PrimaryButton on:buttonClicked={handleAddToPortfolioClicked}
+								>Add to portfolio</PrimaryButton
+							>
 						</div>
 					</div>
 				</div>
@@ -179,6 +179,7 @@
 	<!-- PC -->
 	<div class="hidden w-full gap-2 lg:flex lg:visible p-5">
 		<div class="sticky top-0">
+			<div>Hello</div>
 			<DetailMenu>
 				<SearchBar
 					placeholder="Company name or ticker"
@@ -202,14 +203,11 @@
 			<ColoredBarChart>
 				{#each fundSectorWeightings as fws, fswIndex}
 					<ColoredBar
-						width="{Math.round((fws.percentage / fundSectorWeightings[0].percentage) * 100)}"
+						width={Math.round((fws.percentage / fundSectorWeightings[0].percentage) * 100)}
 						title={fws.sectorName}
 						percentage={fws.percentage}
 					>
-						<ColoredBarEntry
-							color="#f582ae"
-							width={Math.round((fws.percentage / fundSectorWeightings[0].percentage) * 100)}
-						/>
+						<ColoredBarEntry color="#f582ae" width={100} />
 					</ColoredBar>
 				{/each}
 			</ColoredBarChart>
@@ -233,4 +231,3 @@
 		</div>
 	</div>
 {/if}
-

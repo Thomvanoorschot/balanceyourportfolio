@@ -1,9 +1,5 @@
 package vanguard
 
-import (
-	"etfinsight/services/fund"
-)
-
 type FundsResponse struct {
 	Data FundsData `json:"data"`
 }
@@ -35,16 +31,16 @@ type Identifier struct {
 }
 
 type HoldingsItem struct {
-	Ticker           string             `json:"ticker"`
-	IssueTypename    fund.IssueTypeName `json:"issueTypeName"`
-	NumberOfShares   float64            `json:"numberOfShares"`
-	MarketValPercent float64            `json:"marketValPercent"`
-	MarketValue      float64            `json:"marketValue"`
-	Name             string             `json:"name"`
-	SectorName       string             `json:"sectorName"`
-	SEDOL            *string            `json:"sedol"`
-	CUSIP            *string            `json:"CUSIP"`
-	CountryCode      string             `json:"countryCode"`
+	Ticker           string  `json:"ticker"`
+	IssueTypename    string  `json:"issueTypeName"`
+	NumberOfShares   float64 `json:"numberOfShares"`
+	MarketValPercent float64 `json:"marketValPercent"`
+	MarketValue      float64 `json:"marketValue"`
+	Name             string  `json:"name"`
+	SectorName       string  `json:"sectorName"`
+	SEDOL            *string `json:"sedol"`
+	CUSIP            *string `json:"CUSIP"`
+	CountryCode      string  `json:"countryCode"`
 }
 
 type OriginalHoldings struct {

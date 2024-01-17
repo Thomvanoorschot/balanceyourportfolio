@@ -10,14 +10,14 @@ import (
 
 type Holdings []Holding
 type Holding struct {
-	Id                string        `db:"holding.id"`
-	Ticker            string        `db:"holding.ticker"`
-	Name              string        `db:"holding.name"`
-	Type              IssueTypeName `db:"holding.type"`
-	Sector            SectorName    `db:"holding.sector"`
-	Amount            float64       `db:"fund_holding.amount"`
-	PercentageOfTotal float64       `db:"fund_holding.percentage_of_total"`
-	MarketValue       float64       `db:"fund_holding.market_value"`
+	Id                string      `db:"holding.id"`
+	Ticker            string      `db:"holding.ticker"`
+	Name              string      `db:"holding.name"`
+	Type              HoldingType `db:"holding.type"`
+	Sector            SectorName  `db:"holding.sector"`
+	Amount            float64     `db:"fund_holding.amount"`
+	PercentageOfTotal float64     `db:"fund_holding.percentage_of_total"`
+	MarketValue       float64     `db:"fund_holding.market_value"`
 }
 
 type Funds []Fund
@@ -37,13 +37,19 @@ type Information struct {
 	EffectiveDate     time.Time `db:"fund.effective_date"`
 }
 
-type IssueTypeName string
+type HoldingType string
 
 const (
-	Currency         IssueTypeName = "Currency"
-	CommonStock      IssueTypeName = "Common Stock"
-	ForwardContracts IssueTypeName = "Forward Contracts"
-	Unknown          IssueTypeName = "Unknown"
+	CashType          HoldingType = "Cash"
+	Stocks            HoldingType = "Stocks"
+	UnknownType       HoldingType = "Unknown"
+	BondsType         HoldingType = "Bonds"
+	MoneyMarketType   HoldingType = "Money Market"
+	TreasuryType      HoldingType = "Treasuries"
+	ClosedEndFundType HoldingType = "Closed End Fund"
+	FuturesType       HoldingType = "Futures"
+	NotesType         HoldingType = "Notes"
+	MutualFundType    HoldingType = "Mutual Fund"
 )
 
 type EffectiveShare struct {

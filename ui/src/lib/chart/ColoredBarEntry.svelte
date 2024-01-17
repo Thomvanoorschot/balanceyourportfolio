@@ -4,6 +4,6 @@
 </script>
 
 <div
-	class="h-3 lg:h-4 w-full"
-	style=" background-color: {color}"
+	class="h-3 lg:h-4"
+	style=" background-color: {color}; width: {`${width}%`}"
 />

@@ -1,11 +1,10 @@
 package ishares
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"etfinsight/generated/jet_gen/postgres/public/model"
 	"etfinsight/services/fund"
+	"fmt"
 )
 
 type Service struct {
@@ -18,14 +17,9 @@ func NewService(client EtfIssuerClient, repo Repository) *Service {
 }
 
 func (s *Service) UpsertFunds(ctx context.Context) error {
-	fundingBytes, err := s.client.GetFunds()
-	if err != nil {
-		return err
-	}
-	fundingBytes = bytes.TrimPrefix(fundingBytes, []byte("\xef\xbb\xbf"))
-
-	holdingsResponse := HoldingsResponse{}
-	err = json.Unmarshal(fundingBytes, &holdingsResponse)
+	f, err := s.client.GetFunds()
+	fmt.Println(f)
+	//holdingsResponse, err := s.client.GetHoldings()
 	if err != nil {
 		return err
 	}
@@ -35,11 +29,11 @@ func (s *Service) UpsertFunds(ctx context.Context) error {
 	}
 	defer s.repo.RollBack(tx, ctx)
 
-	var holdings []model.Holding
-	for _, entry := range holdingsResponse.AaData {
-		h := convertToHoldings(entry)
-		holdings = append(holdings, h)
-	}
+	//var holdings []model.Holding
+	//for _, entry := range holdingsResponse.AaData {
+	//	h := convertToHoldings(entry)
+	//	holdings = append(holdings, h)
+	//}
 	//_, err = s.repo.UpsertHoldings(ctx, holdings, tx)
 	//if err != nil {
 	//	return err
@@ -47,8 +41,6 @@ func (s *Service) UpsertFunds(ctx context.Context) error {
 	return nil
 	//return tx.Commit(ctx)
 }
-
-var test = map[string]struct{}{}
 
 func convertToHoldings(entry []interface{}) model.Holding {
 
@@ -61,23 +53,27 @@ func convertToHoldings(entry []interface{}) model.Holding {
 	if !ok {
 		sector = fund.UnknownSector
 	}
+	holdingType, ok := typeMap[hType]
+	if !ok {
+		holdingType = fund.UnknownType
+	}
 	sectorStr := string(sector)
-	test[hType] = struct{}{}
+	typeStr := string(holdingType)
 	return model.Holding{
 		Ticker: &ticker,
-		Type:   &hType,
+		Type:   &typeStr,
 		Isin:   &isin,
 		Sector: &sectorStr,
 	}
 }
 
-// TODO Fix Types
-// Equity
-// Cash
-// Money Market
-// Cash Collateral and Margins
-// Futures
-var typeMap = map[string]fund.IssueTypeName{}
+var typeMap = map[string]fund.HoldingType{
+	"Equity":                      fund.Stocks,
+	"Cash":                        fund.CashType,
+	"Money Market":                fund.MoneyMarketType,
+	"Cash Collateral and Margins": fund.CashType,
+	"Futures":                     fund.FuturesType,
+}
 
 var sectorMap = map[string]fund.SectorName{
 	"Financials":              fund.FinancialsSector,

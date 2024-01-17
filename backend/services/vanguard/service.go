@@ -209,44 +209,22 @@ func convertToHoldings(HoldingItems []HoldingsItem) ([]model.Holding, map[string
 		if !ok {
 			sector = fund.UnknownSector
 		}
-		if hi.IssueTypename == fund.Currency {
-			hi.Ticker = hi.Name
-			sector = fund.CashSector
+		holdingType, ok := typeMap[hi.IssueTypename]
+		if !ok {
+			holdingType = fund.UnknownType
 		}
 
-		switch hi.IssueTypename {
-		case "Government Bond":
+		switch holdingType {
+		case fund.BondsType:
 			sector = fund.BondsSector
-		case "Corporate Bond":
-			{
-				sector = fund.BondsSector
-				if hi.Ticker != "" {
-					hi.Ticker = fmt.Sprintf("%s - Bond", hi.Ticker)
-				}
+			if hi.Ticker != "" {
+				hi.Ticker = fmt.Sprintf("%s - Bond", hi.Ticker)
 			}
-		case "Installment Bonds":
-			{
-				sector = fund.BondsSector
-				if hi.Ticker != "" {
-					hi.Ticker = fmt.Sprintf("%s - Bond", hi.Ticker)
-				}
-			}
-		case "Treasury Bond":
-			{
-				sector = fund.BondsSector
-				if hi.Ticker != "" {
-					hi.Ticker = fmt.Sprintf("%s - Bond", hi.Ticker)
-				}
-			}
-		case "Bonds":
-			{
-				sector = fund.BondsSector
-				if hi.Ticker != "" {
-					hi.Ticker = fmt.Sprintf("%s - Bond", hi.Ticker)
-				}
-			}
-		case "Treasury Note":
+		case fund.NotesType:
 			sector = fund.NotesSector
+		case fund.CashType:
+			sector = fund.CashSector
+			hi.Ticker = hi.Name
 		}
 
 		if hi.Ticker == "" {
@@ -255,17 +233,16 @@ func convertToHoldings(HoldingItems []HoldingsItem) ([]model.Holding, map[string
 			hi.Name = "Unknown company"
 			hi.SEDOL = &str
 			hi.CUSIP = &str
-			hi.IssueTypename = fund.Unknown
+			holdingType = fund.UnknownType
 			sector = fund.UnknownSector
 		}
-
 		ticker := hi.Ticker
 		name := hi.Name
 		SEDOL := hi.SEDOL
 		CUSIP := hi.CUSIP
 
 		sectorString := string(sector)
-		issueTypeName := string(hi.IssueTypename)
+		issueTypeName := string(holdingType)
 		holding := model.Holding{
 			Ticker: &ticker,
 			Type:   &issueTypeName,
@@ -299,6 +276,37 @@ func convertToHoldings(HoldingItems []HoldingsItem) ([]model.Holding, map[string
 		holdings = append(holdings, holding)
 	}
 	return holdings, fundHoldingsMap
+}
+
+var typeMap = map[string]fund.HoldingType{
+	"Limited Partnership":         fund.UnknownType,
+	"Bonds":                       fund.BondsType,
+	"Equity":                      fund.Stocks,
+	"Cash":                        fund.CashType,
+	"Unknown":                     fund.UnknownType,
+	"Money Market":                fund.MoneyMarketType,
+	"Treasury Bill":               fund.TreasuryType,
+	"Government Bond":             fund.BondsType,
+	"Closed End Funds":            fund.ClosedEndFundType,
+	"Cash Collateral and Margins": fund.CashType,
+	"Subscription Rights":         fund.UnknownType,
+	"Financial Futures":           fund.FuturesType,
+	"Commercial Paper":            fund.BondsType,
+	"Warrants":                    fund.BondsType,
+	"Municipal Instrument":        fund.BondsType,
+	"Asset Backed Security":       fund.UnknownType,
+	"Currency":                    fund.CashType,
+	"Installment Bonds":           fund.BondsType,
+	"Common Stock":                fund.Stocks,
+	"Futures":                     fund.FuturesType,
+	"Index Future":                fund.FuturesType,
+	"Treasury Note":               fund.NotesType,
+	"Preferred Stock":             fund.Stocks,
+	"Mortgage Backed Security":    fund.UnknownType,
+	"Treasury Bond":               fund.BondsType,
+	"Other Equity":                fund.UnknownType,
+	"Corporate Bond":              fund.BondsType,
+	"Mutual Fund":                 fund.MutualFundType,
 }
 
 var sectorMap = map[string]fund.SectorName{

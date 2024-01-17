@@ -97,15 +97,20 @@
 		</div>
 		<ColoredBarChart>
 			{#each portfolioFundSectorWeightings as pfsw}
-				<ColoredBar title={pfsw.sectorName} percentage={pfsw.weighting.totalPercentage}>
+				<ColoredBar
+					width="{Math.round((pfsw.weighting.totalPercentage / portfolioFundSectorWeightings[0].weighting.totalPercentage) * 100)}"
+					title={pfsw.sectorName}
+					percentage={pfsw.weighting.totalPercentage}
+				>
 					{#each pfsw.weighting.fundSectorWeighting as fsw, fswIndex}
 						<ColoredBarEntry
 							color={colorMap.get(fsw.fundId)?.color || ''}
 							width={
 									Math.round(
-										(fsw.percentage / portfolioFundSectorWeightings[0].weighting.totalPercentage) *
+										(fsw.percentage /  pfsw.weighting.fundSectorWeighting[0].percentage) *
 											100
-									)}
+									)
+								}
 						/>
 					{/each}
 				</ColoredBar>
@@ -184,7 +189,6 @@
 				{#each portfolioFundSectorWeightings as pfsw}
 					<ColoredBar
 						width="{Math.round((pfsw.weighting.totalPercentage / portfolioFundSectorWeightings[0].weighting.totalPercentage) * 100)}"
-
 						title={pfsw.sectorName}
 						percentage={pfsw.weighting.totalPercentage}
 					>
@@ -193,7 +197,7 @@
 								color={colorMap.get(fsw.fundId)?.color || ''}
 								width={
 									Math.round(
-										(fsw.percentage / portfolioFundSectorWeightings[0].weighting.totalPercentage) *
+										(fsw.percentage /  pfsw.weighting.fundSectorWeighting[0].percentage) *
 											100
 									)
 								}

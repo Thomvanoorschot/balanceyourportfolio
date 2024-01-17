@@ -1,5 +1,6 @@
 package ishares
 
 type EtfIssuerClient interface {
-	GetFunds() ([]byte, error)
+	GetFunds() ([]FundResponse, error)
+	GetHoldings(url string) (HoldingsResponse, error)
 }
