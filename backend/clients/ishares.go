@@ -27,12 +27,9 @@ func NewIShares(cfg *config.Config) *IShares {
 	return &IShares{url: cfg.ISharesUrl, client: &http.Client{}}
 }
 
-const (
-	productId   = "253743"
-	productName = "ishares-sp-500-b-ucits-etf-acc-fund"
-)
+var tickerISINs = map[string]string{}
 
-func (v *IShares) GetFunds() (resp []ishares.FundResponse, err error) {
+func (v *IShares) GetFunds(limit, offset int) (resp []ishares.FundResponse, err error) {
 	c := colly.NewCollector(
 		colly.AllowedDomains(strings.ReplaceAll(v.url, "https://", "")),
 		colly.Async(true),
@@ -48,7 +45,13 @@ func (v *IShares) GetFunds() (resp []ishares.FundResponse, err error) {
 			return
 		}
 		fundUrlMatches := fundUrlRegex.FindAllStringSubmatch(request.Text, -1)
-		for _, m := range fundUrlMatches {
+		for i, m := range fundUrlMatches {
+			if i < offset {
+				continue
+			}
+			if i > offset+limit {
+				return
+			}
 			fundUrl := fmt.Sprintf("%s%s", v.url, m[1])
 			hasVisitedFund, err := c.HasVisited(fundUrl)
 			if err != nil {
@@ -69,7 +72,9 @@ func (v *IShares) GetFunds() (resp []ishares.FundResponse, err error) {
 	c.OnHTML("h1.product-title", func(e *colly.HTMLElement) {
 		fundResponse, ok := fundIdentifierMap[e.Request.URL.Path]
 		if !ok {
-			fundResponse = &ishares.FundResponse{}
+			fundResponse = &ishares.FundResponse{
+				HoldingsTableIndex: map[string]int{},
+			}
 			fundIdentifierMap[e.Request.URL.Path] = fundResponse
 		}
 
@@ -85,7 +90,9 @@ func (v *IShares) GetFunds() (resp []ishares.FundResponse, err error) {
 	c.OnHTML("select.date-dropdown", func(e *colly.HTMLElement) {
 		fundResponse, ok := fundIdentifierMap[e.Request.URL.Path]
 		if !ok {
-			fundResponse = &ishares.FundResponse{}
+			fundResponse = &ishares.FundResponse{
+				HoldingsTableIndex: map[string]int{},
+			}
 			fundIdentifierMap[e.Request.URL.Path] = fundResponse
 		}
 		dateStr := e.ChildAttr("option", "value")
@@ -111,7 +118,9 @@ func (v *IShares) GetFunds() (resp []ishares.FundResponse, err error) {
 			price := splitCurrencyPrice[1]
 			fundResponse, ok := fundIdentifierMap[e.Request.URL.Path]
 			if !ok {
-				fundResponse = &ishares.FundResponse{}
+				fundResponse = &ishares.FundResponse{
+					HoldingsTableIndex: map[string]int{},
+				}
 				fundIdentifierMap[e.Request.URL.Path] = fundResponse
 			}
 			fundResponse.Currency = currency
@@ -123,6 +132,35 @@ func (v *IShares) GetFunds() (resp []ishares.FundResponse, err error) {
 			fundResponse.Price = priceFloat
 		}
 	})
+	c.OnHTML("p.identifier", func(e *colly.HTMLElement) {
+		fundResponse, ok := fundIdentifierMap[e.Request.URL.Path]
+		if !ok {
+			fundResponse = &ishares.FundResponse{
+				HoldingsTableIndex: map[string]int{},
+			}
+			fundIdentifierMap[e.Request.URL.Path] = fundResponse
+		}
+		ticker := strings.ReplaceAll(e.Text, "\n", "")
+		fundResponse.Ticker = ticker
+	})
+	c.OnHTML("td.colTicker", func(e *colly.HTMLElement) {
+		fundResponse, ok := fundIdentifierMap[e.Request.URL.Path]
+		if !ok {
+			fundResponse = &ishares.FundResponse{
+				HoldingsTableIndex: map[string]int{},
+			}
+			fundIdentifierMap[e.Request.URL.Path] = fundResponse
+		}
+		ticker := strings.ReplaceAll(e.Text, "\n", "")
+		if ticker != "Ticker" {
+			for _, mappedTicker := range fundResponse.Tickers {
+				if mappedTicker == ticker {
+					return
+				}
+			}
+			fundResponse.Tickers = append(fundResponse.Tickers, ticker)
+		}
+	})
 	c.OnHTML("div.col-totalNetAssetsFundLevel", func(e *colly.HTMLElement) {
 		currencyNetAssets := e.ChildText("span.data")
 		netAssetsFloat, err := strconv.ParseFloat(strings.ReplaceAll(currencyNetAssets[4:], ",", ""), 64)
@@ -132,28 +170,91 @@ func (v *IShares) GetFunds() (resp []ishares.FundResponse, err error) {
 		}
 		fundResponse, ok := fundIdentifierMap[e.Request.URL.Path]
 		if !ok {
-			fundResponse = &ishares.FundResponse{}
+			fundResponse = &ishares.FundResponse{
+				HoldingsTableIndex: map[string]int{},
+			}
 			fundIdentifierMap[e.Request.URL.Path] = fundResponse
 		}
 		fundResponse.NetAssets = netAssetsFloat
 	})
 
+	//var columns := []string{"colTicker", "colIssueName", "colSectorName", "colAssetClass", "colMarketValue", "colHoldingPercent", "colUnitsHeld", "colIsin"}
+
+	c.OnHTML("th.colTicker", listenToCol("colTicker", fundIdentifierMap))
+	c.OnHTML("th.colIssueName", listenToCol("colIssueName", fundIdentifierMap))
+	c.OnHTML("th.colSectorName", listenToCol("colSectorName", fundIdentifierMap))
+	c.OnHTML("th.colAssetClass", listenToCol("colAssetClass", fundIdentifierMap))
+	c.OnHTML("th.colMarketValue", listenToCol("colMarketValue", fundIdentifierMap))
+	c.OnHTML("th.colHoldingPercent", listenToCol("colHoldingPercent", fundIdentifierMap))
+	c.OnHTML("th.colUnitsHeld", listenToCol("colUnitsHeld", fundIdentifierMap))
+	c.OnHTML("th.colIsin", listenToCol("colIsin", fundIdentifierMap))
+	c.OnHTML("th.colParValue", listenToCol("colParValue", fundIdentifierMap))
+
 	err = c.Limit(&colly.LimitRule{
 		DomainGlob:  "*",
-		RandomDelay: 3 * time.Second,
-		Delay:       3 * time.Second,
+		RandomDelay: 1 * time.Second,
+		Delay:       1 * time.Second,
 		Parallelism: 1,
 	})
 	if err != nil {
 		return resp, err
 	}
-
-	err = c.Visit(fmt.Sprintf("%s/uk/professional/en/products/etf-investments?switchLocale=y&siteEntryPassthrough=true", v.url))
+	err = c.Visit(fmt.Sprintf("%s/uk/professional/en/products/etf-investments?switchLocale=y&siteEntryPassthrough=true#/?productView=etf&", v.url))
 	if err != nil {
 		return resp, err
 	}
 	c.Wait()
+	var identifiers []int
+	for _, val := range fundIdentifierMap {
+		intIdentifier, err := strconv.Atoi(val.ExternalIdentifier)
+		if err != nil {
+			fmt.Println(err)
+			return resp, err
+		}
+		identifiers = append(identifiers, intIdentifier)
+	}
+	err = scrapeISINs(identifiers)
+	if err != nil {
+		return resp, err
+	}
+	for _, val := range fundIdentifierMap {
+		isin, ok := tickerISINs[val.Ticker]
+		if ok {
+			val.ISIN = isin
+		}
+		resp = append(resp, *val)
+	}
+
 	return resp, err
+}
+func listenToCol(col string, fundIdentifierMap map[string]*ishares.FundResponse) func(element *colly.HTMLElement) {
+	return func(e *colly.HTMLElement) {
+		tableName, _ := e.DOM.Parent().Parent().Parent().Attr("id")
+		if tableName != "allHoldingsTable" {
+			return
+		}
+		fundResponse, ok := fundIdentifierMap[e.Request.URL.Path]
+		if !ok {
+			fundResponse = &ishares.FundResponse{
+				HoldingsTableIndex: map[string]int{},
+			}
+			fundIdentifierMap[e.Request.URL.Path] = fundResponse
+		}
+		columnIndex, err := regexp.Compile("col(\\d+)")
+		if err != nil {
+			return
+		}
+		fundUrlMatches := columnIndex.FindStringSubmatch(e.Attr("class"))
+		if len(fundUrlMatches) < 2 {
+			return
+		}
+		idx, err := strconv.Atoi(fundUrlMatches[1])
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fundResponse.HoldingsTableIndex[col] = idx - 1
+	}
 }
 func (v *IShares) GetHoldings(url string) (resp ishares.HoldingsResponse, err error) {
 	r, err := v.client.Get(url)
@@ -181,16 +282,29 @@ func (v *IShares) GetHoldings(url string) (resp ishares.HoldingsResponse, err er
 	return holdingsResponse, nil
 }
 
-func scrapeISIN(ticker string) string {
+type OverviewQuery struct {
+	ProductView              string   `json:"productView"`
+	Portfolios               []int    `json:"portfolios"`
+	DataPoints               []string `json:"dataPoints"`
+	DcrPath                  string   `json:"dcrPath"`
+	DisclosureContentDcrPath string   `json:"disclosureContentDcrPath"`
+}
+
+func scrapeISINs(identifiers []int) error {
 	url := "https://www.ishares.com/uk/professional/en/product-screener/product-screener-v3.1.jsn?type=customized-excel"
 
 	// Replace the following with your actual request payload
-	payload := []byte(`{"productView":"all","portfolios":[239726,244049,239458,239763,239774,239619,253743,286083,311863,244050,251882,287737,309035,332655,239710,239708,239623,253742,239454,239566,239456,239451,264659,295689,239600,239500,239565,250989,228471,228472,228522,228523,228524,228634,228691,229050,243850,250990,250991,287647,287648,287649,298006,305353,306174,309085,315973,321412,327286,329827,251726,290619,295863,310017,331356,333156,239637,239572,251900,307527,307528,319355,335098,239665,258441,307241,307243,308634,239714,253741,304353,291299,239463,251795,291401,251715,287340,296771,296772,304347,228444,229526,230288,237602,269666,286433,290634,325695,251850,239627,290846,291392,316039],"dataPoints":["localExchangeTicker","fundName","productType","seriesBaseCurrencyCode","investorClassName","useOfProfits","ter_ocf","totalFundSizeInMillions","totalFundSizeInMillionsAsOf","domicile","isin"],"dcrPath":"/templatedata/config/product-screener-v3/data/en/uk/product-screener/ishares-product-screener-excel-config","disclosureContentDcrPath":"/templatedata/content/article/data/en/one/DEFAULT/product-screener-all-disclaimer"}`)
-
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+	body := OverviewQuery{
+		ProductView:              "etf",
+		Portfolios:               identifiers,
+		DataPoints:               []string{"localExchangeTicker", "isin"},
+		DcrPath:                  "/templatedata/config/product-screener-v3/data/en/uk/product-screener/ishares-product-screener-excel-config",
+		DisclosureContentDcrPath: "/templatedata/content/article/data/en/one/DEFAULT/product-screener-all-disclaimer",
+	}
+	b, err := json.Marshal(body)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 	if err != nil {
-		fmt.Println("Error creating request:", err)
-		return ""
+		return err
 	}
 
 	// Set request headers
@@ -204,26 +318,32 @@ func scrapeISIN(ticker string) string {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println("Error sending request:", err)
-		return ""
+		return err
 	}
 
 	scanner := bufio.NewScanner(resp.Body)
 
-	startCounting := false
 	lineCounter := 0
+	fundLineCounter := 0
+	latestTicker := ""
 	for scanner.Scan() {
 		line := scanner.Text()
-		if startCounting {
+		if lineCounter < 44 {
 			lineCounter++
+			continue
 		}
-		if strings.Contains(line, "MCHI") {
-			fmt.Println(line)
-			startCounting = true
+		if fundLineCounter == 0 {
+			latestTicker = strings.Split(strings.Split(line, ">")[1], "<")[0]
+			fundLineCounter++
+			continue
 		}
-		if lineCounter == 9 {
-			fmt.Println(strings.Split(strings.Split(line, ">")[1], "<")[0])
+		if fundLineCounter == 3 {
+			isin := strings.Split(strings.Split(line, ">")[1], "<")[0]
+			tickerISINs[latestTicker] = isin
+			fundLineCounter = -4
+			continue
 		}
+		fundLineCounter++
 	}
-
+	return nil
 }

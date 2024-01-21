@@ -13,8 +13,6 @@ func (r *Repository) UpsertFundListings(ctx context.Context, s []model.FundListi
 	sql, args := FundListing.
 		INSERT(FundListing.MutableColumns).
 		MODELS(s).
-		ON_CONFLICT(FundListing.Ticker).
-		DO_NOTHING().
 		Sql()
 
 	_, err := tx.Exec(ctx, sql, args...)

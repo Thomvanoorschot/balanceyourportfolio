@@ -7,12 +7,14 @@ type FundResponse struct {
 	Holdings           HoldingsResponse
 	Currency           string
 	ISIN               string
-	TotalHoldings      int64
 	Price              float64
 	ExternalIdentifier string
+	Ticker             string
 	OutstandingShares  float64
 	NetAssets          float64
 	EffectiveDate      time.Time
+	Tickers            []string
+	HoldingsTableIndex map[string]int
 }
 type HoldingsResponse struct {
 	AaData [][]interface{} `json:"aaData"`

@@ -15,22 +15,31 @@ import (
 
 func (r *Repository) FilterFunds(ctx context.Context, filter fund.FundsFilter) (fund.Funds, error) {
 	queryCte := CTE("queryCte")
+	var providerExpression []Expression
+	for _, p := range filter.Providers {
+		providerExpression = append(providerExpression, String(p))
+	}
+	whereExpr := ILike(Fund.Name, filter.SearchTerm).
+		OR(ILike(FundListing.Ticker, filter.SearchTerm).
+			OR(Fund.Isin.EQ(String(filter.SearchTerm))))
+	if len(providerExpression) > 0 {
+		whereExpr = whereExpr.
+			AND(Fund.Provider.IN(providerExpression...))
+	}
 	queryStmt := SELECT(Fund.ID,
 		Fund.Name,
 		Fund.Currency,
 		FundListing.Ticker,
 		Fund.Price.MUL(Fund.OutstandingShares).AS("marketCap"),
 		Fund.Price.MUL(Fund.OutstandingShares).MUL(Currency.ExchangeRate).AS("relativeMarketCap"),
+		Fund.Provider,
 	).
 		FROM(Fund.
 			INNER_JOIN(Currency, Currency.Code.EQ(Fund.Currency)).
 			LEFT_JOIN(FundListing, FundListing.FundID.EQ(Fund.ID)),
 		).
-		WHERE(
-			ILike(Fund.Name, filter.SearchTerm).
-				OR(ILike(FundListing.Ticker, filter.SearchTerm).
-					OR(Fund.Isin.EQ(String(filter.SearchTerm)))),
-		).ORDER_BY(Raw(`"relativeMarketCap"`).DESC())
+		WHERE(whereExpr).
+		ORDER_BY(Raw(`"relativeMarketCap"`).DESC())
 
 	limitCte := CTE("limitCte")
 	limitStmt := SELECT(DISTINCT(StringColumn("fund.id")), Raw(`"relativeMarketCap"`)).
@@ -64,6 +73,7 @@ func (r *Repository) FilterFunds(ctx context.Context, filter fund.FundsFilter) (
 			fundTicker        *string
 			fundMarketCap     float64
 			relativeMarketCap float64
+			provider          string
 		)
 		err := rows.Scan(&fundId,
 			&fundName,
@@ -71,6 +81,7 @@ func (r *Repository) FilterFunds(ctx context.Context, filter fund.FundsFilter) (
 			&fundTicker,
 			&fundMarketCap,
 			&relativeMarketCap,
+			&provider,
 		)
 		if err != nil {
 			return nil, err
@@ -81,6 +92,7 @@ func (r *Repository) FilterFunds(ctx context.Context, filter fund.FundsFilter) (
 				Name:      fundName,
 				Currency:  fundCurrency,
 				MarketCap: fundMarketCap,
+				Provider:  provider,
 			}
 			if fundTicker != nil {
 				newFund.Tickers = append(newFund.Tickers, *fundTicker)

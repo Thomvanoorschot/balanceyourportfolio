@@ -26,6 +26,7 @@ type Fund struct {
 	Name      string    `db:"fund.name"`
 	Currency  string
 	MarketCap float64
+	Provider  string
 	Tickers   []string
 }
 
@@ -50,6 +51,7 @@ const (
 	FuturesType       HoldingType = "Futures"
 	NotesType         HoldingType = "Notes"
 	MutualFundType    HoldingType = "Mutual Fund"
+	FixedIncomeType   HoldingType = "Fixed Income"
 )
 
 type EffectiveShare struct {
@@ -67,26 +69,29 @@ type SectorNames []SectorName
 type SectorName string
 
 const (
-	UnknownSector               SectorName = "Unknown"
-	TechnologySector            SectorName = "Technology"
-	HealthCareSector            SectorName = "HealthCare"
-	FinancialsSector            SectorName = "Financials"
-	RealEstateSector            SectorName = "RealEstate"
-	EnergySector                SectorName = "Energy"
-	MaterialsSector             SectorName = "Materials"
-	ConsumerDiscretionarySector SectorName = "Consumer Discretionary"
-	IndustrialsSector           SectorName = "Industrials"
-	UtilitiesSector             SectorName = "Utilities"
-	ConsumerStaplesSector       SectorName = "Consumer Staples"
-	TelecommunicationSector     SectorName = "Telecommunication"
-	BondsSector                 SectorName = "Bonds"
-	NotesSector                 SectorName = "Notes"
-	CashSector                  SectorName = "Cash"
+	UnknownSector                SectorName = "Unknown"
+	TechnologySector             SectorName = "Technology"
+	HealthCareSector             SectorName = "HealthCare"
+	FinancialsSector             SectorName = "Financials"
+	RealEstateSector             SectorName = "RealEstate"
+	EnergySector                 SectorName = "Energy"
+	MaterialsSector              SectorName = "Materials"
+	ConsumerDiscretionarySector  SectorName = "Consumer Discretionary"
+	ConsumerCyclicalSector       SectorName = "Consumer Cyclical"
+	IndustrialsSector            SectorName = "Industrials"
+	UtilitiesSector              SectorName = "Utilities"
+	ConsumerStaplesSector        SectorName = "Consumer Staples"
+	TelecommunicationSector      SectorName = "Telecommunication"
+	BondsSector                  SectorName = "Bonds"
+	NotesSector                  SectorName = "Notes"
+	CashSector                   SectorName = "Cash"
+	InsuranceSector              SectorName = "Insurance"
+	MortgageBackedSecuritySector SectorName = "Mortgage Backed Security"
 )
 
 type FundsFilter struct {
 	SearchTerm string
-	Provider   string
+	Providers  []string
 	Limit      int64
 	Offset     int64
 }
@@ -128,6 +133,7 @@ func (f Fund) ConvertToResponse() *proto.FilterFundsResponseEntry {
 		Tickers:   f.Tickers,
 		Currency:  f.Currency,
 		MarketCap: f.MarketCap,
+		Provider:  f.Provider,
 	}
 }
 func (h Holdings) ConvertToResponse() []*proto.FundHolding {

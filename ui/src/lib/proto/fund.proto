@@ -54,7 +54,7 @@ message FundHolding {
 //Filter
 message FilterFundsRequest {
   string searchTerm = 1;
-  string provider = 2;
+  repeated string providers = 2;
   int64 limit = 3;
   int64 offset = 4;
 }
@@ -67,4 +67,5 @@ message FilterFundsResponseEntry {
   repeated string tickers = 3;
   double marketCap = 4;
   string currency = 5;
+  string provider = 6;
 }

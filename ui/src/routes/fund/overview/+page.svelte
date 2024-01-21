@@ -13,9 +13,10 @@
 	export let data: PageData;
 	let error: string | undefined;
 	let searchTerm: string = '';
-	let providers: string[] = ['Vanguard'];
+	let providers: string[] = ['Vanguard', 'IShares'];
 	let filterForm: HTMLFormElement;
 	let resetSearch: boolean;
+	let selectedProviders: string[] = [];
 
 	$: ({ funds } = data);
 
@@ -42,6 +43,18 @@
 			? formData.set('fundsLength', '0')
 			: formData.set('fundsLength', funds!.length.toString());
 		formData.set('searchTerm', searchTerm);
+		formData.set('selectedProviders', JSON.stringify(selectedProviders));
+	};
+	const updateSelectedProvidersFromEvent = (clickEvent: CustomEvent<string>) => {
+		if (selectedProviders.some((x) => x === clickEvent.detail)) {
+			selectedProviders = selectedProviders.filter((x) => x !== clickEvent.detail);
+			resetSearch = true;
+			filterForm.requestSubmit();
+			return;
+		}
+		selectedProviders.push(clickEvent.detail);
+		resetSearch = true;
+		filterForm.requestSubmit();
 	};
 </script>
 
@@ -53,7 +66,7 @@
 				on:inputChanged={filterFunds}
 				bind:value={searchTerm}
 			/>
-			<CheckButtonList title="Providers" list={providers} on:checkButtonClicked={() => {}} />
+			<CheckButtonList title="Providers" list={providers} on:checkButtonClicked={updateSelectedProvidersFromEvent} />
 		</DetailMenu>
 		<div class="flex-grow">
 			<form

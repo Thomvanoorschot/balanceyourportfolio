@@ -33,7 +33,7 @@ func (s *Service) GetFundsWithTickers(ctx context.Context, searchTerm string) (*
 func (s *Service) FilterFunds(ctx context.Context, filter *proto.FilterFundsRequest) (*proto.FilterFundsResponse, error) {
 	funds, err := s.repo.FilterFunds(ctx, FundsFilter{
 		SearchTerm: filter.SearchTerm,
-		Provider:   filter.Provider,
+		Providers:  filter.Providers,
 		Limit:      filter.Limit,
 		Offset:     filter.Offset,
 	})

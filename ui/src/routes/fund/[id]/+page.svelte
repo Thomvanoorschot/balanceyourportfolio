@@ -179,7 +179,6 @@
 	<!-- PC -->
 	<div class="hidden w-full gap-2 lg:flex lg:visible p-5">
 		<div class="sticky top-0">
-			<div>Hello</div>
 			<DetailMenu>
 				<SearchBar
 					placeholder="Company name or ticker"

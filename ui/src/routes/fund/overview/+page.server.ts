@@ -12,7 +12,7 @@ export const load = (async ({}) => {
 	// if (searchTerm === ""){
 	//     return json([])
 	// }
-	const req: FilterFundsRequest__Output = { searchTerm: '', provider: '', limit: 20, offset: 0 };
+	const req: FilterFundsRequest__Output = { searchTerm: '', providers: [], limit: 20, offset: 0 };
 	const resp = await safe(
 		new Promise<FilterFundsResponse__Output>((resolve, reject) => {
 			fundClient.filterFunds(req, (err, response) => {
@@ -35,12 +35,15 @@ export const actions = {
 		const formData = await request.formData();
 		const fundsLength = Number(formData.get('fundsLength') || 0);
 		const searchTerm = String(formData.get('searchTerm') || '');
+		const selectedProviders = JSON.parse(String(formData.get('selectedProviders')));
+
 		const filterReq: FilterFundsRequest__Output = {
 			limit: 20,
 			offset: fundsLength,
 			searchTerm: searchTerm,
-			provider: ''
+			providers: selectedProviders
 		};
+		console.log(filterReq)
 		const fundsResp = await safe(
 			new Promise<FilterFundsResponse__Output>((resolve, reject) => {
 				fundClient.filterFunds(filterReq, (err, response) => {
