@@ -100,3 +100,25 @@ func (s *Service) FilterHoldings(ctx context.Context, filter *proto.FilterFundHo
 	}
 	return &proto.FilterFundHoldingsResponse{Entries: fundHoldings.ConvertToResponse()}, nil
 }
+
+func (s *Service) CompareFunds(ctx context.Context, req *proto.CompareFundRequest) (*proto.CompareFundResponse, error) {
+	totalOverlap, err := s.repo.GetTotalOverlap(ctx, stringutils.ConvertToUUID(req.FundOne), stringutils.ConvertToUUID(req.FundTwo))
+	if err != nil {
+		return nil, err
+	}
+	overlappingHoldings, err := s.repo.GetOverlappingHoldings(ctx, stringutils.ConvertToUUID(req.FundOne), stringutils.ConvertToUUID(req.FundTwo))
+	if err != nil {
+		return nil, err
+	}
+	return &proto.CompareFundResponse{
+		TotalOverlappingPercentage:        totalOverlap.TotalOverlappingPercentage,
+		OverlappingHoldingsCount:          totalOverlap.OverlappingHoldingsCount,
+		FundOneHoldingCount:               totalOverlap.FundOneHoldingCount,
+		FundOneOverlappingCountPercentage: totalOverlap.FundOneOverlappingCountPercentage,
+		FundTwoHoldingCount:               totalOverlap.FundTwoHoldingCount,
+		FundTwoOverlappingCountPercentage: totalOverlap.FundTwoOverlappingCountPercentage,
+		FundOneName:                       totalOverlap.FundOneName,
+		FundTwoName:                       totalOverlap.FundTwoName,
+		OverlappingHoldings:               overlappingHoldings.ConvertToResponse(),
+	}, nil
+}

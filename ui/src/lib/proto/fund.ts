@@ -8,6 +8,8 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 
 export interface ProtoGrpcType {
   proto: {
+    CompareFundRequest: MessageTypeDefinition
+    CompareFundResponse: MessageTypeDefinition
     FilterFundHoldingsRequest: MessageTypeDefinition
     FilterFundHoldingsResponse: MessageTypeDefinition
     FilterFundsRequest: MessageTypeDefinition
@@ -18,6 +20,7 @@ export interface ProtoGrpcType {
     FundHolding: MessageTypeDefinition
     FundInformation: MessageTypeDefinition
     FundSectorWeighting: MessageTypeDefinition
+    OverlappingHolding: MessageTypeDefinition
     SearchFundsRequest: MessageTypeDefinition
     SearchFundsResponse: MessageTypeDefinition
   }

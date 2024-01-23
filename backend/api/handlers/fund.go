@@ -15,6 +15,7 @@ type FundService interface {
 	GetFundsWithTickers(ctx context.Context, searchTerm string) (*proto.SearchFundsResponse, error)
 	FilterHoldings(ctx context.Context, filter *proto.FilterFundHoldingsRequest) (*proto.FilterFundHoldingsResponse, error)
 	FilterFunds(ctx context.Context, filter *proto.FilterFundsRequest) (*proto.FilterFundsResponse, error)
+	CompareFunds(ctx context.Context, req *proto.CompareFundRequest) (*proto.CompareFundResponse, error)
 }
 
 type FundHandler struct {
@@ -65,6 +66,16 @@ func (h *FundHandler) FilterHoldings(ctx context.Context, req *proto.FilterFundH
 }
 func (h *FundHandler) FilterFunds(ctx context.Context, req *proto.FilterFundsRequest) (*proto.FilterFundsResponse, error) {
 	resp, err := h.fundService.FilterFunds(ctx, req)
+	if err != nil {
+		return nil, status.Error(
+			codes.Unknown, err.Error(),
+		)
+	}
+
+	return resp, nil
+}
+func (h *FundHandler) CompareFunds(ctx context.Context, req *proto.CompareFundRequest) (*proto.CompareFundResponse, error) {
+	resp, err := h.fundService.CompareFunds(ctx, req)
 	if err != nil {
 		return nil, status.Error(
 			codes.Unknown, err.Error(),

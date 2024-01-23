@@ -7,7 +7,7 @@
 
 <div class="flex items-center gap-2" aria-hidden="true">
 	<div class="flex flex-col rounded-xl w-10 h-10 bg-gray-300 justify-center items-center">
-			<img class="{fund.provider === 'Vanguard' ? 'scale-75' : ''}" src=" /provider-logos/{fund.provider}.png" alt="" />
+			<img class="scale-75" src=" /provider-logos/{fund.provider}.png" alt="" />
 	</div>
 	<div class="flex-1">
 		<div class="font-medium text-sm lg:text-lg">{fund.name}</div>

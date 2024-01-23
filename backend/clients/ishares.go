@@ -19,12 +19,23 @@ import (
 )
 
 type IShares struct {
-	url    string
-	client *http.Client
+	url                    string
+	searchPage             string
+	productRegex           string
+	localePath             string
+	holdingsCallIdentifier string
+	client                 *http.Client
 }
 
 func NewIShares(cfg *config.Config) *IShares {
-	return &IShares{url: cfg.ISharesUrl, client: &http.Client{}}
+	return &IShares{
+		client:                 &http.Client{},
+		url:                    cfg.ISharesUrl,
+		searchPage:             cfg.ISharesSearchPage,
+		productRegex:           cfg.ISharesProductRegex,
+		localePath:             cfg.ISharesLocalePath,
+		holdingsCallIdentifier: cfg.ISharesHoldingCallIdentifier,
+	}
 }
 
 var tickerISINs = map[string]string{}
@@ -78,7 +89,7 @@ func (v *IShares) GetFunds(limit, offset int) (resp []ishares.FundResponse, err 
 			fundIdentifierMap[e.Request.URL.Path] = fundResponse
 		}
 
-		fundUrlRegex, err := regexp.Compile("/uk/professional/en/products/([0-9]*)")
+		fundUrlRegex, err := regexp.Compile(v.productRegex)
 		if err != nil {
 			return
 		}
@@ -101,7 +112,7 @@ func (v *IShares) GetFunds(limit, offset int) (resp []ishares.FundResponse, err 
 			fmt.Println(err)
 			return
 		}
-		holdingUrl := fmt.Sprintf("%s%s/1506575576011.ajax?tab=all&fileType=json&asOfDate=%s", v.url, e.Request.URL.Path, dateStr)
+		holdingUrl := fmt.Sprintf("%s%s/%s.ajax?tab=all&fileType=json&asOfDate=%s", v.url, e.Request.URL.Path, v.holdingsCallIdentifier, dateStr)
 		holdings, err := v.GetHoldings(holdingUrl)
 		if err != nil {
 			fmt.Println(err)
@@ -124,6 +135,10 @@ func (v *IShares) GetFunds(limit, offset int) (resp []ishares.FundResponse, err 
 				fundIdentifierMap[e.Request.URL.Path] = fundResponse
 			}
 			fundResponse.Currency = currency
+			if strings.Contains(v.localePath, "nl") {
+				price = strings.Replace(price, ".", "", -1)
+				price = strings.Replace(price, ",", ".", -1)
+			}
 			priceFloat, err := strconv.ParseFloat(price, 64)
 			if err != nil {
 				fmt.Println(err)
@@ -153,16 +168,15 @@ func (v *IShares) GetFunds(limit, offset int) (resp []ishares.FundResponse, err 
 		}
 		ticker := strings.ReplaceAll(e.Text, "\n", "")
 		if ticker != "Ticker" {
-			for _, mappedTicker := range fundResponse.Tickers {
-				if mappedTicker == ticker {
-					return
-				}
-			}
 			fundResponse.Tickers = append(fundResponse.Tickers, ticker)
 		}
 	})
 	c.OnHTML("div.col-totalNetAssetsFundLevel", func(e *colly.HTMLElement) {
 		currencyNetAssets := e.ChildText("span.data")
+		if strings.Contains(v.localePath, "nl") {
+			currencyNetAssets = strings.Replace(currencyNetAssets, ".", "", -1)
+			currencyNetAssets = strings.Replace(currencyNetAssets, ",", ".", -1)
+		}
 		netAssetsFloat, err := strconv.ParseFloat(strings.ReplaceAll(currencyNetAssets[4:], ",", ""), 64)
 		if err != nil {
 			fmt.Println(err)
@@ -177,8 +191,6 @@ func (v *IShares) GetFunds(limit, offset int) (resp []ishares.FundResponse, err 
 		}
 		fundResponse.NetAssets = netAssetsFloat
 	})
-
-	//var columns := []string{"colTicker", "colIssueName", "colSectorName", "colAssetClass", "colMarketValue", "colHoldingPercent", "colUnitsHeld", "colIsin"}
 
 	c.OnHTML("th.colTicker", listenToCol("colTicker", fundIdentifierMap))
 	c.OnHTML("th.colIssueName", listenToCol("colIssueName", fundIdentifierMap))
@@ -199,7 +211,7 @@ func (v *IShares) GetFunds(limit, offset int) (resp []ishares.FundResponse, err 
 	if err != nil {
 		return resp, err
 	}
-	err = c.Visit(fmt.Sprintf("%s/uk/professional/en/products/etf-investments?switchLocale=y&siteEntryPassthrough=true#/?productView=etf&", v.url))
+	err = c.Visit(v.url + v.localePath + v.searchPage)
 	if err != nil {
 		return resp, err
 	}
@@ -213,7 +225,7 @@ func (v *IShares) GetFunds(limit, offset int) (resp []ishares.FundResponse, err 
 		}
 		identifiers = append(identifiers, intIdentifier)
 	}
-	err = scrapeISINs(identifiers)
+	err = v.scrapeISINs(identifiers)
 	if err != nil {
 		return resp, err
 	}
@@ -290,8 +302,8 @@ type OverviewQuery struct {
 	DisclosureContentDcrPath string   `json:"disclosureContentDcrPath"`
 }
 
-func scrapeISINs(identifiers []int) error {
-	url := "https://www.ishares.com/uk/professional/en/product-screener/product-screener-v3.1.jsn?type=customized-excel"
+func (v *IShares) scrapeISINs(identifiers []int) error {
+	url := v.url + v.localePath + "/product-screener/product-screener-v3.1.jsn?type=customized-excel"
 
 	// Replace the following with your actual request payload
 	body := OverviewQuery{
@@ -328,10 +340,18 @@ func scrapeISINs(identifiers []int) error {
 	latestTicker := ""
 	for scanner.Scan() {
 		line := scanner.Text()
-		if lineCounter < 44 {
-			lineCounter++
-			continue
+		if strings.Contains(v.localePath, "nl") {
+			if lineCounter < 45 {
+				lineCounter++
+				continue
+			}
+		} else {
+			if lineCounter < 44 {
+				lineCounter++
+				continue
+			}
 		}
+
 		if fundLineCounter == 0 {
 			latestTicker = strings.Split(strings.Split(line, ">")[1], "<")[0]
 			fundLineCounter++

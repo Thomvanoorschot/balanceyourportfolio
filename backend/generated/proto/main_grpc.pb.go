@@ -26,6 +26,7 @@ type FundServiceClient interface {
 	SearchFunds(ctx context.Context, in *SearchFundsRequest, opts ...grpc.CallOption) (*SearchFundsResponse, error)
 	FilterHoldings(ctx context.Context, in *FilterFundHoldingsRequest, opts ...grpc.CallOption) (*FilterFundHoldingsResponse, error)
 	FilterFunds(ctx context.Context, in *FilterFundsRequest, opts ...grpc.CallOption) (*FilterFundsResponse, error)
+	CompareFunds(ctx context.Context, in *CompareFundRequest, opts ...grpc.CallOption) (*CompareFundResponse, error)
 }
 
 type fundServiceClient struct {
@@ -72,6 +73,15 @@ func (c *fundServiceClient) FilterFunds(ctx context.Context, in *FilterFundsRequ
 	return out, nil
 }
 
+func (c *fundServiceClient) CompareFunds(ctx context.Context, in *CompareFundRequest, opts ...grpc.CallOption) (*CompareFundResponse, error) {
+	out := new(CompareFundResponse)
+	err := c.cc.Invoke(ctx, "/proto.FundService/CompareFunds", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FundServiceServer is the server API for FundService service.
 // All implementations must embed UnimplementedFundServiceServer
 // for forward compatibility
@@ -80,6 +90,7 @@ type FundServiceServer interface {
 	SearchFunds(context.Context, *SearchFundsRequest) (*SearchFundsResponse, error)
 	FilterHoldings(context.Context, *FilterFundHoldingsRequest) (*FilterFundHoldingsResponse, error)
 	FilterFunds(context.Context, *FilterFundsRequest) (*FilterFundsResponse, error)
+	CompareFunds(context.Context, *CompareFundRequest) (*CompareFundResponse, error)
 	mustEmbedUnimplementedFundServiceServer()
 }
 
@@ -98,6 +109,9 @@ func (UnimplementedFundServiceServer) FilterHoldings(context.Context, *FilterFun
 }
 func (UnimplementedFundServiceServer) FilterFunds(context.Context, *FilterFundsRequest) (*FilterFundsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FilterFunds not implemented")
+}
+func (UnimplementedFundServiceServer) CompareFunds(context.Context, *CompareFundRequest) (*CompareFundResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CompareFunds not implemented")
 }
 func (UnimplementedFundServiceServer) mustEmbedUnimplementedFundServiceServer() {}
 
@@ -184,6 +198,24 @@ func _FundService_FilterFunds_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FundService_CompareFunds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CompareFundRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FundServiceServer).CompareFunds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.FundService/CompareFunds",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FundServiceServer).CompareFunds(ctx, req.(*CompareFundRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FundService_ServiceDesc is the grpc.ServiceDesc for FundService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -206,6 +238,10 @@ var FundService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FilterFunds",
 			Handler:    _FundService_FilterFunds_Handler,
+		},
+		{
+			MethodName: "CompareFunds",
+			Handler:    _FundService_CompareFunds_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

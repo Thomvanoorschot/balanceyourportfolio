@@ -10,6 +10,8 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 
 export interface ProtoGrpcType {
   proto: {
+    CompareFundRequest: MessageTypeDefinition
+    CompareFundResponse: MessageTypeDefinition
     Empty: MessageTypeDefinition
     FilterFundHoldingsRequest: MessageTypeDefinition
     FilterFundHoldingsResponse: MessageTypeDefinition
@@ -24,6 +26,7 @@ export interface ProtoGrpcType {
     FundInformation: MessageTypeDefinition
     FundSectorWeighting: MessageTypeDefinition
     FundService: SubtypeConstructor<typeof grpc.Client, _proto_FundServiceClient> & { service: _proto_FundServiceDefinition }
+    OverlappingHolding: MessageTypeDefinition
     Portfolio: MessageTypeDefinition
     PortfolioDetailsRequest: MessageTypeDefinition
     PortfolioDetailsResponse: MessageTypeDefinition

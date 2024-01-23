@@ -69,3 +69,27 @@ message FilterFundsResponseEntry {
   string currency = 5;
   string provider = 6;
 }
+
+//Compare
+message CompareFundRequest {
+  string fundOne = 1;
+  string fundTwo = 2;
+}
+message CompareFundResponse {
+  double totalOverlappingPercentage = 1;
+  repeated OverlappingHolding overlappingHoldings = 2;
+  int64 overlappingHoldingsCount = 3;
+  int64 fundOneHoldingCount = 4;
+  double fundOneOverlappingCountPercentage = 5;
+  int64 fundTwoHoldingCount = 6;
+  double fundTwoOverlappingCountPercentage = 7;
+  string fundOneName = 8;
+  string fundTwoName = 9;
+}
+message OverlappingHolding{
+  string holdingId = 1;
+  string holdingName = 2;
+  double overlappingPercentage = 3;
+  double fundOnePercentage = 4;
+  double fundTwoPercentage = 5;
+}

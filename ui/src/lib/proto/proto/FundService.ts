@@ -2,6 +2,8 @@
 
 import type * as grpc from '@grpc/grpc-js'
 import type { MethodDefinition } from '@grpc/proto-loader'
+import type { CompareFundRequest as _proto_CompareFundRequest, CompareFundRequest__Output as _proto_CompareFundRequest__Output } from '../proto/CompareFundRequest';
+import type { CompareFundResponse as _proto_CompareFundResponse, CompareFundResponse__Output as _proto_CompareFundResponse__Output } from '../proto/CompareFundResponse';
 import type { FilterFundHoldingsRequest as _proto_FilterFundHoldingsRequest, FilterFundHoldingsRequest__Output as _proto_FilterFundHoldingsRequest__Output } from '../proto/FilterFundHoldingsRequest';
 import type { FilterFundHoldingsResponse as _proto_FilterFundHoldingsResponse, FilterFundHoldingsResponse__Output as _proto_FilterFundHoldingsResponse__Output } from '../proto/FilterFundHoldingsResponse';
 import type { FilterFundsRequest as _proto_FilterFundsRequest, FilterFundsRequest__Output as _proto_FilterFundsRequest__Output } from '../proto/FilterFundsRequest';
@@ -12,6 +14,15 @@ import type { SearchFundsRequest as _proto_SearchFundsRequest, SearchFundsReques
 import type { SearchFundsResponse as _proto_SearchFundsResponse, SearchFundsResponse__Output as _proto_SearchFundsResponse__Output } from '../proto/SearchFundsResponse';
 
 export interface FundServiceClient extends grpc.Client {
+  CompareFunds(argument: _proto_CompareFundRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_proto_CompareFundResponse__Output>): grpc.ClientUnaryCall;
+  CompareFunds(argument: _proto_CompareFundRequest, metadata: grpc.Metadata, callback: grpc.requestCallback<_proto_CompareFundResponse__Output>): grpc.ClientUnaryCall;
+  CompareFunds(argument: _proto_CompareFundRequest, options: grpc.CallOptions, callback: grpc.requestCallback<_proto_CompareFundResponse__Output>): grpc.ClientUnaryCall;
+  CompareFunds(argument: _proto_CompareFundRequest, callback: grpc.requestCallback<_proto_CompareFundResponse__Output>): grpc.ClientUnaryCall;
+  compareFunds(argument: _proto_CompareFundRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_proto_CompareFundResponse__Output>): grpc.ClientUnaryCall;
+  compareFunds(argument: _proto_CompareFundRequest, metadata: grpc.Metadata, callback: grpc.requestCallback<_proto_CompareFundResponse__Output>): grpc.ClientUnaryCall;
+  compareFunds(argument: _proto_CompareFundRequest, options: grpc.CallOptions, callback: grpc.requestCallback<_proto_CompareFundResponse__Output>): grpc.ClientUnaryCall;
+  compareFunds(argument: _proto_CompareFundRequest, callback: grpc.requestCallback<_proto_CompareFundResponse__Output>): grpc.ClientUnaryCall;
+  
   FilterFunds(argument: _proto_FilterFundsRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_proto_FilterFundsResponse__Output>): grpc.ClientUnaryCall;
   FilterFunds(argument: _proto_FilterFundsRequest, metadata: grpc.Metadata, callback: grpc.requestCallback<_proto_FilterFundsResponse__Output>): grpc.ClientUnaryCall;
   FilterFunds(argument: _proto_FilterFundsRequest, options: grpc.CallOptions, callback: grpc.requestCallback<_proto_FilterFundsResponse__Output>): grpc.ClientUnaryCall;
@@ -51,6 +62,8 @@ export interface FundServiceClient extends grpc.Client {
 }
 
 export interface FundServiceHandlers extends grpc.UntypedServiceImplementation {
+  CompareFunds: grpc.handleUnaryCall<_proto_CompareFundRequest__Output, _proto_CompareFundResponse>;
+  
   FilterFunds: grpc.handleUnaryCall<_proto_FilterFundsRequest__Output, _proto_FilterFundsResponse>;
   
   FilterHoldings: grpc.handleUnaryCall<_proto_FilterFundHoldingsRequest__Output, _proto_FilterFundHoldingsResponse>;
@@ -62,6 +75,7 @@ export interface FundServiceHandlers extends grpc.UntypedServiceImplementation {
 }
 
 export interface FundServiceDefinition extends grpc.ServiceDefinition {
+  CompareFunds: MethodDefinition<_proto_CompareFundRequest, _proto_CompareFundResponse, _proto_CompareFundRequest__Output, _proto_CompareFundResponse__Output>
   FilterFunds: MethodDefinition<_proto_FilterFundsRequest, _proto_FilterFundsResponse, _proto_FilterFundsRequest__Output, _proto_FilterFundsResponse__Output>
   FilterHoldings: MethodDefinition<_proto_FilterFundHoldingsRequest, _proto_FilterFundHoldingsResponse, _proto_FilterFundHoldingsRequest__Output, _proto_FilterFundHoldingsResponse__Output>
   GetDetails: MethodDefinition<_proto_FundDetailsRequest, _proto_FundDetailsResponse, _proto_FundDetailsRequest__Output, _proto_FundDetailsResponse__Output>

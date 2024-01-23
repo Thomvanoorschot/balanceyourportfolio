@@ -17,6 +17,16 @@ type Config struct {
 	CORSAllowMethods     string `envconfig:"CORS_ALLOW_METHODS"     default:"GET, PUT, PATCH, POST, DELETE, OPTIONS"`
 	VanguardUrl          string `envconfig:"VANGUARD_URL"     default:"https://www.nl.vanguard/gpx/graphql"`
 	ISharesUrl           string `envconfig:"ISHARES_URL"     default:"https://www.ishares.com"`
+	// NL
+	ISharesLocalePath            string `envconfig:"ISHARES_LOCALE_PATH" default:"/nl/professionele-belegger/nl"`
+	ISharesSearchPage            string `envconfig:"ISHARES_SEARCH_PAGE" default:"/producten/etf-investments?switchLocale=y&siteEntryPassthrough=true#/?productView=etf&"`
+	ISharesProductRegex          string `envconfig:"ISHARES_PRODUCT_REGEX" default:"/producten/([0-9]*)"`
+	ISharesHoldingCallIdentifier string `envconfig:"ISHARES_HOLDING_CALL_IDENTIFIER" default:"1497735778849"`
+	// UK
+	//ISharesLocalePath            string `envconfig:"ISHARES_LOCALE_PATH" default:"/uk/professional/en"`
+	//ISharesSearchPage            string `envconfig:"ISHARES_SEARCH_PAGE" default:"/products/etf-investments?switchLocale=y&siteEntryPassthrough=true#/?productView=etf&"`
+	//ISharesProductRegex          string `envconfig:"ISHARES_PRODUCT_REGEX" default:"/products/([0-9]*)"`
+	//ISharesHoldingCallIdentifier string `envconfig:"ISHARES_HOLDING_CALL_IDENTIFIER" default:"1506575576011"`
 }
 
 var config *Config

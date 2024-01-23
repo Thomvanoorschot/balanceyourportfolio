@@ -36,7 +36,8 @@ CREATE TABLE fund_holding (
 
 CREATE TABLE fund_listing (
     fund_id uuid REFERENCES fund (id),
-    ticker            varchar(255)
+    ticker            varchar(255),
+    UNIQUE (fund_id, ticker)
 );
 
 CREATE TABLE "portfolio" (

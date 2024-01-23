@@ -103,6 +103,43 @@ type HoldingsFilter struct {
 	Offset          int64
 }
 
+type OverlappingFunds struct {
+	FundOneName                       string
+	FundTwoName                       string
+	TotalOverlappingPercentage        float64
+	OverlappingHoldingsCount          int64
+	FundOneHoldingCount               int64
+	FundOneOverlappingCountPercentage float64
+	FundTwoHoldingCount               int64
+	FundTwoOverlappingCountPercentage float64
+}
+
+type OverlappingHoldings []OverlappingHolding
+type OverlappingHolding struct {
+	HoldingId             uuid.UUID
+	HoldingName           string
+	OverlappingPercentage float64
+	FundOnePercentage     float64
+	FundTwoPercentage     float64
+}
+
+func (h OverlappingHoldings) ConvertToResponse() []*proto.OverlappingHolding {
+	oh := make([]*proto.OverlappingHolding, len(h))
+
+	for i := range h {
+		oh[i] = h[i].ConvertToResponse()
+	}
+	return oh
+}
+func (h OverlappingHolding) ConvertToResponse() *proto.OverlappingHolding {
+	return &proto.OverlappingHolding{
+		HoldingId:             h.HoldingId.String(),
+		HoldingName:           h.HoldingName,
+		OverlappingPercentage: h.OverlappingPercentage,
+		FundOnePercentage:     h.FundOnePercentage,
+		FundTwoPercentage:     h.FundTwoPercentage,
+	}
+}
 func (il InformationList) ConvertToResponse() []*proto.FundInformation {
 	fi := make([]*proto.FundInformation, len(il))
 	for i := range il {
