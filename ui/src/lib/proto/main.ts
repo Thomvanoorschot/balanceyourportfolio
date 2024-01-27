@@ -26,6 +26,7 @@ export interface ProtoGrpcType {
     FundInformation: MessageTypeDefinition
     FundSectorWeighting: MessageTypeDefinition
     FundService: SubtypeConstructor<typeof grpc.Client, _proto_FundServiceClient> & { service: _proto_FundServiceDefinition }
+    NonOverlappingHolding: MessageTypeDefinition
     OverlappingHolding: MessageTypeDefinition
     Portfolio: MessageTypeDefinition
     PortfolioDetailsRequest: MessageTypeDefinition

@@ -89,7 +89,6 @@
 	};
 	let expanded: boolean = false;
 	let elem: HTMLDivElement;
-
 	function growDiv() {
 		if (expanded) {
 			elem.style.height = '0';

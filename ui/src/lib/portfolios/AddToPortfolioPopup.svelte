@@ -21,7 +21,6 @@
 		});
 		if (resp.ok) {
 			portfolios = (await resp.json()) as Portfolio__Output[];
-			console.log(portfolios);
 		} else if (!resp.ok) {
 			// error = result.data?.error
 		}

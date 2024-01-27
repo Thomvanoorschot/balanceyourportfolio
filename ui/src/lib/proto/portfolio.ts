@@ -22,6 +22,7 @@ export interface ProtoGrpcType {
     FundHolding: MessageTypeDefinition
     FundInformation: MessageTypeDefinition
     FundSectorWeighting: MessageTypeDefinition
+    NonOverlappingHolding: MessageTypeDefinition
     OverlappingHolding: MessageTypeDefinition
     Portfolio: MessageTypeDefinition
     PortfolioDetailsRequest: MessageTypeDefinition

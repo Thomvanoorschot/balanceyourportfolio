@@ -43,7 +43,6 @@ export const actions = {
 			searchTerm: searchTerm,
 			providers: selectedProviders
 		};
-		console.log(filterReq)
 		const fundsResp = await safe(
 			new Promise<FilterFundsResponse__Output>((resolve, reject) => {
 				fundClient.filterFunds(filterReq, (err, response) => {

@@ -1,6 +1,8 @@
 // Original file: proto/fund.proto
 
 import type { OverlappingHolding as _proto_OverlappingHolding, OverlappingHolding__Output as _proto_OverlappingHolding__Output } from '../proto/OverlappingHolding';
+import type { NonOverlappingHolding as _proto_NonOverlappingHolding, NonOverlappingHolding__Output as _proto_NonOverlappingHolding__Output } from '../proto/NonOverlappingHolding';
+import type { FundSectorWeighting as _proto_FundSectorWeighting, FundSectorWeighting__Output as _proto_FundSectorWeighting__Output } from '../proto/FundSectorWeighting';
 import type { Long } from '@grpc/proto-loader';
 
 export interface CompareFundResponse {
@@ -13,6 +15,9 @@ export interface CompareFundResponse {
   'fundTwoOverlappingCountPercentage'?: (number | string);
   'fundOneName'?: (string);
   'fundTwoName'?: (string);
+  'fundOneNonOverlappingHoldings'?: (_proto_NonOverlappingHolding)[];
+  'fundTwoNonOverlappingHoldings'?: (_proto_NonOverlappingHolding)[];
+  'sectorWeightings'?: (_proto_FundSectorWeighting)[];
 }
 
 export interface CompareFundResponse__Output {
@@ -25,4 +30,7 @@ export interface CompareFundResponse__Output {
   'fundTwoOverlappingCountPercentage': (number);
   'fundOneName': (string);
   'fundTwoName': (string);
+  'fundOneNonOverlappingHoldings': (_proto_NonOverlappingHolding__Output)[];
+  'fundTwoNonOverlappingHoldings': (_proto_NonOverlappingHolding__Output)[];
+  'sectorWeightings': (_proto_FundSectorWeighting__Output)[];
 }

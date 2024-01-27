@@ -31,6 +31,7 @@ message FundInformation{
 message FundSectorWeighting {
   string sectorName = 1;
   double percentage = 2;
+  string fundId = 3;
 }
 
 //Holdings
@@ -85,6 +86,9 @@ message CompareFundResponse {
   double fundTwoOverlappingCountPercentage = 7;
   string fundOneName = 8;
   string fundTwoName = 9;
+  repeated NonOverlappingHolding fundOneNonOverlappingHoldings = 10;
+  repeated NonOverlappingHolding fundTwoNonOverlappingHoldings = 11;
+  repeated FundSectorWeighting sectorWeightings = 12;
 }
 message OverlappingHolding{
   string holdingId = 1;
@@ -92,4 +96,11 @@ message OverlappingHolding{
   double overlappingPercentage = 3;
   double fundOnePercentage = 4;
   double fundTwoPercentage = 5;
+  string holdingTicker = 6;
+}
+message NonOverlappingHolding{
+  string holdingId = 1;
+  string holdingName = 2;
+  string holdingTicker = 3;
+  double nonOverlappingPercentage = 4;
 }

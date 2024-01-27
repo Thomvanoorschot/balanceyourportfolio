@@ -194,6 +194,78 @@ func (r *Repository) GetFundSectorWeightings(ctx context.Context, fundId uuid.UU
 	return sw, nil
 }
 
+func (r *Repository) GetFundsSectorWeightings(ctx context.Context, fundOne, fundTwo uuid.UUID) (resp []fund.SectorWeighting, err error) {
+	sql, args := RawStatement(
+		`
+		WITH SectorSums AS (
+			SELECT 
+				 fund_holding.fund_id AS "fund_holding.fund_id",
+				 holding.sector AS "holding.sector",
+				 SUM(fund_holding.percentage_of_total) AS "percentage_sum"
+			FROM 
+				 public.holding
+				 INNER JOIN public.fund_holding ON fund_holding.holding_id = holding.id
+			WHERE 
+				 fund_holding.fund_id IN (:fund1, :fund2)
+			GROUP BY 
+				 fund_holding.fund_id, holding.sector
+		),
+		MaxPercentagePerSector AS (
+			SELECT 
+				 "holding.sector",
+				 MAX("percentage_sum") OVER (PARTITION BY "holding.sector") as max_percentage_in_sector
+			FROM 
+				 SectorSums
+		)
+		SELECT distinct on (mps.max_percentage_in_sector, ss."fund_holding.fund_id", ss."holding.sector")
+			ss."fund_holding.fund_id",
+			ss."holding.sector",
+			ss."percentage_sum"
+		FROM 
+			SectorSums ss
+			INNER JOIN MaxPercentagePerSector mps ON ss."holding.sector" = mps."holding.sector"
+		ORDER BY 
+			mps.max_percentage_in_sector DESC,
+			ss."fund_holding.fund_id", 
+			ss."holding.sector";
+`,
+		RawArgs{
+			":fund1": fundOne,
+			":fund2": fundTwo,
+		},
+	).Sql()
+
+	rows, err := r.ConnectionPool.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+
+		var (
+			fundId     uuid.UUID
+			sector     string
+			percentage float64
+		)
+		err = rows.Scan(
+			&fundId,
+			&sector,
+			&percentage,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		resp = append(resp, fund.SectorWeighting{
+			FundId:     fundId,
+			SectorName: fund.SectorName(sector),
+			Percentage: percentage,
+		})
+	}
+	return resp, nil
+}
+
 // Get highest ranking sector for fund
 //WITH R as (
 //select FH.fund_id, H.sector, RANK() over (partition by FH.fund_id order by SUM(FH.percentage_of_total) desc)

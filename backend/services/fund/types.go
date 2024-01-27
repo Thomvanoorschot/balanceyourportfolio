@@ -61,6 +61,7 @@ type EffectiveShare struct {
 }
 type SectorWeightings []SectorWeighting
 type SectorWeighting struct {
+	FundId     uuid.UUID
 	SectorName SectorName `db:"holding.sector"`
 	Percentage float64    `db:"percentage_sum"`
 }
@@ -118,11 +119,35 @@ type OverlappingHoldings []OverlappingHolding
 type OverlappingHolding struct {
 	HoldingId             uuid.UUID
 	HoldingName           string
+	HoldingTicker         string
 	OverlappingPercentage float64
 	FundOnePercentage     float64
 	FundTwoPercentage     float64
 }
+type NonOverlappingHoldings []NonOverlappingHolding
+type NonOverlappingHolding struct {
+	HoldingId                uuid.UUID
+	HoldingName              string
+	HoldingTicker            string
+	NonOverlappingPercentage float64
+}
 
+func (h NonOverlappingHoldings) ConvertToResponse() []*proto.NonOverlappingHolding {
+	noh := make([]*proto.NonOverlappingHolding, len(h))
+
+	for i := range h {
+		noh[i] = h[i].ConvertToResponse()
+	}
+	return noh
+}
+func (h NonOverlappingHolding) ConvertToResponse() *proto.NonOverlappingHolding {
+	return &proto.NonOverlappingHolding{
+		HoldingId:                h.HoldingId.String(),
+		HoldingName:              h.HoldingName,
+		HoldingTicker:            h.HoldingTicker,
+		NonOverlappingPercentage: h.NonOverlappingPercentage,
+	}
+}
 func (h OverlappingHoldings) ConvertToResponse() []*proto.OverlappingHolding {
 	oh := make([]*proto.OverlappingHolding, len(h))
 
@@ -135,6 +160,7 @@ func (h OverlappingHolding) ConvertToResponse() *proto.OverlappingHolding {
 	return &proto.OverlappingHolding{
 		HoldingId:             h.HoldingId.String(),
 		HoldingName:           h.HoldingName,
+		HoldingTicker:         h.HoldingTicker,
 		OverlappingPercentage: h.OverlappingPercentage,
 		FundOnePercentage:     h.FundOnePercentage,
 		FundTwoPercentage:     h.FundTwoPercentage,
@@ -200,6 +226,7 @@ func (sw SectorWeightings) ConvertToResponse() []*proto.FundSectorWeighting {
 }
 func (sw SectorWeighting) ConvertToResponse() *proto.FundSectorWeighting {
 	return &proto.FundSectorWeighting{
+		FundId:     sw.FundId.String(),
 		SectorName: string(sw.SectorName),
 		Percentage: sw.Percentage,
 	}

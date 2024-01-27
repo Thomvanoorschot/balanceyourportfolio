@@ -34,37 +34,64 @@ func (r *Repository) UpsertFundHoldings(ctx context.Context, s []model.FundHoldi
 func (r *Repository) GetTotalOverlap(ctx context.Context, fundOne, fundTwo uuid.UUID) (resp fund.OverlappingFunds, err error) {
 	sql, args := RawStatement(
 		`
-	WITH CTE AS (
-	SELECT 
-		fh1.fund_id, 
-		COUNT(DISTINCT fh1.holding_id) AS overlapping_holdings_count
-	FROM fund_holding fh1
-	INNER JOIN fund_holding fh2 ON fh1.holding_id = fh2.holding_id
-	WHERE fh1.fund_id = :fund1
-	AND fh2.fund_id = :fund2
-	GROUP BY fh1.fund_id
-	)
-	SELECT
-		SUM(COALESCE(
-			LEAST(coalesce(fh1.percentage_of_total, 0), coalesce(fh2.percentage_of_total, 0)),
-			0
-		))AS total_overlap,
-		c.overlapping_holdings_count,
-		f1.total_holdings,
-		c.overlapping_holdings_count / f1.total_holdings,
-		f2.total_holdings,
-		c.overlapping_holdings_count / f2.total_holdings,
-		f1."name",
-		f2."name"
+		WITH overlap_cte AS (
+			SELECT 
+				 fh1.fund_id, 
+				 COUNT(DISTINCT fh1.holding_id) AS overlapping_holdings_count
+			FROM 
+				 fund_holding fh1
+				 INNER JOIN fund_holding fh2 ON fh1.holding_id = fh2.holding_id
+			WHERE 
+				 fh1.fund_id = :fund1
+				 AND fh2.fund_id = :fund2
+			GROUP BY 
+				 fh1.fund_id
+		),
+		f1_total_cte as (
+			SELECT 
+				 COUNT(*) as total_count
+			FROM 
+				 fund_holding 
+			WHERE 
+				 fund_id = :fund1
+		),
+		f2_total_cte as (
+			SELECT 
+				 COUNT(*) as total_count
+			FROM 
+				 fund_holding 
+			WHERE 
+				 fund_id = :fund2
+		),
+		overlap_sum as (
+			SELECT
+				 SUM(COALESCE(
+					 LEAST(coalesce(fh1.percentage_of_total, 0), coalesce(fh2.percentage_of_total, 0)),
+					 0
+				 )) AS total_overlap
+			FROM 
+				 fund_holding fh1
+				 LEFT JOIN fund_holding fh2 ON fh1.holding_id = fh2.holding_id 
+			WHERE
+				 fh1.fund_id = :fund1 
+				 AND fh2.fund_id = :fund2
+		)
+		SELECT
+			os.total_overlap,
+			oc.overlapping_holdings_count,
+			f1c.total_count,
+			(oc.overlapping_holdings_count::FLOAT / f1c.total_count * 100) as overlap_percentage_f1,
+			f2c.total_count,
+			(oc.overlapping_holdings_count::FLOAT / f2c.total_count * 100) as overlap_percentage_f2,
+			f1.name as fund1_name,
+			f2.name as fund2_name
 		FROM
-			fund_holding fh1
-			LEFT JOIN fund_holding fh2 ON fh1.holding_id = fh2.holding_id 
-			INNER JOIN fund f1 ON f1.id = fh1.fund_id
-			INNER JOIN fund f2 ON f2.id = fh2.fund_id
-			INNER JOIN CTE c ON c.fund_id = f1.id
-		WHERE
-			fh1.fund_id = :fund1 AND fh2.fund_id = :fund2
-			group by f1.total_holdings, f2.total_holdings, c.overlapping_holdings_count, f1."name", f2."name";
+			overlap_cte oc
+			CROSS JOIN overlap_sum os
+			CROSS JOIN f1_total_cte f1c
+			CROSS JOIN f2_total_cte f2c
+			INNER JOIN fund f1 ON f1.id = :fund1
+			INNER JOIN fund f2 ON f2.id = :fund2;
 `,
 		RawArgs{
 			":fund1": fundOne,
@@ -115,6 +142,7 @@ func (r *Repository) GetOverlappingHoldings(ctx context.Context, fundOne, fundTw
 		SELECT
 		h.id,
 		h."name",
+		h.ticker,
 	    oh.min_weight AS weighted_overlap_percentage,
 	    fh1.percentage_of_total,
 	    fh2.percentage_of_total
@@ -144,13 +172,15 @@ func (r *Repository) GetOverlappingHoldings(ctx context.Context, fundOne, fundTw
 		var (
 			holdingId             uuid.UUID
 			holdingName           string
+			holdingTicker         string
 			overlappingPercentage float64
-			fundOnePercentage     float64
-			fundTwoPercentage     float64
+			fundOnePercentage     *float64
+			fundTwoPercentage     *float64
 		)
 		err = rows.Scan(
 			&holdingId,
 			&holdingName,
+			&holdingTicker,
 			&overlappingPercentage,
 			&fundOnePercentage,
 			&fundTwoPercentage,
@@ -158,15 +188,88 @@ func (r *Repository) GetOverlappingHoldings(ctx context.Context, fundOne, fundTw
 		if err != nil {
 			return nil, err
 		}
+		zero := 0.0
+		if fundOnePercentage == nil {
+			fundOnePercentage = &zero
+		}
+		if fundTwoPercentage == nil {
+			fundTwoPercentage = &zero
+		}
 		overlappingHoldings = append(overlappingHoldings, fund.OverlappingHolding{
 			HoldingId:             holdingId,
 			HoldingName:           holdingName,
+			HoldingTicker:         holdingTicker,
 			OverlappingPercentage: overlappingPercentage,
-			FundOnePercentage:     fundOnePercentage,
-			FundTwoPercentage:     fundTwoPercentage,
+			FundOnePercentage:     *fundOnePercentage,
+			FundTwoPercentage:     *fundTwoPercentage,
 		})
 	}
 	return overlappingHoldings, nil
+}
+func (r *Repository) GetNonOverlappingHoldings(ctx context.Context, fundOne, fundTwo uuid.UUID) (fund.NonOverlappingHoldings, error) {
+	sql, args := RawStatement(
+		`
+		WITH NonOverlappingHoldings AS (
+		SELECT
+			fh1.holding_id,
+			fh1.percentage_of_total
+		FROM
+			fund_holding fh1
+		LEFT JOIN fund_holding fh2 ON fh1.holding_id = fh2.holding_id AND fh2.fund_id = :fund2
+		WHERE
+			fh1.fund_id = :fund1 AND fh2.holding_id IS NULL
+		)
+		SELECT
+			h.id,
+			h."name",
+			h.ticker,
+			noh.percentage_of_total
+		FROM
+			NonOverlappingHoldings noh
+			JOIN holding h ON noh.holding_id = h.id
+		ORDER BY
+			noh.percentage_of_total DESC
+		LIMIT 20;
+`,
+		RawArgs{
+			":fund1": fundOne,
+			":fund2": fundTwo,
+		},
+	).Sql()
+
+	rows, err := r.ConnectionPool.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var nonOverlappingHoldings []fund.NonOverlappingHolding
+	for rows.Next() {
+
+		var (
+			holdingId                uuid.UUID
+			holdingName              string
+			holdingTicker            string
+			nonOverlappingPercentage float64
+		)
+		err = rows.Scan(
+			&holdingId,
+			&holdingName,
+			&holdingTicker,
+			&nonOverlappingPercentage,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		nonOverlappingHoldings = append(nonOverlappingHoldings, fund.NonOverlappingHolding{
+			HoldingId:                holdingId,
+			HoldingName:              holdingName,
+			HoldingTicker:            holdingTicker,
+			NonOverlappingPercentage: nonOverlappingPercentage,
+		})
+	}
+	return nonOverlappingHoldings, nil
 }
 
 //WITH OverlappingHoldings AS (

@@ -7,6 +7,7 @@ export interface OverlappingHolding {
   'overlappingPercentage'?: (number | string);
   'fundOnePercentage'?: (number | string);
   'fundTwoPercentage'?: (number | string);
+  'holdingTicker'?: (string);
 }
 
 export interface OverlappingHolding__Output {
@@ -15,4 +16,5 @@ export interface OverlappingHolding__Output {
   'overlappingPercentage': (number);
   'fundOnePercentage': (number);
   'fundTwoPercentage': (number);
+  'holdingTicker': (string);
 }

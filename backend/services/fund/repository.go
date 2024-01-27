@@ -19,4 +19,6 @@ type Repository interface {
 	FilterFunds(ctx context.Context, filter FundsFilter) (Funds, error)
 	GetTotalOverlap(ctx context.Context, fundOne, fundTwo uuid.UUID) (resp OverlappingFunds, err error)
 	GetOverlappingHoldings(ctx context.Context, fundOne, fundTwo uuid.UUID) (OverlappingHoldings, error)
+	GetNonOverlappingHoldings(ctx context.Context, fundOne, fundTwo uuid.UUID) (NonOverlappingHoldings, error)
+	GetFundsSectorWeightings(ctx context.Context, fundOne, fundTwo uuid.UUID) ([]SectorWeighting, error)
 }

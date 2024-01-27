@@ -2,7 +2,6 @@ package fund
 
 import (
 	"context"
-
 	"etfinsight/generated/proto"
 	"etfinsight/utils/concurrencyutils"
 	"etfinsight/utils/stringutils"
@@ -102,23 +101,57 @@ func (s *Service) FilterHoldings(ctx context.Context, filter *proto.FilterFundHo
 }
 
 func (s *Service) CompareFunds(ctx context.Context, req *proto.CompareFundRequest) (*proto.CompareFundResponse, error) {
-	totalOverlap, err := s.repo.GetTotalOverlap(ctx, stringutils.ConvertToUUID(req.FundOne), stringutils.ConvertToUUID(req.FundTwo))
-	if err != nil {
-		return nil, err
+	fundOne := stringutils.ConvertToUUID(req.FundOne)
+	fundTwo := stringutils.ConvertToUUID(req.FundTwo)
+	totalOverlapCh := concurrencyutils.Async2(func() (OverlappingFunds, error) {
+		return s.repo.GetTotalOverlap(ctx, fundOne, fundTwo)
+	})
+	overlappingHoldingsCh := concurrencyutils.Async2(func() (OverlappingHoldings, error) {
+		return s.repo.GetOverlappingHoldings(ctx, fundOne, fundTwo)
+	})
+	fundOneNonOverlappingHoldingsCh := concurrencyutils.Async2(func() (NonOverlappingHoldings, error) {
+		return s.repo.GetNonOverlappingHoldings(ctx, fundOne, fundTwo)
+	})
+	fundTwoNonOverlappingHoldingsCh := concurrencyutils.Async2(func() (NonOverlappingHoldings, error) {
+		return s.repo.GetNonOverlappingHoldings(ctx, fundTwo, fundOne)
+	})
+	sectorWeightingsCh := concurrencyutils.Async2(func() (SectorWeightings, error) {
+		return s.repo.GetFundsSectorWeightings(ctx, fundTwo, fundOne)
+	})
+	sectorWeightingsResult := <-sectorWeightingsCh
+	totalOverlapResult := <-totalOverlapCh
+	overlappingHoldingsResult := <-overlappingHoldingsCh
+	fundOneNonOverlappingHoldingsResult := <-fundOneNonOverlappingHoldingsCh
+	fundTwoNonOverlappingHoldingsResult := <-fundTwoNonOverlappingHoldingsCh
+
+	if totalOverlapResult.Error != nil {
+		return nil, totalOverlapResult.Error
 	}
-	overlappingHoldings, err := s.repo.GetOverlappingHoldings(ctx, stringutils.ConvertToUUID(req.FundOne), stringutils.ConvertToUUID(req.FundTwo))
-	if err != nil {
-		return nil, err
+	if overlappingHoldingsResult.Error != nil {
+		return nil, overlappingHoldingsResult.Error
 	}
+	if fundOneNonOverlappingHoldingsResult.Error != nil {
+		return nil, fundOneNonOverlappingHoldingsResult.Error
+	}
+	if fundTwoNonOverlappingHoldingsResult.Error != nil {
+		return nil, fundTwoNonOverlappingHoldingsResult.Error
+	}
+	if sectorWeightingsResult.Error != nil {
+		return nil, sectorWeightingsResult.Error
+	}
+
 	return &proto.CompareFundResponse{
-		TotalOverlappingPercentage:        totalOverlap.TotalOverlappingPercentage,
-		OverlappingHoldingsCount:          totalOverlap.OverlappingHoldingsCount,
-		FundOneHoldingCount:               totalOverlap.FundOneHoldingCount,
-		FundOneOverlappingCountPercentage: totalOverlap.FundOneOverlappingCountPercentage,
-		FundTwoHoldingCount:               totalOverlap.FundTwoHoldingCount,
-		FundTwoOverlappingCountPercentage: totalOverlap.FundTwoOverlappingCountPercentage,
-		FundOneName:                       totalOverlap.FundOneName,
-		FundTwoName:                       totalOverlap.FundTwoName,
-		OverlappingHoldings:               overlappingHoldings.ConvertToResponse(),
+		TotalOverlappingPercentage:        totalOverlapResult.Value.TotalOverlappingPercentage,
+		OverlappingHoldingsCount:          totalOverlapResult.Value.OverlappingHoldingsCount,
+		FundOneHoldingCount:               totalOverlapResult.Value.FundOneHoldingCount,
+		FundOneOverlappingCountPercentage: totalOverlapResult.Value.FundOneOverlappingCountPercentage,
+		FundTwoHoldingCount:               totalOverlapResult.Value.FundTwoHoldingCount,
+		FundTwoOverlappingCountPercentage: totalOverlapResult.Value.FundTwoOverlappingCountPercentage,
+		FundOneName:                       totalOverlapResult.Value.FundOneName,
+		FundTwoName:                       totalOverlapResult.Value.FundTwoName,
+		OverlappingHoldings:               overlappingHoldingsResult.Value.ConvertToResponse(),
+		FundOneNonOverlappingHoldings:     fundOneNonOverlappingHoldingsResult.Value.ConvertToResponse(),
+		FundTwoNonOverlappingHoldings:     fundTwoNonOverlappingHoldingsResult.Value.ConvertToResponse(),
+		SectorWeightings:                  sectorWeightingsResult.Value.ConvertToResponse(),
 	}, nil
 }

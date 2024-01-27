@@ -12,6 +12,7 @@
 	import FundIcon from '$lib/icons/FundIcon.svelte';
 	import { afterNavigate } from '$app/navigation';
 	import MenuIcon from '$lib/icons/MenuIcon.svelte';
+	import CompareIcon from '$lib/icons/CompareIcon.svelte';
 
 	export let data: LayoutData;
 	let { profilePictureURL } = data;
@@ -49,6 +50,9 @@
 				<SidebarElement href="/fund/overview" text="Funds">
 					<FundIcon />
 				</SidebarElement>
+				<SidebarElement href="/fund/compare" text="Compare Funds">
+					<CompareIcon />
+				</SidebarElement>
 				<SidebarElement href="/portfolio/overview" text="Portfolio">
 					<PortfolioIcon />
 				</SidebarElement>
@@ -64,6 +68,9 @@
 				<ul>
 					<SidebarElement href="/fund/overview" text="Funds">
 						<FundIcon />
+					</SidebarElement>
+					<SidebarElement href="/fund/compare" text="Compare Funds">
+						<CompareIcon />
 					</SidebarElement>
 					<SidebarElement href="/portfolio/overview" text="Portfolio">
 						<PortfolioIcon />
