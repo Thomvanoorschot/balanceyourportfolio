@@ -40,9 +40,9 @@ func (r *Repository) FilterHoldings(ctx context.Context, filter fund.HoldingsFil
 	}
 	if filter.SearchTerm != "" {
 		if filterExp == nil {
-			filterExp = ILike(Holding.Ticker, filter.SearchTerm).OR(ILike(Holding.Name, filter.SearchTerm))
+			filterExp = ILike(FigiMapping.Ticker, filter.SearchTerm).OR(ILike(FigiMapping.Name, filter.SearchTerm))
 		} else {
-			filterExp = filterExp.AND(ILike(Holding.Ticker, filter.SearchTerm).OR(ILike(Holding.Name, filter.SearchTerm)))
+			filterExp = filterExp.AND(ILike(FigiMapping.Ticker, filter.SearchTerm).OR(ILike(FigiMapping.Name, filter.SearchTerm)))
 		}
 	}
 	return r.getHoldings(ctx, func(statement SelectStatement) SelectStatement {
@@ -60,19 +60,19 @@ func (r *Repository) UpsertHoldings(ctx context.Context, holdings []model.Holdin
 	insertStmt := Holding.
 		INSERT(Holding.MutableColumns).
 		MODELS(holdings).
-		ON_CONFLICT(Holding.Ticker).
+		ON_CONFLICT(Holding.Figi).
 		DO_NOTHING().
-		RETURNING(Holding.ID, Holding.Ticker)
+		RETURNING(Holding.ID, Holding.Figi)
 	withStmt := WITH(
 		insertCte.AS(
 			insertStmt,
 		),
 	)
-	var tickerExpr []Expression
+	var figiExpr []Expression
 	for _, h := range holdings {
-		tickerExpr = append(tickerExpr, String(*h.Ticker))
+		figiExpr = append(figiExpr, String(*h.Figi))
 	}
-	selectStmt := SELECT(Holding.ID, Holding.Ticker).FROM(Holding).WHERE(Holding.Ticker.IN(tickerExpr...))
+	selectStmt := SELECT(Holding.ID, Holding.Figi).FROM(Holding).WHERE(Holding.Figi.IN(figiExpr...))
 	sql, args := withStmt(UNION_ALL(SELECT(STAR).FROM(insertCte), selectStmt)).
 		Sql()
 	rows, err := tx.Query(ctx, sql, args...)
@@ -83,9 +83,9 @@ func (r *Repository) UpsertHoldings(ctx context.Context, holdings []model.Holdin
 	holdingMap := map[string]uuid.UUID{}
 	_, err = pgx.CollectRows(rows, func(row pgx.CollectableRow) (uuid.UUID, error) {
 		var id uuid.UUID
-		var ticker string
-		err := row.Scan(&id, &ticker)
-		holdingMap[ticker] = id
+		var figi string
+		err := row.Scan(&id, &figi)
+		holdingMap[figi] = id
 		return id, err
 	})
 	if err != nil {
@@ -100,14 +100,15 @@ func (r *Repository) getHoldings(ctx context.Context, stmt func(SelectStatement)
 		FundHolding.Amount,
 		FundHolding.MarketValue,
 		FundHolding.PercentageOfTotal,
-		Holding.Ticker,
-		Holding.Name,
+		FigiMapping.Ticker,
+		FigiMapping.Name,
 		Holding.Type,
 		Holding.Sector,
 	).
 		FROM(Fund.
 			INNER_JOIN(FundHolding, FundHolding.FundID.EQ(Fund.ID)).
-			INNER_JOIN(Holding, Holding.ID.EQ(FundHolding.HoldingID)),
+			INNER_JOIN(Holding, Holding.ID.EQ(FundHolding.HoldingID)).
+			INNER_JOIN(FigiMapping, FigiMapping.Figi.EQ(Holding.Figi)),
 		)).Sql()
 
 	var h []fund.Holding

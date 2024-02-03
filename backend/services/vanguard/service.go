@@ -4,27 +4,46 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"etfinsight/generated/jet_gen/postgres/public/model"
+	"etfinsight/services/fund"
+	"etfinsight/utils/stringutils"
 	"fmt"
+	"github.com/jackc/pgx/v5"
 	"io"
 	"net/http"
 	"strings"
 	"time"
 
-	"etfinsight/generated/jet_gen/postgres/public/model"
-	"etfinsight/services/fund"
-	"etfinsight/utils/isinutils"
-	"etfinsight/utils/stringutils"
-
 	"github.com/google/uuid"
 )
 
 type Service struct {
-	client EtfIssuerClient
-	repo   Repository
+	client     EtfIssuerClient
+	figiClient FigiClient
+	repo       Repository
 }
 
-func NewService(client EtfIssuerClient, repo Repository) *Service {
-	return &Service{client: client, repo: repo}
+type FigiResp struct {
+	Warning string      `json:"warning"`
+	Data    []FigiValue `json:"data"`
+}
+type FigiValue struct {
+	Figi   string `json:"figi"`
+	Name   string `json:"name"`
+	Ticker string `json:"ticker"`
+}
+
+type FigiPayload struct {
+	IdType       string       `json:"idType"`
+	IdValue      string       `json:"idValue"`
+	HoldingsItem HoldingsItem `json:"-"`
+}
+
+var cusipFigiMap = map[string]model.FigiMapping{}
+var sedolFigiMap = map[string]model.FigiMapping{}
+
+func NewService(client EtfIssuerClient, repo Repository, figiClient FigiClient) *Service {
+	return &Service{client: client, repo: repo, figiClient: figiClient}
 }
 
 func (s *Service) UpsertFunds(ctx context.Context) error {
@@ -38,7 +57,16 @@ func (s *Service) UpsertFunds(ctx context.Context) error {
 	for batchSize < len(ei) {
 		ei, batches = ei[batchSize:], append(batches, ei[0:batchSize:batchSize])
 	}
+	if err != nil {
+		return err
+	}
 	batches = append(batches, ei)
+	cusipM, sedolM, err := s.repo.GetFigiMappings(ctx)
+	if err != nil {
+		return err
+	}
+	cusipFigiMap = cusipM
+	sedolFigiMap = sedolM
 	for _, batch := range batches {
 		err := func() error {
 			defer func() {
@@ -108,7 +136,7 @@ func (s *Service) convertFund(ctx context.Context, fund Fund, polarisHistory Pol
 		return err
 	}
 	defer s.repo.RollBack(tx, ctx)
-	holdings, fundHoldings := convertToHoldings(fund.Holdings.OriginalHoldings.Items)
+	holdings, fundHoldings := s.convertToHoldings(ctx, fund.Holdings.OriginalHoldings.Items, tx)
 	ISIN := getISIN(fund.Profile.Identifiers)
 	name := fund.Profile.FundFullName
 	currency := fund.Profile.FundCurrency
@@ -154,13 +182,17 @@ func (s *Service) convertFund(ctx context.Context, fund Fund, polarisHistory Pol
 		}
 	}
 	if len(holdings) > 0 {
-		upsertedHoldings, err := s.repo.UpsertHoldings(ctx, holdings, tx)
+		var holdingsSlice []model.Holding
+		for _, hv := range holdings {
+			holdingsSlice = append(holdingsSlice, hv)
+		}
+		upsertedHoldings, err := s.repo.UpsertHoldings(ctx, holdingsSlice, tx)
 		if err != nil {
 			return err
 		}
 		var aggFundHoldings []model.FundHolding
-		for fundHoldingTicker, fh := range fundHoldings {
-			upsertedHoldingId := upsertedHoldings[fundHoldingTicker]
+		for fundHoldingFigi, fh := range fundHoldings {
+			upsertedHoldingId := upsertedHoldings[fundHoldingFigi]
 			fh.FundID = &fundId
 			fh.HoldingID = &upsertedHoldingId
 			aggFundHoldings = append(aggFundHoldings, fh)
@@ -188,94 +220,200 @@ func convertToListings(fundId uuid.UUID, listings []FundInformationListing) []mo
 	return fundListings
 }
 
-func convertToHoldings(HoldingItems []HoldingsItem) ([]model.Holding, map[string]model.FundHolding) {
-	var holdings []model.Holding
-	holdingMap := map[string]model.Holding{}
+func (s *Service) convertToHoldings(ctx context.Context, HoldingItems []HoldingsItem, tx pgx.Tx) (map[string]model.Holding, map[string]model.FundHolding) {
+	holdingsMap := map[string]model.Holding{}
 	fundHoldingsMap := map[string]model.FundHolding{}
-	for _, hi := range HoldingItems {
-		var ISIN *string
-		if hi.SEDOL != nil && (hi.CountryCode == "GB" || hi.CountryCode == "IE") {
-			result, err := isinutils.SEDOLtoISIN(*hi.SEDOL, hi.CountryCode)
-			if err == nil {
-				ISIN = &result
-			}
-		} else if hi.CUSIP != nil && (hi.CountryCode == "US" || hi.CountryCode == "CA" || hi.CountryCode == "BM") {
-			result, err := isinutils.CUSIPtoISIN(*hi.CUSIP, hi.CountryCode)
-			if err == nil {
-				ISIN = &result
-			}
-		}
-		sector, ok := sectorMap[hi.SectorName]
-		if !ok {
-			sector = fund.UnknownSector
-		}
-		holdingType, ok := typeMap[hi.IssueTypename]
-		if !ok {
-			holdingType = fund.UnknownType
-		}
 
-		switch holdingType {
-		case fund.BondsType:
-			sector = fund.BondsSector
-			if hi.Ticker != "" {
-				hi.Ticker = fmt.Sprintf("%s - Bond", hi.Ticker)
-			}
-		case fund.NotesType:
-			sector = fund.NotesSector
-		case fund.CashType:
-			sector = fund.CashSector
-			hi.Ticker = hi.Name
-		}
+	batchSize := 100
+	batches := make([][]HoldingsItem, 0, (len(HoldingItems)+batchSize-1)/batchSize)
 
-		if hi.Ticker == "" {
-			str := ""
-			hi.Ticker = "UNKNOWN"
-			hi.Name = "Unknown company"
-			hi.SEDOL = &str
-			hi.CUSIP = &str
-			holdingType = fund.UnknownType
-			sector = fund.UnknownSector
-		}
-		ticker := hi.Ticker
-		name := hi.Name
-		SEDOL := hi.SEDOL
-		CUSIP := hi.CUSIP
-
-		sectorString := string(sector)
-		issueTypeName := string(holdingType)
-		holding := model.Holding{
-			Ticker: &ticker,
-			Type:   &issueTypeName,
-			Isin:   ISIN,
-			Name:   &name,
-			Sedol:  SEDOL,
-			Cusip:  CUSIP,
-			Sector: &sectorString,
-		}
-		amount := hi.NumberOfShares
-		percentageOfTotal := hi.MarketValPercent
-		marketValue := hi.MarketValue
-		if _, ok := holdingMap[ticker]; ok {
-			matchingFundHolding := fundHoldingsMap[ticker]
-			newAmount := amount + *matchingFundHolding.Amount
-			newPercentageOfTotal := percentageOfTotal + *matchingFundHolding.PercentageOfTotal
-			newMarketValue := marketValue + *matchingFundHolding.MarketValue
-			fundHoldingsMap[ticker] = model.FundHolding{
-				Amount:            &newAmount,
-				PercentageOfTotal: &newPercentageOfTotal,
-				MarketValue:       &newMarketValue,
-			}
-			continue
-		}
-		fundHoldingsMap[ticker] = model.FundHolding{
-			Amount:            &amount,
-			PercentageOfTotal: &percentageOfTotal,
-			MarketValue:       &marketValue,
-		}
-		holdingMap[ticker] = holding
-		holdings = append(holdings, holding)
+	for batchSize < len(HoldingItems) {
+		HoldingItems, batches = HoldingItems[batchSize:], append(batches, HoldingItems[0:batchSize:batchSize])
 	}
-	return holdings, fundHoldingsMap
+
+	batches = append(batches, HoldingItems)
+	for _, batch := range batches {
+		err := s.convertBatch(ctx, batch, holdingsMap, fundHoldingsMap, tx)
+		if err != nil {
+			fmt.Println(err)
+			return nil, nil
+		}
+	}
+
+	return holdingsMap, fundHoldingsMap
+}
+
+func (s *Service) convertBatch(ctx context.Context,
+	batch []HoldingsItem,
+	holdingsMap map[string]model.Holding,
+	fundHoldingsMap map[string]model.FundHolding,
+	tx pgx.Tx) error {
+	var figiPayload []FigiPayload
+	for _, hi := range batch {
+		if hi.SEDOL != nil {
+			foundFigi, ok := sedolFigiMap[*hi.SEDOL]
+			if ok {
+				figiCopy := foundFigi.Figi
+				h := model.Holding{Figi: &figiCopy}
+				setHoldingValues(hi, &h)
+				holdingsMap[figiCopy] = h
+				addToFundHoldingsMap(figiCopy, hi, fundHoldingsMap)
+			} else {
+				figiPayload = append(figiPayload, FigiPayload{
+					IdType:       "ID_SEDOL",
+					IdValue:      *hi.SEDOL,
+					HoldingsItem: hi,
+				})
+			}
+		} else if hi.CUSIP != nil {
+			foundFigi, ok := cusipFigiMap[*hi.CUSIP]
+			if ok {
+				figiCopy := foundFigi.Figi
+				h := model.Holding{Figi: &figiCopy}
+				setHoldingValues(hi, &h)
+				holdingsMap[figiCopy] = h
+				addToFundHoldingsMap(figiCopy, hi, fundHoldingsMap)
+			} else {
+				figiPayload = append(figiPayload, FigiPayload{
+					IdType:       "ID_CUSIP",
+					IdValue:      *hi.CUSIP,
+					HoldingsItem: hi,
+				})
+			}
+		}
+	}
+	if len(figiPayload) > 0 {
+		// TODO Deal with currency
+		figisResp, err := s.figiClient.GetFigi(figiPayload)
+		if err != nil {
+			return nil
+		}
+		var mappings []model.FigiMapping
+		for i, figiR := range figisResp {
+			if len(figiR.Data) == 0 || figiR.Warning != "" {
+				var retryFigiPayload []FigiPayload
+				if figiPayload[i].HoldingsItem.CUSIP != nil {
+					retryCusipCopy := figiPayload[i].HoldingsItem.CUSIP
+					retryFigiPl := FigiPayload{
+						IdType:       "ID_CUSIP",
+						IdValue:      *retryCusipCopy,
+						HoldingsItem: figiPayload[i].HoldingsItem,
+					}
+					figiPayload[i] = retryFigiPl
+					retryFigiPayload = append(retryFigiPayload, retryFigiPl)
+				}
+				if figiPayload[i].HoldingsItem.SEDOL != nil {
+					retrySedolCopy := figiPayload[i].HoldingsItem.SEDOL
+					retryFigiPayload = append(retryFigiPayload, FigiPayload{
+						IdType:       "ID_SEDOL",
+						IdValue:      *retrySedolCopy,
+						HoldingsItem: figiPayload[i].HoldingsItem,
+					})
+				}
+				if figiPayload[i].HoldingsItem.Ticker != "" {
+					retryTickerCopy := figiPayload[i].HoldingsItem.Ticker
+					retryFigiPayload = append(retryFigiPayload, FigiPayload{
+						IdType:       "TICKER",
+						IdValue:      retryTickerCopy,
+						HoldingsItem: figiPayload[i].HoldingsItem,
+					})
+				}
+				retryFigi, err := s.figiClient.GetFigi(retryFigiPayload)
+				if err != nil {
+					return err
+				}
+				for _, rfgi := range retryFigi {
+					if len(rfgi.Data) > 0 {
+						figiR = rfgi
+						break
+					}
+				}
+			}
+			if len(figiR.Data) == 0 {
+				fmt.Println("NO FIGI FOUND")
+				continue
+			}
+			figiCopy := figiR.Data[0].Figi
+			tickerCopy := figiR.Data[0].Ticker
+			nameCopy := figiR.Data[0].Name
+			var cusipCopy *string
+			var sedolCopy *string
+			if figiPayload[i].IdType == "ID_CUSIP" {
+				idCopy := figiPayload[i].IdValue
+				cusipCopy = &idCopy
+
+			} else if figiPayload[i].IdType == "ID_SEDOL" {
+				idCopy := figiPayload[i].IdValue
+				sedolCopy = &idCopy
+			}
+			mappings = append(mappings, model.FigiMapping{
+				Figi:   figiCopy,
+				Ticker: &tickerCopy,
+				Name:   &nameCopy,
+				Sedol:  sedolCopy,
+				Cusip:  cusipCopy,
+			})
+		}
+		if len(mappings) == 0 {
+			fmt.Println("No mappings found")
+			return nil
+		}
+		err = s.repo.UpsertFigiMapping(ctx, mappings, tx)
+		if err != nil {
+			return err
+		}
+		for i, upsertedFigi := range mappings {
+			if upsertedFigi.Cusip != nil {
+				cusipFigiMap[upsertedFigi.Figi] = upsertedFigi
+			}
+			if upsertedFigi.Sedol != nil {
+				sedolFigiMap[upsertedFigi.Figi] = upsertedFigi
+			}
+			upsertedFigiCopy := upsertedFigi.Figi
+			h := model.Holding{Figi: &upsertedFigiCopy}
+			setHoldingValues(figiPayload[i].HoldingsItem, &h)
+			holdingsMap[upsertedFigiCopy] = h
+			addToFundHoldingsMap(upsertedFigi.Figi, figiPayload[i].HoldingsItem, fundHoldingsMap)
+		}
+	}
+	return nil
+}
+
+func addToFundHoldingsMap(figi string, hi HoldingsItem, fundHoldingsMap map[string]model.FundHolding) {
+	amount := hi.NumberOfShares
+	percentageOfTotal := hi.MarketValPercent
+	marketValue := hi.MarketValue
+	fundHoldingsMap[figi] = model.FundHolding{
+		Amount:            &amount,
+		PercentageOfTotal: &percentageOfTotal,
+		MarketValue:       &marketValue,
+	}
+}
+
+func setHoldingValues(hi HoldingsItem, h *model.Holding) {
+	sector, ok := sectorMap[hi.SectorName]
+	if !ok {
+		sector = fund.UnknownSector
+	}
+	holdingType, ok := typeMap[hi.IssueTypename]
+	if !ok {
+		holdingType = fund.UnknownType
+	}
+
+	switch holdingType {
+	case fund.BondsType:
+		sector = fund.BondsSector
+	case fund.NotesType:
+		sector = fund.NotesSector
+	case fund.CashType:
+		sector = fund.CashSector
+		hi.Ticker = hi.Name
+	}
+
+	sectorString := string(sector)
+	issueTypeName := string(holdingType)
+	h.Sector = &sectorString
+	h.Type = &issueTypeName
 }
 
 var typeMap = map[string]fund.HoldingType{

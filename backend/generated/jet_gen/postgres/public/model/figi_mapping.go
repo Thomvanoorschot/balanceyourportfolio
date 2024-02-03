@@ -7,13 +7,11 @@
 
 package model
 
-import (
-	"github.com/google/uuid"
-)
-
-type Holding struct {
-	ID     uuid.UUID `sql:"primary_key"`
-	Figi   *string
-	Type   *string
-	Sector *string
+type FigiMapping struct {
+	Figi   string `sql:"primary_key"`
+	Ticker *string
+	Name   *string
+	Isin   *string
+	Sedol  *string
+	Cusip  *string
 }

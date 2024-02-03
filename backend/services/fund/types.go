@@ -11,8 +11,8 @@ import (
 type Holdings []Holding
 type Holding struct {
 	Id                string      `db:"holding.id"`
-	Ticker            string      `db:"holding.ticker"`
-	Name              string      `db:"holding.name"`
+	Ticker            string      `db:"figi_mapping.ticker"`
+	Name              string      `db:"figi_mapping.name"`
 	Type              HoldingType `db:"holding.type"`
 	Sector            SectorName  `db:"holding.sector"`
 	Amount            float64     `db:"fund_holding.amount"`

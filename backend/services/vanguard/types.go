@@ -3,10 +3,16 @@ package vanguard
 type FundsResponse struct {
 	Data FundsData `json:"data"`
 }
+type FundISINsResponse struct {
+	Data FundISINData `json:"data"`
+}
 
 type FundsData struct {
 	Funds                     []Fund                    `json:"funds"`
 	PolarisAnalyticsHistories []PolarisAnalyticsHistory `json:"polarisAnalyticsHistory"`
+}
+type FundISINData struct {
+	Funds []ISINFund `json:"funds"`
 }
 type NavItem struct {
 	Price float64 `json:"price"`
@@ -55,7 +61,18 @@ type Fund struct {
 	Profile        Profile        `json:"profile"`
 	Holdings       Holdings       `json:"holdings"`
 }
-
+type ISINFund struct {
+	BasketData BasketData `json:"brokerBasketData"`
+}
+type BasketData struct {
+	Holdings []ISINHolding `json:"holdings"`
+}
+type ISINHolding struct {
+	Ticker string `json:"ticker"`
+	ISIN   string `json:"isin"`
+	CUSIP  string `json:"cusip"`
+	SEDOL  string `json:"sedol"`
+}
 type FundInformation struct {
 	Data FundInformationData `json:"data"`
 }

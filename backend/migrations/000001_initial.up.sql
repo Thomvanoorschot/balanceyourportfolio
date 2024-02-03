@@ -15,12 +15,8 @@ CREATE TABLE fund (
 
 CREATE TABLE holding (
     id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
-    ticker                varchar(255) UNIQUE,
+    figi varchar(255) UNIQUE REFERENCES figi_mapping (figi),
     type                varchar(255),
-    name                varchar(255),
-    isin                varchar(20),
-    sedol                varchar(20),
-    cusip                varchar(20),
     sector              varchar(255)
 );
 
@@ -61,3 +57,13 @@ CREATE TABLE currency (
     code VARCHAR(10) PRIMARY KEY,
     exchange_rate numeric,
 )
+
+CREATE TABLE figi_mapping (
+    figi varchar(255) PRIMARY KEY,
+    ticker   varchar(255),
+    name   varchar(255),
+    isin     varchar(255) UNIQUE,
+    sedol varchar(255) UNIQUE,
+    cusip varchar(255) UNIQUE
+);
+

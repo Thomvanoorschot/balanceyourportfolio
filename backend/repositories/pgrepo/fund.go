@@ -19,9 +19,9 @@ func (r *Repository) FilterFunds(ctx context.Context, filter fund.FundsFilter) (
 	for _, p := range filter.Providers {
 		providerExpression = append(providerExpression, String(p))
 	}
-	whereExpr := ILike(Fund.Name, filter.SearchTerm).
+	whereExpr := Fund.TotalHoldings.GT(Float(0)).AND(ILike(Fund.Name, filter.SearchTerm).
 		OR(ILike(FundListing.Ticker, filter.SearchTerm).
-			OR(Fund.Isin.EQ(String(filter.SearchTerm))))
+			OR(Fund.Isin.EQ(String(filter.SearchTerm)))))
 	if len(providerExpression) > 0 {
 		whereExpr = whereExpr.
 			AND(Fund.Provider.IN(providerExpression...))

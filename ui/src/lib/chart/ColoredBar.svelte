@@ -15,8 +15,8 @@
 
 {#key count}
 	<div class="flex justify-start items-center text-primary">
-		<div class="flex w-3/5 items-center lg:w-1/4">
-			<div class="text-[0.5rem] lg:text-xs grow">{title}</div>
+		<div class="flex w-3/5 items-center lg:w-1/4 min-w-0">
+			<div class="text-[0.5rem] lg:text-xs flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{title}</div>
 			<div class="text-[0.5rem] lg:text-xs pr-2">{Math.round(percentage * 100) / 100}%</div>
 		</div>
 		<div class="w-full flex">

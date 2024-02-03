@@ -11,6 +11,7 @@ package table
 // this method only once at the beginning of the program.
 func UseSchema(schema string) {
 	Currency = Currency.FromSchema(schema)
+	FigiMapping = FigiMapping.FromSchema(schema)
 	Fund = Fund.FromSchema(schema)
 	FundHolding = FundHolding.FromSchema(schema)
 	FundListing = FundListing.FromSchema(schema)

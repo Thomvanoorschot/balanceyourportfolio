@@ -81,8 +81,8 @@ func (s *Service) convertFund(ctx context.Context, fetchedFund FundResponse) err
 			return err
 		}
 		var aggFundHoldings []model.FundHolding
-		for fundHoldingTicker, fh := range fundHoldings {
-			upsertedHoldingId := upsertedHoldings[fundHoldingTicker]
+		for fundHoldingIsin, fh := range fundHoldings {
+			upsertedHoldingId := upsertedHoldings[fundHoldingIsin]
 			fh.FundID = &fundId
 			fh.HoldingID = &upsertedHoldingId
 			aggFundHoldings = append(aggFundHoldings, fh)
@@ -117,14 +117,14 @@ func convertToHoldings(fundResponse FundResponse) ([]model.Holding, map[string]m
 	fundHoldingsMap := map[string]model.FundHolding{}
 
 	for _, entry := range fundResponse.Holdings.AaData {
-		ticker, ok := entry[fundResponse.HoldingsTableIndex["colTicker"]].(string)
-		if !ok {
-			return nil, nil, errors.New("could not find ticker")
-		}
-		name, ok := entry[fundResponse.HoldingsTableIndex["colIssueName"]].(string)
-		if !ok {
-			return nil, nil, errors.New("could not find name")
-		}
+		//ticker, ok := entry[fundResponse.HoldingsTableIndex["colTicker"]].(string)
+		//if !ok {
+		//	return nil, nil, errors.New("could not find ticker")
+		//}
+		//name, ok := entry[fundResponse.HoldingsTableIndex["colIssueName"]].(string)
+		//if !ok {
+		//	return nil, nil, errors.New("could not find name")
+		//}
 		iSector, ok := entry[fundResponse.HoldingsTableIndex["colSectorName"]].(string)
 		if !ok {
 			return nil, nil, errors.New("could not find sector name")
@@ -167,29 +167,29 @@ func convertToHoldings(fundResponse FundResponse) ([]model.Holding, map[string]m
 		sectorStr := string(sector)
 		typeStr := string(holdingType)
 		holding := model.Holding{
-			Ticker: &ticker,
-			Type:   &typeStr,
-			Isin:   &isin,
+			//Ticker: &ticker,
+			Type: &typeStr,
+			//Isin:   &isin,
 			Sector: &sectorStr,
-			Name:   &name,
+			//Name:   &name,
 		}
-		if _, ok := holdingMap[ticker]; ok {
-			matchingFundHolding := fundHoldingsMap[ticker]
+		if _, ok := holdingMap[isin]; ok {
+			matchingFundHolding := fundHoldingsMap[isin]
 			newPercentageOfTotal := weightRaw + *matchingFundHolding.PercentageOfTotal
 			newMarketValue := marketValueRaw + *matchingFundHolding.MarketValue
-			fundHoldingsMap[ticker] = model.FundHolding{
+			fundHoldingsMap[isin] = model.FundHolding{
 				PercentageOfTotal: &newPercentageOfTotal,
 				MarketValue:       &newMarketValue,
 				Amount:            &amountRaw,
 			}
 			continue
 		}
-		fundHoldingsMap[ticker] = model.FundHolding{
+		fundHoldingsMap[isin] = model.FundHolding{
 			PercentageOfTotal: &weightRaw,
 			MarketValue:       &marketValueRaw,
 			Amount:            &amountRaw,
 		}
-		holdingMap[ticker] = holding
+		holdingMap[isin] = holding
 		holdings = append(holdings, holding)
 	}
 	return holdings, fundHoldingsMap, nil

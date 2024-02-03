@@ -98,6 +98,12 @@ query FundsHoldingsQuery($portIds: [String!]!) {
 				}
 		  	}
 		}
+		brokerBasketData {
+			holdings(limit: -1){
+				ticker,
+				isin
+			}
+		}
 		holdings {
 			originalHoldings(
 				limit: -1

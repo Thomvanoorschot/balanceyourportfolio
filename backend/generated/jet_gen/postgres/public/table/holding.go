@@ -18,12 +18,8 @@ type holdingTable struct {
 
 	// Columns
 	ID     postgres.ColumnString
-	Ticker postgres.ColumnString
+	Figi   postgres.ColumnString
 	Type   postgres.ColumnString
-	Name   postgres.ColumnString
-	Isin   postgres.ColumnString
-	Sedol  postgres.ColumnString
-	Cusip  postgres.ColumnString
 	Sector postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
@@ -66,15 +62,11 @@ func newHoldingTable(schemaName, tableName, alias string) *HoldingTable {
 func newHoldingTableImpl(schemaName, tableName, alias string) holdingTable {
 	var (
 		IDColumn       = postgres.StringColumn("id")
-		TickerColumn   = postgres.StringColumn("ticker")
+		FigiColumn     = postgres.StringColumn("figi")
 		TypeColumn     = postgres.StringColumn("type")
-		NameColumn     = postgres.StringColumn("name")
-		IsinColumn     = postgres.StringColumn("isin")
-		SedolColumn    = postgres.StringColumn("sedol")
-		CusipColumn    = postgres.StringColumn("cusip")
 		SectorColumn   = postgres.StringColumn("sector")
-		allColumns     = postgres.ColumnList{IDColumn, TickerColumn, TypeColumn, NameColumn, IsinColumn, SedolColumn, CusipColumn, SectorColumn}
-		mutableColumns = postgres.ColumnList{TickerColumn, TypeColumn, NameColumn, IsinColumn, SedolColumn, CusipColumn, SectorColumn}
+		allColumns     = postgres.ColumnList{IDColumn, FigiColumn, TypeColumn, SectorColumn}
+		mutableColumns = postgres.ColumnList{FigiColumn, TypeColumn, SectorColumn}
 	)
 
 	return holdingTable{
@@ -82,12 +74,8 @@ func newHoldingTableImpl(schemaName, tableName, alias string) holdingTable {
 
 		//Columns
 		ID:     IDColumn,
-		Ticker: TickerColumn,
+		Figi:   FigiColumn,
 		Type:   TypeColumn,
-		Name:   NameColumn,
-		Isin:   IsinColumn,
-		Sedol:  SedolColumn,
-		Cusip:  CusipColumn,
 		Sector: SectorColumn,
 
 		AllColumns:     allColumns,
