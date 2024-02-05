@@ -197,7 +197,17 @@ func (s *Service) convertFund(ctx context.Context, fund Fund, polarisHistory Pol
 			fh.HoldingID = &upsertedHoldingId
 			aggFundHoldings = append(aggFundHoldings, fh)
 		}
-		err = s.repo.UpsertFundHoldings(ctx, aggFundHoldings, tx)
+		batchSize := 5000
+		batches := make([][]model.FundHolding, 0, (len(aggFundHoldings)+batchSize-1)/batchSize)
+
+		for batchSize < len(aggFundHoldings) {
+			aggFundHoldings, batches = aggFundHoldings[batchSize:], append(batches, aggFundHoldings[0:batchSize:batchSize])
+		}
+
+		batches = append(batches, aggFundHoldings)
+		for _, batch := range batches {
+			err = s.repo.UpsertFundHoldings(ctx, batch, tx)
+		}
 	}
 	if err != nil {
 		return err
@@ -259,11 +269,22 @@ func (s *Service) convertBatch(ctx context.Context,
 				holdingsMap[figiCopy] = h
 				addToFundHoldingsMap(figiCopy, hi, fundHoldingsMap)
 			} else {
-				figiPayload = append(figiPayload, FigiPayload{
-					IdType:       "ID_SEDOL",
-					IdValue:      *hi.SEDOL,
-					HoldingsItem: hi,
-				})
+				if hi.CUSIP != nil {
+					foundFigi, ok := cusipFigiMap[*hi.CUSIP]
+					if ok {
+						figiCopy := foundFigi.Figi
+						h := model.Holding{Figi: &figiCopy}
+						setHoldingValues(hi, &h)
+						holdingsMap[figiCopy] = h
+						addToFundHoldingsMap(figiCopy, hi, fundHoldingsMap)
+					} else {
+						figiPayload = append(figiPayload, FigiPayload{
+							IdType:       "ID_SEDOL",
+							IdValue:      *hi.SEDOL,
+							HoldingsItem: hi,
+						})
+					}
+				}
 			}
 		} else if hi.CUSIP != nil {
 			foundFigi, ok := cusipFigiMap[*hi.CUSIP]
@@ -334,25 +355,27 @@ func (s *Service) convertBatch(ctx context.Context,
 				continue
 			}
 			figiCopy := figiR.Data[0].Figi
-			tickerCopy := figiR.Data[0].Ticker
-			nameCopy := figiR.Data[0].Name
-			var cusipCopy *string
-			var sedolCopy *string
-			if figiPayload[i].IdType == "ID_CUSIP" {
-				idCopy := figiPayload[i].IdValue
-				cusipCopy = &idCopy
-
-			} else if figiPayload[i].IdType == "ID_SEDOL" {
-				idCopy := figiPayload[i].IdValue
-				sedolCopy = &idCopy
+			shouldAdd := true
+			for _, mi := range mappings {
+				if mi.Figi == figiCopy {
+					shouldAdd = false
+				}
 			}
-			mappings = append(mappings, model.FigiMapping{
-				Figi:   figiCopy,
-				Ticker: &tickerCopy,
-				Name:   &nameCopy,
-				Sedol:  sedolCopy,
-				Cusip:  cusipCopy,
-			})
+			if shouldAdd {
+				tickerCopy := figiR.Data[0].Ticker
+				nameCopy := figiR.Data[0].Name
+				var cusipCopy *string
+				var sedolCopy *string
+				cusipCopy = figiPayload[i].HoldingsItem.CUSIP
+				sedolCopy = figiPayload[i].HoldingsItem.SEDOL
+				mappings = append(mappings, model.FigiMapping{
+					Figi:   figiCopy,
+					Ticker: &tickerCopy,
+					Name:   &nameCopy,
+					Sedol:  sedolCopy,
+					Cusip:  cusipCopy,
+				})
+			}
 		}
 		if len(mappings) == 0 {
 			fmt.Println("No mappings found")

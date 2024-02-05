@@ -4,6 +4,7 @@ import (
 	"context"
 	"etfinsight/generated/jet_gen/postgres/public/model"
 	. "etfinsight/generated/jet_gen/postgres/public/table"
+	"fmt"
 	. "github.com/go-jet/jet/v2/postgres"
 	"github.com/jackc/pgx/v5"
 )
@@ -25,6 +26,9 @@ func (r *Repository) UpsertFigiMapping(ctx context.Context, s []model.FigiMappin
 		Sql()
 
 	_, err := tx.Exec(ctx, sql, args...)
+	if err != nil {
+		fmt.Println(err)
+	}
 	return err
 }
 func (r *Repository) GetFigiMappings(ctx context.Context) (map[string]model.FigiMapping, map[string]model.FigiMapping, error) {

@@ -63,7 +63,8 @@ CREATE TABLE figi_mapping (
     ticker   varchar(255),
     name   varchar(255),
     isin     varchar(255) UNIQUE,
-    sedol varchar(255) UNIQUE,
-    cusip varchar(255) UNIQUE
+    sedol varchar(255),
+    cusip varchar(255),
+    CONSTRAINT unique_sedol_cusip UNIQUE (sedol,cusip)
 );
 

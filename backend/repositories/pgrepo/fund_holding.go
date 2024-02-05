@@ -141,8 +141,8 @@ func (r *Repository) GetOverlappingHoldings(ctx context.Context, fundOne, fundTw
 		)
 		SELECT
 		h.id,
-		h."name",
-		h.ticker,
+		fg."name",
+		fg.ticker,
 	    oh.min_weight AS weighted_overlap_percentage,
 	    fh1.percentage_of_total,
 	    fh2.percentage_of_total
@@ -151,7 +151,8 @@ func (r *Repository) GetOverlappingHoldings(ctx context.Context, fundOne, fundTw
 			 left JOIN fund_holding fh1 ON oh.holding_id = fh1.holding_id AND fh1.fund_id = :fund1
 			 left JOIN fund_holding fh2 ON oh.holding_id = fh2.holding_id AND fh2.fund_id = :fund2
 			 join holding h on oh.holding_id = h.id
-			 group by h.id, h."name", oh.min_weight, fh1.percentage_of_total, fh2.percentage_of_total
+			 inner join figi_mapping fg ON fg.figi = h.figi
+			 group by h.id, fg."name", fg.ticker, oh.min_weight, fh1.percentage_of_total, fh2.percentage_of_total
 			 order by oh.min_weight desc
 			 limit 20;`,
 		RawArgs{
@@ -221,12 +222,13 @@ func (r *Repository) GetNonOverlappingHoldings(ctx context.Context, fundOne, fun
 		)
 		SELECT
 			h.id,
-			h."name",
-			h.ticker,
+			fg."name",
+			fg.ticker,
 			noh.percentage_of_total
 		FROM
 			NonOverlappingHoldings noh
 			JOIN holding h ON noh.holding_id = h.id
+			inner join figi_mapping fg ON fg.figi = h.figi
 		ORDER BY
 			noh.percentage_of_total DESC
 		LIMIT 20;
