@@ -23,22 +23,6 @@ type Service struct {
 	repo       Repository
 }
 
-type FigiResp struct {
-	Warning string      `json:"warning"`
-	Data    []FigiValue `json:"data"`
-}
-type FigiValue struct {
-	Figi   string `json:"figi"`
-	Name   string `json:"name"`
-	Ticker string `json:"ticker"`
-}
-
-type FigiPayload struct {
-	IdType       string       `json:"idType"`
-	IdValue      string       `json:"idValue"`
-	HoldingsItem HoldingsItem `json:"-"`
-}
-
 var cusipFigiMap = map[string]model.FigiMapping{}
 var sedolFigiMap = map[string]model.FigiMapping{}
 
@@ -284,6 +268,12 @@ func (s *Service) convertBatch(ctx context.Context,
 							HoldingsItem: hi,
 						})
 					}
+				} else {
+					figiPayload = append(figiPayload, FigiPayload{
+						IdType:       "ID_SEDOL",
+						IdValue:      *hi.SEDOL,
+						HoldingsItem: hi,
+					})
 				}
 			}
 		} else if hi.CUSIP != nil {
@@ -355,6 +345,10 @@ func (s *Service) convertBatch(ctx context.Context,
 				continue
 			}
 			figiCopy := figiR.Data[0].Figi
+			shareClassFigi := figiR.Data[0].ShareClassFigi
+			if shareClassFigi != nil {
+				figiCopy = *shareClassFigi
+			}
 			shouldAdd := true
 			for _, mi := range mappings {
 				if mi.Figi == figiCopy {

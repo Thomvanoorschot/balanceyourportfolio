@@ -15,7 +15,7 @@ func main() {
 
 	repo := pgrepo.NewRepository(cfg)
 	client := clients.NewVanguard(cfg)
-	figiClient := clients.NewFigi()
+	figiClient := clients.NewFigi[vanguard.FigiPayload, vanguard.FigiResp]()
 	svc := vanguard.NewService(client, repo, figiClient)
 	err := svc.UpsertFunds(context.Background())
 	if err != nil {

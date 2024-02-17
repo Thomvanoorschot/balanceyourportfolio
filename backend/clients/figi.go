@@ -3,21 +3,20 @@ package clients
 import (
 	"bytes"
 	"encoding/json"
-	"etfinsight/services/vanguard"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
 )
 
-type Figi struct {
+type Figi[T any, TE any] struct {
 }
 
-func NewFigi() *Figi {
-	return &Figi{}
+func NewFigi[T any, TE any]() *Figi[T, TE] {
+	return &Figi[T, TE]{}
 }
 
-func (f *Figi) GetFigi(payload []vanguard.FigiPayload) (r []vanguard.FigiResp, err error) {
+func (f *Figi[T, TE]) GetFigi(payload []T) (r []TE, err error) {
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
 		fmt.Println("Error marshalling payload:", err)
@@ -58,7 +57,7 @@ func (f *Figi) GetFigi(payload []vanguard.FigiPayload) (r []vanguard.FigiResp, e
 		<-time.NewTimer(7 * time.Second).C
 		return f.GetFigi(payload)
 	}
-	var figiResp []vanguard.FigiResp
+	var figiResp []TE
 	err = json.Unmarshal(body, &figiResp)
 	if err != nil {
 		fmt.Println("Could not unmarshal body", err)

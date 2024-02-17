@@ -244,14 +244,15 @@ func (r *Repository) GetPortfolioFundHoldings(ctx context.Context,
      WHERE portfolio_fund.portfolio_id = :portfolioId
 	),
 	relative_weightings_cte AS (
-		 SELECT H.Id as "holdingId", H.ticker, H."name", (ratio_cte.ratio * FH.percentage_of_total) as ratiodPercentage, F.id as "fundId"
+		 SELECT H.Id as "holdingId", FM.ticker, FM."name", (ratio_cte.ratio * FH.percentage_of_total) as ratiodPercentage, F.id as "fundId"
 		 FROM holding H
 			  INNER JOIN fund_holding FH ON (FH.holding_id = H.id)
 			  INNER JOIN portfolio_fund PF ON (PF.fund_id = FH.fund_id)
+			  INNER JOIN figi_mapping FM ON FM.figi = H.figi
 			  INNER JOIN fund F ON (PF.fund_id = F.id)
 			  INNER JOIN ratio_cte ON (ratio_cte."fund.id" = F.id)
 		 WHERE PF.portfolio_id = :portfolioId
-		 AND (H.name ILIKE :searchTerm OR h.ticker ILIKE :searchTerm)
+		 AND (FM.name ILIKE :searchTerm OR FM.ticker ILIKE :searchTerm)
 		 AND ((:noSector = true) OR h.sector IN (%s))
 	), limiting_cte as (
 		SELECT distinct("holdingId"), (SUM(ratiodPercentage) OVER(PARTITION BY ticker)) as cumulativePercentage 

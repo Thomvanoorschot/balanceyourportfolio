@@ -17,4 +17,5 @@ type Repository interface {
 	UpsertHoldings(ctx context.Context, holdings []model.Holding, tx pgx.Tx) (map[string]uuid.UUID, error)
 	UpsertFundHoldings(ctx context.Context, s []model.FundHolding, tx pgx.Tx) error
 	UpsertFundListings(ctx context.Context, s []model.FundListing, tx pgx.Tx) error
+	UpsertFigiISINMapping(ctx context.Context, s []model.FigiMapping, tx pgx.Tx) error
 }

@@ -15,7 +15,8 @@ func main() {
 
 	repo := pgrepo.NewRepository(cfg)
 	client := clients.NewIShares(cfg)
-	svc := ishares.NewService(client, repo)
+	figiClient := clients.NewFigi[ishares.FigiPayload, ishares.FigiResp]()
+	svc := ishares.NewService(client, repo, figiClient)
 	err := svc.UpsertFunds(context.Background())
 	if err != nil {
 		fmt.Println(err)

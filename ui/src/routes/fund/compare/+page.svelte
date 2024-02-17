@@ -16,6 +16,7 @@
 	import ColoredBar from '$lib/chart/ColoredBar.svelte';
 	import ColoredBarChart from '$lib/chart/ColoredBarChart.svelte';
 	import FundColors from '$lib/portfolios/FundColors.svelte';
+	import * as d3 from 'd3';
 
 	export let data: PageData;
 	let compareForm: HTMLFormElement;

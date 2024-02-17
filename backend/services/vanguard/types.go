@@ -112,3 +112,20 @@ type PolarisOSCLTSHQTY struct {
 	EffectiveDate    string  `json:"effectiveDate"`
 	OutstandingShare float64 `json:"outstandingShare"`
 }
+
+type FigiResp struct {
+	Warning string      `json:"warning"`
+	Data    []FigiValue `json:"data"`
+}
+type FigiValue struct {
+	Figi           string  `json:"figi"`
+	ShareClassFigi *string `json:"shareClassFIGI"`
+	Name           string  `json:"name"`
+	Ticker         string  `json:"ticker"`
+}
+
+type FigiPayload struct {
+	IdType       string       `json:"idType"`
+	IdValue      string       `json:"idValue"`
+	HoldingsItem HoldingsItem `json:"-"`
+}

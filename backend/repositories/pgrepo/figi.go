@@ -31,6 +31,24 @@ func (r *Repository) UpsertFigiMapping(ctx context.Context, s []model.FigiMappin
 	}
 	return err
 }
+func (r *Repository) UpsertFigiISINMapping(ctx context.Context, s []model.FigiMapping, tx pgx.Tx) error {
+	sql, args := FigiMapping.
+		INSERT(FigiMapping.AllColumns).
+		MODELS(s).
+		ON_CONFLICT(FigiMapping.Figi).
+		DO_UPDATE(
+			SET(
+				FigiMapping.Isin.SET(FigiMapping.EXCLUDED.Isin),
+			),
+		).
+		Sql()
+
+	_, err := tx.Exec(ctx, sql, args...)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return err
+}
 func (r *Repository) GetFigiMappings(ctx context.Context) (map[string]model.FigiMapping, map[string]model.FigiMapping, error) {
 	sql, args := SELECT(FigiMapping.AllColumns).
 		FROM(FigiMapping).

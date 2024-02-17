@@ -7,19 +7,22 @@ import (
 	"etfinsight/services/fund"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 type Service struct {
-	client EtfIssuerClient
-	repo   Repository
+	client     EtfIssuerClient
+	repo       Repository
+	figiClient FigiClient
 }
 
-func NewService(client EtfIssuerClient, repo Repository) *Service {
-	return &Service{client: client, repo: repo}
+func NewService(client EtfIssuerClient, repo Repository, figiClient FigiClient) *Service {
+	return &Service{client: client, repo: repo, figiClient: figiClient}
 }
 
 var (
-	iShares = "IShares"
+	iShares     = "IShares"
+	isinFigiMap = map[string]model.FigiMapping{}
 )
 
 func (s *Service) UpsertFunds(ctx context.Context) error {
@@ -71,7 +74,7 @@ func (s *Service) convertFund(ctx context.Context, fetchedFund FundResponse) err
 			return err
 		}
 	}
-	holdings, fundHoldings, err := convertToHoldings(fetchedFund)
+	holdings, fundHoldings, err := s.convertToHoldings(fetchedFund, tx)
 	if err != nil {
 		return err
 	}
@@ -81,8 +84,8 @@ func (s *Service) convertFund(ctx context.Context, fetchedFund FundResponse) err
 			return err
 		}
 		var aggFundHoldings []model.FundHolding
-		for fundHoldingIsin, fh := range fundHoldings {
-			upsertedHoldingId := upsertedHoldings[fundHoldingIsin]
+		for fundHoldingFigi, fh := range fundHoldings {
+			upsertedHoldingId := upsertedHoldings[fundHoldingFigi]
 			fh.FundID = &fundId
 			fh.HoldingID = &upsertedHoldingId
 			aggFundHoldings = append(aggFundHoldings, fh)
@@ -111,86 +114,205 @@ func convertToListings(fundId uuid.UUID, listings []string) []model.FundListing 
 
 var tempUnknownSectorMap = map[string]interface{}{}
 
-func convertToHoldings(fundResponse FundResponse) ([]model.Holding, map[string]model.FundHolding, error) {
+func (s *Service) convertToHoldings(fundResponse FundResponse, tx pgx.Tx) ([]model.Holding, map[string]model.FundHolding, error) {
 	var holdings []model.Holding
 	holdingMap := map[string]model.Holding{}
 	fundHoldingsMap := map[string]model.FundHolding{}
 
-	for _, entry := range fundResponse.Holdings.AaData {
-		//ticker, ok := entry[fundResponse.HoldingsTableIndex["colTicker"]].(string)
-		//if !ok {
-		//	return nil, nil, errors.New("could not find ticker")
-		//}
-		//name, ok := entry[fundResponse.HoldingsTableIndex["colIssueName"]].(string)
-		//if !ok {
-		//	return nil, nil, errors.New("could not find name")
-		//}
-		iSector, ok := entry[fundResponse.HoldingsTableIndex["colSectorName"]].(string)
-		if !ok {
-			return nil, nil, errors.New("could not find sector name")
-		}
-		hType, ok := entry[fundResponse.HoldingsTableIndex["colAssetClass"]].(string)
-		if !ok {
-			return nil, nil, errors.New("could not find holding type")
-		}
-		marketValue, ok := entry[fundResponse.HoldingsTableIndex["colMarketValue"]].(map[string]interface{})
-		if !ok {
-			return nil, nil, errors.New("could not find marketValue")
-		}
-		weight, ok := entry[fundResponse.HoldingsTableIndex["colHoldingPercent"]].(map[string]interface{})
-		if !ok {
-			return nil, nil, errors.New("could not find weight")
-		}
-		amount, ok := entry[fundResponse.HoldingsTableIndex["colUnitsHeld"]].(map[string]interface{})
-		if !ok {
-			amount, ok = entry[fundResponse.HoldingsTableIndex["colParValue"]].(map[string]interface{})
+	batchSize := 100
+	batches := make([][][]interface{}, 0, (len(fundResponse.Holdings.AaData)+batchSize-1)/batchSize)
+
+	for batchSize < len(fundResponse.Holdings.AaData) {
+		fundResponse.Holdings.AaData, batches = fundResponse.Holdings.AaData[batchSize:], append(batches, fundResponse.Holdings.AaData[0:batchSize:batchSize])
+	}
+
+	batches = append(batches, fundResponse.Holdings.AaData)
+	for _, batch := range batches {
+		var figiPayload []FigiPayload
+
+		for _, entry := range batch {
+			isin, ok := entry[fundResponse.HoldingsTableIndex["colIsin"]].(string)
 			if !ok {
-				return nil, nil, errors.New("could not find amount")
+				return nil, nil, errors.New("could not find isin")
+			}
+			figi, ok := isinFigiMap[isin]
+			if ok {
+				iSector, ok := entry[fundResponse.HoldingsTableIndex["colSectorName"]].(string)
+				if !ok {
+					return nil, nil, errors.New("could not find sector name")
+				}
+				hType, ok := entry[fundResponse.HoldingsTableIndex["colAssetClass"]].(string)
+				if !ok {
+					return nil, nil, errors.New("could not find holding type")
+				}
+				marketValue, ok := entry[fundResponse.HoldingsTableIndex["colMarketValue"]].(map[string]interface{})
+				if !ok {
+					return nil, nil, errors.New("could not find marketValue")
+				}
+				weight, ok := entry[fundResponse.HoldingsTableIndex["colHoldingPercent"]].(map[string]interface{})
+				if !ok {
+					return nil, nil, errors.New("could not find weight")
+				}
+				amount, ok := entry[fundResponse.HoldingsTableIndex["colUnitsHeld"]].(map[string]interface{})
+				if !ok {
+					amount, ok = entry[fundResponse.HoldingsTableIndex["colParValue"]].(map[string]interface{})
+					if !ok {
+						return nil, nil, errors.New("could not find amount")
+					}
+				}
+				sector, ok := sectorMap[iSector]
+				weightRaw := weight["raw"].(float64)
+				marketValueRaw := marketValue["raw"].(float64)
+				amountRaw := amount["raw"].(float64)
+				if !ok {
+					tempUnknownSectorMap[iSector] = nil
+					sector = fund.UnknownSector
+				}
+				holdingType, ok := typeMap[hType]
+				if !ok {
+					holdingType = fund.UnknownType
+				}
+				sectorStr := string(sector)
+				typeStr := string(holdingType)
+				figiCopy := figi.Figi
+				holding := model.Holding{
+					Figi:   &figiCopy,
+					Type:   &typeStr,
+					Sector: &sectorStr,
+				}
+				if _, ok := holdingMap[figiCopy]; ok {
+					matchingFundHolding := fundHoldingsMap[figiCopy]
+					newPercentageOfTotal := weightRaw + *matchingFundHolding.PercentageOfTotal
+					newMarketValue := marketValueRaw + *matchingFundHolding.MarketValue
+					fundHoldingsMap[figiCopy] = model.FundHolding{
+						PercentageOfTotal: &newPercentageOfTotal,
+						MarketValue:       &newMarketValue,
+						Amount:            &amountRaw,
+					}
+					continue
+				}
+				fundHoldingsMap[figiCopy] = model.FundHolding{
+					PercentageOfTotal: &weightRaw,
+					MarketValue:       &marketValueRaw,
+					Amount:            &amountRaw,
+				}
+				holdingMap[figiCopy] = holding
+				holdings = append(holdings, holding)
+			} else if isin != "-" {
+
+				figiPayload = append(figiPayload, FigiPayload{
+					IdType:  "ID_ISIN",
+					IdValue: isin,
+				})
 			}
 		}
-		isin, ok := entry[fundResponse.HoldingsTableIndex["colIsin"]].(string)
-		if !ok {
-			return nil, nil, errors.New("could not find isin")
-		}
-		sector, ok := sectorMap[iSector]
-		weightRaw := weight["raw"].(float64)
-		marketValueRaw := marketValue["raw"].(float64)
-		amountRaw := amount["raw"].(float64)
-		if !ok {
-			tempUnknownSectorMap[iSector] = nil
-			sector = fund.UnknownSector
-		}
-		holdingType, ok := typeMap[hType]
-		if !ok {
-			holdingType = fund.UnknownType
-		}
-		sectorStr := string(sector)
-		typeStr := string(holdingType)
-		holding := model.Holding{
-			//Ticker: &ticker,
-			Type: &typeStr,
-			//Isin:   &isin,
-			Sector: &sectorStr,
-			//Name:   &name,
-		}
-		if _, ok := holdingMap[isin]; ok {
-			matchingFundHolding := fundHoldingsMap[isin]
-			newPercentageOfTotal := weightRaw + *matchingFundHolding.PercentageOfTotal
-			newMarketValue := marketValueRaw + *matchingFundHolding.MarketValue
-			fundHoldingsMap[isin] = model.FundHolding{
-				PercentageOfTotal: &newPercentageOfTotal,
-				MarketValue:       &newMarketValue,
-				Amount:            &amountRaw,
-			}
+		if len(figiPayload) == 0 {
 			continue
 		}
-		fundHoldingsMap[isin] = model.FundHolding{
-			PercentageOfTotal: &weightRaw,
-			MarketValue:       &marketValueRaw,
-			Amount:            &amountRaw,
+		// TODO Deal with currency
+		figisResp, err := s.figiClient.GetFigi(figiPayload)
+		if err != nil {
+			fmt.Println(err)
+			return nil, nil, nil
 		}
-		holdingMap[isin] = holding
-		holdings = append(holdings, holding)
+		var mappings []model.FigiMapping
+		for _, entry := range batch {
+			isin, ok := entry[fundResponse.HoldingsTableIndex["colIsin"]].(string)
+			if !ok {
+				return nil, nil, errors.New("could not find isin")
+			}
+			var figiMapping model.FigiMapping
+			for i, figiR := range figisResp {
+				if figiR.Warning != "" || len(figiR.Data) == 0 {
+					fmt.Println("NO FIGI FOUND")
+					continue
+				} else if figiPayload[i].IdValue == isin {
+					tickerCopy := figiR.Data[0].Ticker
+					nameCopy := figiR.Data[0].Name
+					isinCopy := isin
+					figiCopy := figiR.Data[0].Figi
+					shareClassFigi := figiR.Data[0].ShareClassFigi
+					if shareClassFigi != nil {
+						figiCopy = *shareClassFigi
+					}
+					figiMapping = model.FigiMapping{
+						Figi:   figiCopy,
+						Ticker: &tickerCopy,
+						Name:   &nameCopy,
+						Isin:   &isinCopy,
+					}
+					mappings = append(mappings, figiMapping)
+					isinFigiMap[isin] = figiMapping
+					iSector, ok := entry[fundResponse.HoldingsTableIndex["colSectorName"]].(string)
+					if !ok {
+						return nil, nil, errors.New("could not find sector name")
+					}
+					hType, ok := entry[fundResponse.HoldingsTableIndex["colAssetClass"]].(string)
+					if !ok {
+						return nil, nil, errors.New("could not find holding type")
+					}
+					marketValue, ok := entry[fundResponse.HoldingsTableIndex["colMarketValue"]].(map[string]interface{})
+					if !ok {
+						return nil, nil, errors.New("could not find marketValue")
+					}
+					weight, ok := entry[fundResponse.HoldingsTableIndex["colHoldingPercent"]].(map[string]interface{})
+					if !ok {
+						return nil, nil, errors.New("could not find weight")
+					}
+					amount, ok := entry[fundResponse.HoldingsTableIndex["colUnitsHeld"]].(map[string]interface{})
+					if !ok {
+						amount, ok = entry[fundResponse.HoldingsTableIndex["colParValue"]].(map[string]interface{})
+						if !ok {
+							return nil, nil, errors.New("could not find amount")
+						}
+					}
+					sector, ok := sectorMap[iSector]
+					weightRaw := weight["raw"].(float64)
+					marketValueRaw := marketValue["raw"].(float64)
+					amountRaw := amount["raw"].(float64)
+					if !ok {
+						tempUnknownSectorMap[iSector] = nil
+						sector = fund.UnknownSector
+					}
+					holdingType, ok := typeMap[hType]
+					if !ok {
+						holdingType = fund.UnknownType
+					}
+					sectorStr := string(sector)
+					typeStr := string(holdingType)
+					figiMappingCopy := figiMapping.Figi
+					holding := model.Holding{
+						Figi:   &figiMappingCopy,
+						Type:   &typeStr,
+						Sector: &sectorStr,
+					}
+					if _, ok := holdingMap[figiMappingCopy]; ok {
+						matchingFundHolding := fundHoldingsMap[figiMappingCopy]
+						newPercentageOfTotal := weightRaw + *matchingFundHolding.PercentageOfTotal
+						newMarketValue := marketValueRaw + *matchingFundHolding.MarketValue
+						fundHoldingsMap[figiMappingCopy] = model.FundHolding{
+							PercentageOfTotal: &newPercentageOfTotal,
+							MarketValue:       &newMarketValue,
+							Amount:            &amountRaw,
+						}
+						continue
+					}
+					fundHoldingsMap[figiMappingCopy] = model.FundHolding{
+						PercentageOfTotal: &weightRaw,
+						MarketValue:       &marketValueRaw,
+						Amount:            &amountRaw,
+					}
+					holdingMap[figiMappingCopy] = holding
+					holdings = append(holdings, holding)
+				}
+			}
+		}
+		if len(mappings) > 0 {
+			err = s.repo.UpsertFigiISINMapping(context.Background(), mappings, tx)
+			if err != nil {
+				return nil, nil, err
+			}
+		}
 	}
 	return holdings, fundHoldingsMap, nil
 }
