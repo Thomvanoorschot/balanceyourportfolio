@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  backend:
+    container_name: backend
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    env_file:
+      - backend/.env
+    ports:
+      - "8080:8080"
+
+  frontend:
+    container_name: frontend
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    env_file:
+      - frontend/.env
+    environment:
+      - GRPC_API_URL=backend:8080
+      - PROTO_FILES_LOCATION=proto/main.proto
+      - ORIGIN=http://localhost:3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_started
