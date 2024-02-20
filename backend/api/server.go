@@ -1,6 +1,8 @@
 package api
 
 import (
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"log"
 	"net"
 
@@ -32,6 +34,8 @@ func ListenAndServe(host string, port string) error {
 
 	proto.RegisterFundServiceServer(s, fundHandler)
 	proto.RegisterPortfolioServiceServer(s, portfolioHandler)
+	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
+
 	if err := s.Serve(listener); err != nil {
 		log.Fatalln("failed to serve:", err)
 	}

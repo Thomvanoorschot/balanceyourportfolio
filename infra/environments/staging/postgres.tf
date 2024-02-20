@@ -1,5 +1,5 @@
-module "k8s_cluster" {
-  source = "../../modules/k8s_cluster"
+module "postgres" {
+  source = "../../modules/postgres"
   do_variables = {
     TOKEN: var.digital_ocean_token
   }

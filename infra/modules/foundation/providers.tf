@@ -6,7 +6,6 @@ terraform {
     }
   }
 }
-
 provider "digitalocean" {
   token = var.do_variables["TOKEN"]
 }

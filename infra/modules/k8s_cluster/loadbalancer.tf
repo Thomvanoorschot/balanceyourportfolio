@@ -1,5 +1,5 @@
 resource "digitalocean_loadbalancer" "ingress_load_balancer" {
-  name   = "${var.cluster_name}_load_balancer"
+  name   = "${var.cluster_name}-load-balancer"
   region = var.region
 
   forwarding_rule {
