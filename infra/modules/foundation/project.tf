@@ -1,10 +1,7 @@
-resource "digitalocean_project" "etfinsight" {
+resource "digitalocean_project" "balanceyourportfolio" {
   name        = var.project_name
   description = var.project_description
   environment = var.environment
 
-  is_default = true
-  lifecycle {
-    prevent_destroy = true
-  }
+  resources = var.project_resources
 }

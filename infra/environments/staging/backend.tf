@@ -1,6 +1,6 @@
 terraform {
   cloud {
-    organization = "etfinsight"
+    organization = "balanceyourportfolio"
 
     workspaces {
       name = "staging"

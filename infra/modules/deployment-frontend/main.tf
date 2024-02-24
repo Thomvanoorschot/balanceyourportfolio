@@ -33,7 +33,7 @@ resource "kubernetes_deployment" "default" {
     selector {
       match_labels = local.labels
     }
-    replicas = 2
+
 
     strategy {
       rolling_update {
@@ -87,8 +87,10 @@ resource "kubernetes_deployment" "default" {
             timeout_seconds       = "21"
             success_threshold     = "1"
             failure_threshold     = "5"
-            exec {
-              command = ["/bin/grpc_health_probe", "-addr=:${var.port}"]
+            http_get {
+              path   = "healthz"
+              port   = var.port
+              scheme = "HTTP"
             }
           }
 
@@ -98,8 +100,10 @@ resource "kubernetes_deployment" "default" {
             timeout_seconds       = "21"
             success_threshold     = "1"
             failure_threshold     = "5"
-            exec {
-              command = ["/bin/grpc_health_probe", "-addr=:${var.port}"]
+            http_get {
+              path   = "healthz"
+              port   = var.port
+              scheme = "HTTP"
             }
           }
         }

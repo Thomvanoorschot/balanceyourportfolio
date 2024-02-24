@@ -6,13 +6,5 @@ module "foundation" {
   }
   project_description = var.project_description
   project_name        = var.project_name
-}
-
-resource "digitalocean_project_resources" "resources" {
-  project = module.foundation.project_id
-  resources = [
-    module.k8s_cluster.cluster_urn,
-    module.k8s_cluster.loadbalancer_urn,
-    module.postgres.cluster_urn,
-  ]
+  project_resources = var.project_resources
 }

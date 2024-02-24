@@ -14,3 +14,7 @@ variable "do_variables" {
   description = "Digital ocean variables"
   type = map(string)
 }
+variable "project_resources" {
+  description = "The resources for the project"
+  type = list(string)
+}
