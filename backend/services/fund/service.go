@@ -1,10 +1,10 @@
 package fund
 
 import (
+	"balanceyourportfolio/generated/proto"
+	"balanceyourportfolio/utils/concurrencyutils"
+	"balanceyourportfolio/utils/stringutils"
 	"context"
-	"etfinsight/generated/proto"
-	"etfinsight/utils/concurrencyutils"
-	"etfinsight/utils/stringutils"
 
 	"github.com/google/uuid"
 )

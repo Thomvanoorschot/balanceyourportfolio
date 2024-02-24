@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 
-	"etfinsight/generated/proto"
+	"balanceyourportfolio/generated/proto"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

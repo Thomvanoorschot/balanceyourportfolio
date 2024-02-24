@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"etfinsight/clients"
-	"etfinsight/config"
-	"etfinsight/repositories/pgrepo"
-	"etfinsight/services/vanguard"
+	"balanceyourportfolio/clients"
+	"balanceyourportfolio/config"
+	"balanceyourportfolio/repositories/pgrepo"
+	"balanceyourportfolio/services/vanguard"
 )
 
 func main() {

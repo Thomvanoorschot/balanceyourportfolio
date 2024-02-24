@@ -6,12 +6,12 @@ import (
 	"log"
 	"net"
 
-	"etfinsight/api/handlers"
-	"etfinsight/config"
-	"etfinsight/generated/proto"
-	"etfinsight/repositories/pgrepo"
-	"etfinsight/services/fund"
-	"etfinsight/services/portfolio"
+	"balanceyourportfolio/api/handlers"
+	"balanceyourportfolio/config"
+	"balanceyourportfolio/generated/proto"
+	"balanceyourportfolio/repositories/pgrepo"
+	"balanceyourportfolio/services/fund"
+	"balanceyourportfolio/services/portfolio"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

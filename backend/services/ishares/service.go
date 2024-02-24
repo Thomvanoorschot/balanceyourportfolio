@@ -1,10 +1,10 @@
 package ishares
 
 import (
+	"balanceyourportfolio/generated/jet_gen/postgres/public/model"
+	"balanceyourportfolio/services/fund"
 	"context"
 	"errors"
-	"etfinsight/generated/jet_gen/postgres/public/model"
-	"etfinsight/services/fund"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"

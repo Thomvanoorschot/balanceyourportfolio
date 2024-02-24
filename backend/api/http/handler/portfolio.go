@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	"etfinsight/api/contracts"
-	"etfinsight/utils/stringutils"
+	"balanceyourportfolio/api/contracts"
+	"balanceyourportfolio/utils/stringutils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

@@ -1,13 +1,13 @@
 package main
 
 import (
+	"balanceyourportfolio/services/ishares"
 	"context"
-	"etfinsight/services/ishares"
 	"fmt"
 
-	"etfinsight/clients"
-	"etfinsight/config"
-	"etfinsight/repositories/pgrepo"
+	"balanceyourportfolio/clients"
+	"balanceyourportfolio/config"
+	"balanceyourportfolio/repositories/pgrepo"
 )
 
 func main() {

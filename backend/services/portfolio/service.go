@@ -5,11 +5,11 @@ import (
 	"errors"
 	"time"
 
-	"etfinsight/generated/jet_gen/postgres/public/model"
-	"etfinsight/generated/proto"
-	"etfinsight/services/fund"
-	"etfinsight/utils/concurrencyutils"
-	"etfinsight/utils/stringutils"
+	"balanceyourportfolio/generated/jet_gen/postgres/public/model"
+	"balanceyourportfolio/generated/proto"
+	"balanceyourportfolio/services/fund"
+	"balanceyourportfolio/utils/concurrencyutils"
+	"balanceyourportfolio/utils/stringutils"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"

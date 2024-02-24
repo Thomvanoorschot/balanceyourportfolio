@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"etfinsight/api/contracts"
+	"balanceyourportfolio/api/contracts"
 )
 
 type Handler struct {

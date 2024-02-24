@@ -1,4 +1,4 @@
-module etfinsight
+module balanceyourportfolio
 
 go 1.21
 

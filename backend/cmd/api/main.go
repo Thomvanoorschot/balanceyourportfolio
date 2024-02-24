@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"etfinsight/api"
-	"etfinsight/config"
+	"balanceyourportfolio/api"
+	"balanceyourportfolio/config"
 )
 
 func main() {

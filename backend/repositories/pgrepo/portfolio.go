@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"etfinsight/generated/jet_gen/postgres/public/model"
-	. "etfinsight/generated/jet_gen/postgres/public/table"
-	"etfinsight/services/portfolio"
+	"balanceyourportfolio/generated/jet_gen/postgres/public/model"
+	. "balanceyourportfolio/generated/jet_gen/postgres/public/table"
+	"balanceyourportfolio/services/portfolio"
 
 	. "github.com/go-jet/jet/v2/postgres"
 	"github.com/jackc/pgx/v5"

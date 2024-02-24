@@ -3,8 +3,8 @@ package portfolio
 import (
 	"context"
 
-	"etfinsight/generated/jet_gen/postgres/public/model"
-	"etfinsight/services/fund"
+	"balanceyourportfolio/generated/jet_gen/postgres/public/model"
+	"balanceyourportfolio/services/fund"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"

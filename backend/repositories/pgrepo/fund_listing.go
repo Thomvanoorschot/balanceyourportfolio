@@ -3,8 +3,8 @@ package pgrepo
 import (
 	"context"
 
-	"etfinsight/generated/jet_gen/postgres/public/model"
-	. "etfinsight/generated/jet_gen/postgres/public/table"
+	"balanceyourportfolio/generated/jet_gen/postgres/public/model"
+	. "balanceyourportfolio/generated/jet_gen/postgres/public/table"
 
 	"github.com/jackc/pgx/v5"
 )

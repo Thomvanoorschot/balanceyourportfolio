@@ -1,10 +1,10 @@
 package portfolio
 
 import (
-	"etfinsight/generated/jet_gen/postgres/public/model"
-	"etfinsight/generated/proto"
-	"etfinsight/services/fund"
-	"etfinsight/utils/stringutils"
+	"balanceyourportfolio/generated/jet_gen/postgres/public/model"
+	"balanceyourportfolio/generated/proto"
+	"balanceyourportfolio/services/fund"
+	"balanceyourportfolio/utils/stringutils"
 
 	"github.com/google/uuid"
 )

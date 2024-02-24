@@ -1,10 +1,10 @@
 package pgrepo
 
 import (
+	"balanceyourportfolio/generated/jet_gen/postgres/public/model"
+	. "balanceyourportfolio/generated/jet_gen/postgres/public/table"
+	"balanceyourportfolio/services/fund"
 	"context"
-	"etfinsight/generated/jet_gen/postgres/public/model"
-	. "etfinsight/generated/jet_gen/postgres/public/table"
-	"etfinsight/services/fund"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 	. "github.com/go-jet/jet/v2/postgres"

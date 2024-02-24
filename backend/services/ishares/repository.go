@@ -3,7 +3,7 @@ package ishares
 import (
 	"context"
 
-	"etfinsight/generated/jet_gen/postgres/public/model"
+	"balanceyourportfolio/generated/jet_gen/postgres/public/model"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"

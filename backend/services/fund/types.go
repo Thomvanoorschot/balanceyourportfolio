@@ -3,7 +3,7 @@ package fund
 import (
 	"time"
 
-	"etfinsight/generated/proto"
+	"balanceyourportfolio/generated/proto"
 
 	"github.com/google/uuid"
 )

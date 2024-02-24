@@ -1,10 +1,10 @@
 package clients
 
 import (
+	"balanceyourportfolio/services/ishares"
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"etfinsight/services/ishares"
 	"fmt"
 	"github.com/gocolly/colly/v2"
 	"io"
@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"etfinsight/config"
+	"balanceyourportfolio/config"
 )
 
 type IShares struct {

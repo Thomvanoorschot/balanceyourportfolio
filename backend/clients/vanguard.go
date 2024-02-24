@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"etfinsight/config"
+	"balanceyourportfolio/config"
 )
 
 type Vanguard struct {

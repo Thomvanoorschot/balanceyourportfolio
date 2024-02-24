@@ -1,12 +1,12 @@
 package vanguard
 
 import (
+	"balanceyourportfolio/generated/jet_gen/postgres/public/model"
+	"balanceyourportfolio/services/fund"
+	"balanceyourportfolio/utils/stringutils"
 	"context"
 	"encoding/json"
 	"errors"
-	"etfinsight/generated/jet_gen/postgres/public/model"
-	"etfinsight/services/fund"
-	"etfinsight/utils/stringutils"
 	"fmt"
 	"github.com/jackc/pgx/v5"
 	"io"

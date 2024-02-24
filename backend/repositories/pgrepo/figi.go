@@ -1,9 +1,8 @@
 package pgrepo
 
 import (
+	"balanceyourportfolio/generated/jet_gen/postgres/public/model"
 	"context"
-	"etfinsight/generated/jet_gen/postgres/public/model"
-	. "etfinsight/generated/jet_gen/postgres/public/table"
 	"fmt"
 	. "github.com/go-jet/jet/v2/postgres"
 	"github.com/jackc/pgx/v5"
