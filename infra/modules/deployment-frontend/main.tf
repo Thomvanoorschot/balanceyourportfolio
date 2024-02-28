@@ -58,7 +58,7 @@ resource "kubernetes_deployment" "default" {
           name              = var.component_name
           image             = var.image
           image_pull_policy = "Always"
-          command           = ["/app"]
+          command           = ["node", "build"]
 
           resources {
             requests = {
@@ -88,7 +88,7 @@ resource "kubernetes_deployment" "default" {
             success_threshold     = "1"
             failure_threshold     = "5"
             http_get {
-              path   = "healthz"
+              path   = "/api/healthz"
               port   = var.port
               scheme = "HTTP"
             }
@@ -101,7 +101,7 @@ resource "kubernetes_deployment" "default" {
             success_threshold     = "1"
             failure_threshold     = "5"
             http_get {
-              path   = "healthz"
+              path   = "/api/healthz"
               port   = var.port
               scheme = "HTTP"
             }

@@ -33,7 +33,7 @@ resource "kubernetes_deployment" "default" {
     selector {
       match_labels = local.labels
     }
-    replicas = 2
+    replicas = 1
 
     strategy {
       rolling_update {

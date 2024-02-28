@@ -1,5 +1,5 @@
 resource "digitalocean_loadbalancer" "ingress_load_balancer" {
-  name      = "${var.cluster_name}-load-balancer"
+  name      = "${var.project_name}-lb"
   region    = var.region
   algorithm = var.loadbalancer_algorithm
   size      = var.loadbalancer_size
@@ -22,8 +22,4 @@ resource "digitalocean_loadbalancer" "ingress_load_balancer" {
       forwarding_rule,
     ]
   }
-
-  depends_on = [
-    digitalocean_kubernetes_cluster.default
-  ]
 }

@@ -1,10 +1,11 @@
+// Digital Ocean
 variable "do_variables" {
   description = "Digital ocean variables"
   type = map(string)
 }
-variable top_level_domains {
-  description = "Top level domains to create records and pods for"
-  type    = list(string)
+variable "loadbalancer_id" {
+  description = "The id of the loadbalancer"
+  type = string
 }
 
 // Cluster
@@ -27,11 +28,7 @@ variable "node_pool_size" {
   type = string
   default = "s-1vcpu-2gb"
 }
-variable "node_pool_node_count" {
-  description = "Node pool node count of the k8s cluster"
-  type = number
-  default = 2
-}
+
 variable min_nodes {
   description = "The minimum number of nodes in the default pool"
   type        = number
@@ -44,20 +41,25 @@ variable max_nodes {
   default     = 3
 }
 
-// Loadbalancer
-variable "loadbalancer_algorithm" {
-  description = "The algorithm the loadbalancer users"
-  type = string
-  default = "round_robin"
+// Domains
+variable frontend_domain {
+  description = "The frontend domain"
+  type    = string
 }
-variable "loadbalancer_size" {
-  description = "Size of the loadbalancer"
-  type = string
-  default = "lb-small"
+
+variable frontend_port {
+  description = "The frontend port"
+  type    = number
 }
 
 // Environment
 variable "environment" {
   description = "The current environment"
   type = string
+}
+
+// Services
+variable frontend_service_name {
+  description = "The name of the frontend service"
+  type    = string
 }

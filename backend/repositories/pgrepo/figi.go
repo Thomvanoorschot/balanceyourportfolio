@@ -2,9 +2,11 @@ package pgrepo
 
 import (
 	"balanceyourportfolio/generated/jet_gen/postgres/public/model"
+	. "balanceyourportfolio/generated/jet_gen/postgres/public/table"
 	"context"
 	"fmt"
 	. "github.com/go-jet/jet/v2/postgres"
+
 	"github.com/jackc/pgx/v5"
 )
 

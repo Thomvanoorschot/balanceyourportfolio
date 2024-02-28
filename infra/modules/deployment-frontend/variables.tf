@@ -46,19 +46,19 @@ variable "max_pods" {
 variable "cpu_request" {
   type        = string
   description = "The CPU request for the pod"
-  default     = "500m"
+  default     = "200m"
 }
 
 variable "cpu_limit" {
   type        = string
   description = "The CPU limit for the pod"
-  default     = "1000m"
+  default     = "500m"
 }
 
 variable "memory_request" {
   type        = string
   description = "The memory request for the pod"
-  default     = "500Mi"
+  default     = "250Mi"
 }
 
 variable "memory_limit" {

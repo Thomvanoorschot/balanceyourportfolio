@@ -14,13 +14,11 @@ variable "environment" {
   description = "Environment of the cluster"
   type        = string
 }
-variable "project_resources" {
-  description = "The resources for the project"
-  type        = list(string)
-}
-variable top_level_domains {
-  description = "Top level domains to create records and pods for"
-  type    = list(string)
+
+// Domains
+variable frontend_domain {
+  description = "The frontend domain"
+  type    = string
 }
 
 // Deployments
@@ -58,4 +56,10 @@ variable "frontend_image" {
 variable "frontend_port" {
   description = "Port which the frontend runs on"
   type        = number
+}
+
+// LetsEncrypt
+variable "letsencrypt_email" {
+  description = "The email used for LetsEncrypt"
+  type        = string
 }
