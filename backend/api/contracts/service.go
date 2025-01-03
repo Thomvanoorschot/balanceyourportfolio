@@ -18,8 +18,6 @@ type PortfolioService interface {
 	GetPortfolioDetails(ctx context.Context, portfolioID uuid.UUID) (PortfolioDetails, error)
 }
 
-type UserService interface {
-}
+type UserService interface{}
 
-type VanguardService interface {
-}
+type VanguardService interface{}

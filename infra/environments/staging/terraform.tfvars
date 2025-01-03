@@ -18,9 +18,12 @@ frontend_component_name = "frontend"
 frontend_image          = "registry.digitalocean.com/balanceyourportfolio/frontend"
 frontend_port           = 3000
 frontend_vars = {
-  KINDE_ISSUER_URL     = "https://balanceyourportfolio-test.eu.kinde.com"
-  KINDE_CLIENT_ID      = "d24c661bb681479f83f49765d6dafbd3"
-  KINDE_CLIENT_SECRET  = "IlmsubGMBZ4vUrGoUVzKOza2cmzi1aiY2YcHjYww8Zo9mPfBzCDa"
-  KINDE_AUTH_WITH_PKCE = "false"
-  PROTO_FILES_LOCATION = "/app/proto/main.proto"
+  KINDE_ISSUER_URL               = "https://auth.balanceyourportfolio.com"
+  KINDE_CLIENT_ID                = "f290c7662ce94d0ca5328c7567691db1"
+  KINDE_CLIENT_SECRET            = "K2ltHxGiE5FsfIeoSIcpO4trNyFd0fh9wPL1XPQiadQifPgtGVG"
+  KINDE_REDIRECT_URL             = "https://balanceyourportfolio.com/api/auth/kinde_callback"
+  KINDE_POST_LOGOUT_REDIRECT_URL = "https://balanceyourportfolio.com/fund/overview"
+  KINDE_POST_LOGIN_REDIRECT_URL  = "https://balanceyourportfolio.com/fund/overview"
+  KINDE_AUTH_WITH_PKCE           = false
+  PROTO_FILES_LOCATION           = "/app/proto/main.proto"
 }
